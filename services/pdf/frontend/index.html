@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarywangPDF - Konverter & Editor PDF Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff5f7 0%, #f5e6f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            padding: 25px 0;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(255, 20, 147, 0.2);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar p {
+            font-size: 1em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.1);
+            border: 2px solid transparent;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 20, 147, 0.15);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 20, 147, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .upload-area {
+            border: 3px dashed #ff1493;
+            border-radius: 15px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe6f0 100%);
+        }
+
+        .upload-area:hover {
+            background: linear-gradient(135deg, #ffe6f0 0%, #ffd9e8 100%);
+            border-color: #ff69b4;
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            background: linear-gradient(135deg, #ffd9e8 0%, #ffc0d9 100%);
+            border-color: #ff1493;
+            transform: scale(1.02);
+        }
+
+        .upload-area h3 {
+            color: #ff1493;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .upload-area p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-input-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #ff1493, #ff69b4);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .file-input-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.3);
+        }
+
+        .file-list {
+            margin-top: 30px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe6f0 100%);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #ff1493;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(255, 20, 147, 0.15);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 2em;
+        }
+
+        .file-details h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-details p {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85em;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff1493, #ff69b4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 20, 147, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .btn-danger {
+            background: #ff6b9d;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff4d8f;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe6f0 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            border-color: #ff1493;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(255, 20, 147, 0.2);
+        }
+
+        .feature-card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #ff1493;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #f0f9ff;
+            color: #065f46;
+            border-color: #4ade80;
+        }
+
+        .alert-error {
+            background: #fff5f5;
+            color: #7f1d1d;
+            border-color: #f87171;
+        }
+
+        .alert-info {
+            background: #f0f9ff;
+            color: #0c4a6e;
+            border-color: #38bdf8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff1493;
+            box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #ff1493;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            margin-top: 30px;
+        }
+
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            color: #666;
+            margin-left: 20px;
+            line-height: 1.8;
+            font-size: 0.9em;
+        }
+
+        .tool-btn {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: #444;
+        }
+
+        .tool-btn:hover {
+            background: #fff0f5;
+            border-color: #ff1493;
+            color: #ff1493;
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, #ff1493, #ff69b4);
+            color: white;
+            border-color: #ff1493;
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .navbar h1 { font-size: 1.8em; }
+            .tab-btn { padding: 10px 15px; font-size: 0.85em; }
+            .tab-content { padding: 20px; }
+            .upload-area { padding: 30px 15px; }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-content">
+            <h1>💖 HarywangPDF</h1>
+            <p>Konverter & Editor PDF Online - Cepat, Aman, Gratis</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alertBox"></div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('home', event)">🏠 Beranda</button>
+            <button class="tab-btn" onclick="switchTab('merge', event)">🔗 Gabung</button>
+            <button class="tab-btn" onclick="switchTab('split', event)">✂️ Bagi</button>
+            <button class="tab-btn" onclick="switchTab('compress', event)">🗜️ Kompres</button>
+            <button class="tab-btn" onclick="switchTab('convert', event)">🔄 Konversi</button>
+            <button class="tab-btn" onclick="switchTab('edit', event)">✏️ Edit</button>
+        </div>
+
+        <!-- HOME TAB -->
+        <div id="home" class="tab-content active">
+            <h2 style="color: #ff1493; margin-bottom: 20px; font-size: 2em;">Selamat Datang! 👋</h2>
+            <p style="margin: 20px 0; color: #666; font-size: 1.05em;">Pilih fitur untuk memproses PDF Anda:</p>
+
+            <div class="feature-grid">
+                <div class="feature-card" onclick="switchTab('merge', event)">
+                    <div class="feature-card-icon">🔗</div>
+                    <h3>Gabung PDF</h3>
+                    <p>Gabungkan beberapa file PDF</p>
+                </div>
+                <div class="feature-card" onclick="switchTab('split', event)">
+                    <div class="feature-card-icon">✂️</div>
+                    <h3>Bagi PDF</h3>
+                    <p>Pisahkan halaman PDF</p>
+                </div>
+                <div class="feature-card" onclick="switchTab('compress', event)">
+                    <div class="feature-card-icon">🗜️</div>
+                    <h3>Kompres PDF</h3>
+                    <p>Kurangi ukuran file</p>
+                </div>
+                <div class="feature-card" onclick="switchTab('convert', event)">
+                    <div class="feature-card-icon">🔄</div>
+                    <h3>Konversi</h3>
+                    <p>Ubah ke Gambar atau Teks</p>
+                </div>
+                <div class="feature-card" onclick="switchTab('edit', event)">
+                    <div class="feature-card-icon">✏️</div>
+                    <h3>Edit PDF</h3>
+                    <p>Tambah teks & tanda tangan</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon">🔒</div>
+                    <h3>Aman & Cepat</h3>
+                    <p>Keamanan tingkat tinggi</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>✨ Keunggulan HarywangPDF</h3>
+                <ul>
+                    <li>✓ Tidak perlu registrasi</li>
+                    <li>✓ Diproses dengan aman di server</li>
+                    <li>✓ Gratis tanpa batasan</li>
+                    <li>✓ Mendukung semua format PDF</li>
+                    <li>✓ Interface modern dan mudah</li>
+                    <li>✓ Proses cepat berkualitas tinggi</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MERGE TAB -->
+        <div id="merge" class="tab-content">
+            <h2 style="color: #ff1493; margin-bottom: 20px;">🔗 Gabung PDF</h2>
+            <p style="color: #666; margin: 20px 0;">Pilih 2+ file untuk digabungkan</p>
+
+            <div class="upload-area" id="mergeUpload">
+                <div class="upload-icon">📁</div>
+                <h3>Seret file di sini</h3>
+                <p>atau klik untuk memilih</p>
+                <button class="file-input-btn">Pilih File</button>
+            </div>
+
+            <div id="mergeFileList" class="file-list"></div>
+            <button class="btn btn-primary" id="mergeBtnProcess" style="margin-top: 20px; display: none; width: 100%;">✓ Gabungkan PDF</button>
+            <div id="mergeLoading" class="loading"><div class="spinner"></div><p>Sedang menggabungkan...</p></div>
+        </div>
+
+        <!-- SPLIT TAB -->
+        <div id="split" class="tab-content">
+            <h2 style="color: #ff1493; margin-bottom: 20px;">✂️ Bagi PDF</h2>
+            <p style="color: #666; margin: 20px 0;">Pisahkan halaman yang Anda butuhkan</p>
+
+            <div class="upload-area" id="splitUpload">
+                <div class="upload-icon">📁</div>
+                <h3>Seret file di sini</h3>
+                <button class="file-input-btn">Pilih File</button>
+            </div>
+
+            <div id="splitOptions" style="display: none; margin-top: 30px;">
+                <div class="form-group">
+                    <label>📄 Halaman yang diambil:</label>
+                    <input type="text" id="splitPages" placeholder="Contoh: 1-5, 7, 9-10" />
+                </div>
+                <button class="btn btn-primary" onclick="processSplitPDF()" style="width: 100%;">✓ Bagi PDF</button>
+            </div>
+
+            <div id="splitLoading" class="loading"><div class="spinner"></div><p>Sedang membagi...</p></div>
+        </div>
+
+        <!-- COMPRESS TAB -->
+        <div id="compress" class="tab-content">
+            <h2 style="color: #ff1493; margin-bottom: 20px;">🗜️ Kompres PDF</h2>
+            <p style="color: #666; margin: 20px 0;">Kurangi ukuran file dengan mudah</p>
+
+            <div class="upload-area" id="compressUpload">
+                <div class="upload-icon">📁</div>
+                <h3>Seret file di sini</h3>
+                <button class="file-input-btn">Pilih File</button>
+            </div>
+
+            <div id="compressOptions" style="display: none; margin-top: 30px;">
+                <div class="form-group">
+                    <label>⚙️ Tingkat Kompresi:</label>
+                    <select id="compressionLevel">
+                        <option value="low">Rendah (Kualitas Tinggi)</option>
+                        <option value="medium" selected>Sedang (Seimbang)</option>
+                        <option value="high">Tinggi (File Kecil)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="processCompressPDF()" style="width: 100%;">✓ Kompres</button>
+            </div>
+
+            <div id="compressLoading" class="loading"><div class="spinner"></div><p>Sedang mengompres...</p></div>
+        </div>
+
+        <!-- CONVERT TAB -->
+        <div id="convert" class="tab-content">
+            <h2 style="color: #ff1493; margin-bottom: 20px;">🔄 Konversi PDF</h2>
+            <p style="color: #666; margin: 20px 0;">Ubah PDF ke format lain</p>
+
+            <div class="upload-area" id="convertUpload">
+                <div class="upload-icon">📁</div>
+                <h3>Seret file di sini</h3>
+                <button class="file-input-btn">Pilih File</button>
+            </div>
+
+            <div id="convertOptions" style="display: none; margin-top: 30px;">
+                <div class="form-group">
+                    <label>📋 Format tujuan:</label>
+                    <select id="convertFormat">
+                        <option value="image">Gambar (.png)</option>
+                        <option value="text">Teks (.txt)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="processConvertPDF()" style="width: 100%;">✓ Konversi</button>
+            </div>
+
+            <div id="convertLoading" class="loading"><div class="spinner"></div><p>Sedang mengkonversi...</p></div>
+        </div>
+
+        <!-- EDIT TAB -->
+        <div id="edit" class="tab-content">
+            <h2 style="color: #ff1493; margin-bottom: 20px;">✏️ Edit PDF</h2>
+            <p style="color: #666; margin: 20px 0;">Upload dan edit dengan tools lengkap</p>
+
+            <div class="upload-area" id="editUpload">
+                <div class="upload-icon">📁</div>
+                <h3>Seret file di sini</h3>
+                <button class="file-input-btn">Pilih File</button>
+            </div>
+
+            <div id="editContainer" style="display: none; margin-top: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden;">
+                <!-- Toolbar - Top -->
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 12px 15px; border-bottom: 2px solid #ff1493; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; overflow-x: auto;">
+                    <!-- Text Tools -->
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <span style="font-size: 11px; font-weight: 600; color: #666; margin-right: 4px;">TEXT</span>
+                        <button id="toolText" class="tool-btn" onclick="setEditTool('text')" title="Add Text">📝 Teks</button>
+                        <button id="toolEditText" class="tool-btn" onclick="setEditTool('edittext')" title="Edit Text">✎️ Edit</button>
+                    </div>
+
+                    <div style="width: 1px; height: 24px; background: #ddd;"></div>
+
+                    <!-- Drawing Tools -->
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <span style="font-size: 11px; font-weight: 600; color: #666; margin-right: 4px;">DRAW</span>
+                        <button id="toolDraw" class="tool-btn" onclick="setEditTool('draw')" title="Draw">✏️ Gambar</button>
+                        <button id="toolLine" class="tool-btn" onclick="setEditTool('line')" title="Line">📏 Garis</button>
+                        <button id="toolErase" class="tool-btn" onclick="setEditTool('erase')" title="Erase">🧹 Hapus</button>
+                    </div>
+
+                    <div style="width: 1px; height: 24px; background: #ddd;"></div>
+
+                    <!-- Highlight Tools -->
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <span style="font-size: 11px; font-weight: 600; color: #666; margin-right: 4px;">SOROT</span>
+                        <button id="toolHighlight" class="tool-btn" onclick="setEditTool('highlight')" title="Highlight">🟡 Highlight</button>
+                        <button id="toolSign" class="tool-btn" onclick="setEditTool('sign')" title="Sign">🖊️ Tanda Tangan</button>
+                    </div>
+
+                    <div style="width: 1px; height: 24px; background: #ddd;"></div>
+
+                    <!-- Properties -->
+                    <div style="display: flex; gap: 8px; align-items: center; margin-left: auto;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+                            <span style="font-weight: 600; color: #666;">Warna:</span>
+                            <input type="color" id="editColor" value="#ff1493" style="width: 32px; height: 32px; border: 2px solid #ff1493; border-radius: 6px; cursor: pointer;" />
+                        </label>
+
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+                            <span style="font-weight: 600; color: #666;">Ukuran:</span>
+                            <input type="range" id="editSize" min="1" max="20" value="3" style="width: 80px; cursor: pointer;" />
+                            <span id="sizeDisplay" style="min-width: 25px; font-weight: 600; color: #ff1493;">3</span>
+                        </label>
+
+                        <button id="toolSelect" class="tool-btn active" onclick="setEditTool('select')" title="Select" style="margin-left: 8px;">↖️ Select</button>
+                    </div>
+                </div>
+
+                <!-- Main Editor Layout -->
+                <div style="display: flex; gap: 0; background: #f8f9fa; min-height: 700px;">
+                    <!-- PDF Canvas Area - Main -->
+                    <div style="flex: 1; background: white; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow: auto; border-right: 1px solid #e0e0e0;">
+                        <div style="position: relative; display: inline-block; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                            <canvas id="pdfRenderCanvas" style="border: 2px solid #ddd; background: white; display: block; max-width: 100%;"></canvas>
+                            <canvas id="editDrawCanvas" style="position: absolute; top: 0; left: 0; cursor: crosshair;"></canvas>
+                        </div>
+                        
+                        <!-- Page Navigation -->
+                        <div style="margin-top: 20px; display: flex; gap: 15px; align-items: center; background: #f0f0f0; padding: 12px 20px; border-radius: 10px;">
+                            <button class="btn btn-small" id="prevPageBtn" onclick="prevEditPage()" style="padding: 8px 16px;">← Halaman Sebelumnya</button>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-weight: bold; font-size: 14px;">Halaman</span>
+                                <span style="background: white; padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; color: #ff1493;">
+                                    <span id="currentPageDisplay">1</span> / <span id="totalPageDisplay">1</span>
+                                </span>
+                            </div>
+                            <button class="btn btn-small" id="nextPageBtn" onclick="nextEditPage()" style="padding: 8px 16px;">Halaman Selanjutnya →</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar -->
+                    <div style="flex: 0 0 320px; background: #fafafa; padding: 20px; border-left: 1px solid #e0e0e0; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Action Buttons -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 10px;">
+                            <button class="btn btn-primary" onclick="saveEditedPDF()" style="width: 100%; padding: 12px;">💾 Simpan & Download</button>
+                            <button class="btn btn-secondary" onclick="resetEditCanvas()" style="width: 100%; padding: 12px;">🔄 Bersihkan Editan</button>
+                        </div>
+
+                        <!-- Tool Info -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                            <h4 style="color: #ff1493; margin-bottom: 10px; font-size: 13px;">🎨 Tool Info</h4>
+                            <p id="toolInfo" style="font-size: 12px; color: #666; line-height: 1.6;">Pilih tool di toolbar untuk mulai mengedit PDF</p>
+                        </div>
+
+                        <!-- Editing Tips -->
+                        <div style="background: linear-gradient(135deg, #fff5f7 0%, #ffe6f0 100%); padding: 15px; border-radius: 10px; border-left: 4px solid #ff1493;">
+                            <h4 style="color: #ff1493; margin-bottom: 10px; font-size: 13px; font-weight: 600;">💡 Tips Penggunaan</h4>
+                            <ul style="font-size: 12px; color: #666; line-height: 1.8; margin-left: 20px;">
+                                <li><strong>Teks:</strong> Klik lokasi untuk tambah teks</li>
+                                <li><strong>Gambar:</strong> Klik & drag untuk menggambar</li>
+                                <li><strong>Garis:</strong> Drag untuk buat garis lurus</li>
+                                <li><strong>Highlight:</strong> Drag untuk sorot area</li>
+                                <li><strong>Ganda-klik:</strong> Edit teks yang ada</li>
+                                <li><strong>Delete:</strong> Hapus elemen terpilih</li>
+                            </ul>
+                        </div>
+
+                        <!-- Document Info -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                            <h4 style="color: #666; margin-bottom: 10px; font-size: 13px;">📄 Info Dokumen</h4>
+                            <div style="font-size: 12px; color: #666; line-height: 1.8;">
+                                <p><strong>Nama File:</strong> <span id="fileName" style="color: #ff1493;">-</span></p>
+                                <p><strong>Total Halaman:</strong> <span id="totalPages" style="color: #ff1493;">-</span></p>
+                                <p><strong>Halaman Aktif:</strong> <span id="activePageInfo" style="color: #ff1493;">1</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="editLoading" class="loading"><div class="spinner"></div><p>Sedang memproses...</p></div>
+        </div>
+    </div>
+
+    <script>
+        // Support running behind proxy (e.g., /pdf/) or standalone
+        let basePath = window.location.pathname.replace(/\/+$/, '');
+        let API_URL = window.location.protocol === 'file:' ? 'http://localhost:3000/api' : (window.location.origin + basePath + '/api');
+        
+        let uploadedFiles = { merge: [], split: null, compress: null, convert: null, edit: null };
+        let editState = { pdf: null, file: null, currentPage: 1, currentTool: 'select', scale: 1.5, history: [], historyIndex: -1, textObjects: {}, selectedText: null, isDrawing: false, startX: 0, startY: 0, pendingEdits: [] };
+        let pdfCanvas, editCanvas, pdfCtx, editCtx;
+
+        async function fetchWithRetry(url, options = {}, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    return await fetch(url, { ...options, timeout: 30000 });
+                } catch (error) {
+                    if (i === retries - 1) throw new Error('Server tidak merespons. Pastikan berjalan di ' + API_URL);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        function switchTab(tabName, evt) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) targetTab.classList.add('active');
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+        }
+
+        function setupUploadArea(areaId, feature) {
+            const area = document.getElementById(areaId);
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = (feature === 'merge');
+            input.accept = '.pdf';
+            area.appendChild(input);
+
+            area.addEventListener('click', () => input.click());
+            area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('dragover'); });
+            area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+            area.addEventListener('drop', (e) => { e.preventDefault(); area.classList.remove('dragover'); input.files = e.dataTransfer.files; handleFileSelect(input.files, feature); });
+            input.addEventListener('change', (e) => handleFileSelect(e.target.files, feature));
+        }
+
+        function handleFileSelect(files, feature) {
+            if (files.length === 0) return;
+            if (feature === 'merge') {
+                uploadedFiles.merge = Array.from(files);
+                displayMergeFiles();
+                showAlert(files.length + ' file dipilih ✓', 'success');
+            } else if (feature === 'edit') {
+                handleEditUpload(files[0]);
+            } else {
+                uploadedFiles[feature] = files[0];
+                if (feature === 'split') {
+                    document.getElementById('splitOptions').style.display = 'block';
+                    showAlert('File dipilih: ' + files[0].name, 'success');
+                } else if (feature === 'compress') {
+                    document.getElementById('compressOptions').style.display = 'block';
+                    showAlert('File dipilih: ' + files[0].name, 'success');
+                } else if (feature === 'convert') {
+                    document.getElementById('convertOptions').style.display = 'block';
+                    showAlert('File dipilih: ' + files[0].name, 'success');
+                }
+            }
+        }
+
+        function displayMergeFiles() {
+            const fileList = document.getElementById('mergeFileList');
+            fileList.innerHTML = '';
+            uploadedFiles.merge.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `<div class="file-info"><div class="file-icon">📄</div><div class="file-details"><h4>${file.name}</h4><p>${(file.size / 1024 / 1024).toFixed(2)} MB</p></div></div><button class="btn btn-danger btn-small" onclick="removeMergeFile(${index})">Hapus</button>`;
+                fileList.appendChild(fileItem);
+            });
+            document.getElementById('mergeBtnProcess').style.display = uploadedFiles.merge.length > 0 ? 'block' : 'none';
+        }
+
+        function removeMergeFile(index) {
+            uploadedFiles.merge.splice(index, 1);
+            displayMergeFiles();
+        }
+
+        async function mergePDFs() {
+            if (uploadedFiles.merge.length < 2) { showAlert('Pilih minimal 2 file PDF', 'error'); return; }
+            const formData = new FormData();
+            uploadedFiles.merge.forEach(file => formData.append('files', file));
+            showLoading('merge', true);
+            try {
+                const response = await fetchWithRetry(API_URL + '/merge', { method: 'POST', body: formData });
+                const data = await response.json();
+                showLoading('merge', false);
+                if (response.ok) {
+                    showAlert('✓ PDF berhasil digabungkan!', 'success');
+                    setTimeout(() => { window.location.href = API_URL + '/download/' + data.file; }, 500);
+                    uploadedFiles.merge = [];
+                    displayMergeFiles();
+                } else {
+                    showAlert('Error: ' + (data.error || 'Unknown'), 'error');
+                }
+            } catch (error) {
+                showLoading('merge', false);
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function processSplitPDF() {
+            const pages = document.getElementById('splitPages').value;
+            if (!pages || !uploadedFiles.split) { showAlert('Masukkan nomor halaman', 'error'); return; }
+            const formData = new FormData();
+            formData.append('file', uploadedFiles.split);
+            formData.append('pages', pages);
+            showLoading('split', true);
+            try {
+                const response = await fetchWithRetry(API_URL + '/split', { method: 'POST', body: formData });
+                const data = await response.json();
+                showLoading('split', false);
+                if (response.ok) {
+                    showAlert('✓ PDF berhasil dibagi!', 'success');
+                    setTimeout(() => { window.location.href = API_URL + '/download/' + data.file; }, 500);
+                } else {
+                    showAlert('Error: ' + (data.error || 'Unknown'), 'error');
+                }
+            } catch (error) {
+                showLoading('split', false);
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function processCompressPDF() {
+            if (!uploadedFiles.compress) { showAlert('Pilih file PDF', 'error'); return; }
+            const formData = new FormData();
+            formData.append('file', uploadedFiles.compress);
+            formData.append('level', document.getElementById('compressionLevel').value);
+            showLoading('compress', true);
+            try {
+                const response = await fetchWithRetry(API_URL + '/compress', { method: 'POST', body: formData });
+                const data = await response.json();
+                showLoading('compress', false);
+                if (response.ok) {
+                    showAlert('✓ PDF berhasil dikompres!', 'success');
+                    setTimeout(() => { window.location.href = API_URL + '/download/' + data.file; }, 500);
+                } else {
+                    showAlert('Error: ' + (data.error || 'Unknown'), 'error');
+                }
+            } catch (error) {
+                showLoading('compress', false);
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function processConvertPDF() {
+            if (!uploadedFiles.convert) { showAlert('Pilih file PDF', 'error'); return; }
+            const formData = new FormData();
+            formData.append('file', uploadedFiles.convert);
+            formData.append('format', document.getElementById('convertFormat').value);
+            showLoading('convert', true);
+            try {
+                const response = await fetchWithRetry(API_URL + '/convert', { method: 'POST', body: formData });
+                const data = await response.json();
+                showLoading('convert', false);
+                if (response.ok) {
+                    showAlert('✓ PDF berhasil dikonversi!', 'success');
+                    setTimeout(() => { window.location.href = API_URL + '/download/' + data.file; }, 500);
+                } else {
+                    showAlert('Error: ' + (data.error || 'Unknown'), 'error');
+                }
+            } catch (error) {
+                showLoading('convert', false);
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function handleEditUpload(file) {
+            uploadedFiles.edit = file;
+            editState.file = file;
+            showLoading('edit', true);
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                await initPDFEditor(arrayBuffer);
+                showLoading('edit', false);
+                document.getElementById('editContainer').style.display = 'block';
+                pdfCanvas = document.getElementById('pdfRenderCanvas');
+                pdfCtx = pdfCanvas.getContext('2d');
+                editCanvas = document.getElementById('editDrawCanvas');
+                editCtx = editCanvas.getContext('2d');
+                
+                // Update document info
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('totalPages').textContent = editState.pdf.numPages;
+                
+                setupCanvasEvents();
+                await renderEditPage(1);
+            } catch (error) {
+                showLoading('edit', false);
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function initPDFEditor(arrayBuffer) {
+            return new Promise((resolve) => {
+                if (!window.pdfjsLib) {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                    script.onload = async () => {
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                        editState.pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        resolve();
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    (async () => {
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                        editState.pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        resolve();
+                    })();
+                }
+            });
+        }
+
+        async function renderEditPage(pageNum) {
+            try {
+                const pdf = editState.pdf;
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: editState.scale });
+                pdfCanvas.width = viewport.width;
+                pdfCanvas.height = viewport.height;
+                await page.render({ canvasContext: pdfCtx, viewport: viewport }).promise;
+                editCanvas.width = viewport.width;
+                editCanvas.height = viewport.height;
+                editCtx.clearRect(0, 0, editCanvas.width, editCanvas.height);
+                document.getElementById('currentPageDisplay').textContent = pageNum;
+                document.getElementById('totalPageDisplay').textContent = pdf.numPages;
+                document.getElementById('activePageInfo').textContent = pageNum;
+                document.getElementById('prevPageBtn').disabled = pageNum === 1;
+                document.getElementById('nextPageBtn').disabled = pageNum === pdf.numPages;
+                editState.currentPage = pageNum;
+                if (!editState.textObjects[pageNum]) editState.textObjects[pageNum] = [];
+                editState.selectedText = null;
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        function setupCanvasEvents() {
+            editCanvas.addEventListener('mousedown', handleCanvasMouseDown);
+            editCanvas.addEventListener('mousemove', handleCanvasMouseMove);
+            editCanvas.addEventListener('mouseup', handleCanvasMouseUp);
+        }
+
+        function handleCanvasMouseDown(e) {
+            const rect = editCanvas.getBoundingClientRect();
+            editState.startX = e.clientX - rect.left;
+            editState.startY = e.clientY - rect.top;
+            editState.isDrawing = true;
+            if (editState.currentTool === 'text') {
+                const obj = { x: editState.startX, y: editState.startY, text: 'Teks baru', color: document.getElementById('editColor').value, size: 16, fontFamily: 'Arial' };
+                getTextArray().push(obj);
+                openTextEditor(obj);
+                editState.isDrawing = false;
+            }
+        }
+
+        function handleCanvasMouseMove(e) {
+            if (!editState.isDrawing) return;
+            const rect = editCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            if (editState.currentTool === 'draw') {
+                drawLine(editState.startX, editState.startY, currentX, currentY);
+                editState.startX = currentX;
+                editState.startY = currentY;
+            } else if (editState.currentTool === 'highlight') {
+                redrawAll();
+                drawHighlight(editState.startX, editState.startY, currentX, currentY);
+            }
+        }
+
+        function handleCanvasMouseUp(e) {
+            editState.isDrawing = false;
+        }
+
+        function drawLine(fromX, fromY, toX, toY) {
+            const color = document.getElementById('editColor').value;
+            editCtx.strokeStyle = color;
+            editCtx.lineWidth = 2;
+            editCtx.lineCap = 'round';
+            editCtx.beginPath();
+            editCtx.moveTo(fromX, fromY);
+            editCtx.lineTo(toX, toY);
+            editCtx.stroke();
+        }
+
+        function drawHighlight(x1, y1, x2, y2) {
+            const x = Math.min(x1, x2), y = Math.min(y1, y2), width = Math.abs(x2 - x1), height = Math.abs(y2 - y1);
+            editCtx.fillStyle = 'rgba(255, 20, 147, 0.2)';
+            editCtx.fillRect(x, y, width, height);
+        }
+
+        function getTextArray() {
+            if (!editState.textObjects[editState.currentPage]) editState.textObjects[editState.currentPage] = [];
+            return editState.textObjects[editState.currentPage];
+        }
+
+        function redrawAll() {
+            editCtx.clearRect(0, 0, editCanvas.width, editCanvas.height);
+            const arr = getTextArray();
+            arr.forEach(obj => {
+                editCtx.fillStyle = obj.color || '#000';
+                editCtx.font = obj.size + 'px ' + (obj.fontFamily || 'Arial');
+                editCtx.fillText(obj.text, obj.x, obj.y);
+            });
+        }
+
+        function openTextEditor(obj) {
+            const existing = document.getElementById('textEditorContainer');
+            if (existing) existing.remove();
+            const containerRect = editCanvas.getBoundingClientRect();
+            const editorContainer = document.createElement('div');
+            editorContainer.id = 'textEditorContainer';
+            editorContainer.style.cssText = 'position: fixed; left: ' + (containerRect.left + obj.x) + 'px; top: ' + (containerRect.top + obj.y - 80) + 'px; background: white; border: 2px solid #ff1493; border-radius: 8px; box-shadow: 0 8px 25px rgba(255, 20, 147, 0.2); z-index: 10000; min-width: 350px;';
+            const textarea = document.createElement('textarea');
+            textarea.value = obj.text;
+            textarea.style.cssText = 'width: 100%; min-height: 100px; padding: 12px; border: none; font-size: 14px; font-family: Arial; resize: vertical;';
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = 'display: flex; gap: 8px; padding: 10px; border-top: 1px solid #e0e0e0; background: #f5f5f5;';
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = '✓ Simpan';
+            saveBtn.className = 'btn btn-small btn-primary';
+            saveBtn.style.flex = '1';
+            saveBtn.onclick = () => {
+                obj.text = textarea.value;
+                redrawAll();
+                editorContainer.remove();
+                showAlert('✓ Teks diperbarui', 'success');
+            };
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = '✕ Batal';
+            cancelBtn.className = 'btn btn-small btn-secondary';
+            cancelBtn.style.flex = '1';
+            cancelBtn.onclick = () => editorContainer.remove();
+            buttonContainer.appendChild(saveBtn);
+            buttonContainer.appendChild(cancelBtn);
+            editorContainer.appendChild(textarea);
+            editorContainer.appendChild(buttonContainer);
+            document.body.appendChild(editorContainer);
+            textarea.focus();
+        }
+
+        function setEditTool(tool) {
+            editState.currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            
+            const toolBtnMap = { 
+                'select': 'toolSelect', 
+                'text': 'toolText', 
+                'edittext': 'toolEditText',
+                'draw': 'toolDraw', 
+                'line': 'toolLine',
+                'erase': 'toolErase',
+                'highlight': 'toolHighlight',
+                'sign': 'toolSign'
+            };
+            
+            if (toolBtnMap[tool]) document.getElementById(toolBtnMap[tool]).classList.add('active');
+            
+            const cursorMap = {
+                'text': 'text',
+                'draw': 'crosshair',
+                'line': 'crosshair',
+                'erase': 'cell',
+                'highlight': 'crosshair',
+                'sign': 'crosshair',
+                'edittext': 'pointer'
+            };
+            editCanvas.style.cursor = cursorMap[tool] || 'default';
+
+            // Update tool info
+            const toolInfos = {
+                'select': 'Pilih & manipulasi elemen. Klik untuk pilih, drag untuk pindahkan.',
+                'text': 'Tambah teks baru. Klik lokasi untuk menambah teks. Atur ukuran & warna sebelum menambah.',
+                'edittext': 'Edit teks yang ada. Klik teks untuk pilih, ganda-klik untuk edit isi.',
+                'draw': 'Gambar bebas. Klik & drag untuk menggambar dengan goresan halus.',
+                'line': 'Buat garis lurus. Klik & drag dari awal ke akhir garis.',
+                'erase': 'Hapus area. Klik untuk hapus bagian dari gambar atau tulisan.',
+                'highlight': 'Sorot area. Drag untuk menyorot wilayah dengan warna transparan.',
+                'sign': 'Tanda tangan digital. Klik & drag untuk membuat tanda tangan.'
+            };
+            
+            const toolInfo = document.getElementById('toolInfo');
+            if (toolInfo) {
+                toolInfo.textContent = toolInfos[tool] || 'Pilih tool untuk mulai mengedit.';
+            }
+        }
+
+        function prevEditPage() {
+            if (editState.currentPage > 1) renderEditPage(editState.currentPage - 1);
+        }
+
+        function nextEditPage() {
+            if (editState.pdf && editState.currentPage < editState.pdf.numPages) renderEditPage(editState.currentPage + 1);
+        }
+
+        function resetEditCanvas() {
+            if (editCanvas && editCtx) {
+                editCtx.clearRect(0, 0, editCanvas.width, editCanvas.height);
+                editState.textObjects = {};
+                editState.pendingEdits = [];
+                showAlert('🔄 Editan dihapus', 'success');
+            }
+        }
+
+        async function saveEditedPDF() {
+            if (!uploadedFiles.edit) { showAlert('Tidak ada file', 'error'); return; }
+            const formData = new FormData();
+            formData.append('file', uploadedFiles.edit);
+            formData.append('editMode', 'batch');
+            formData.append('edits', JSON.stringify(editState.pendingEdits || []));
+            const total = editState.pdf ? editState.pdf.numPages : 0;
+            for (let p = 1; p <= total; p++) {
+                const page = await editState.pdf.getPage(p);
+                const viewport = page.getViewport({ scale: editState.scale });
+                const oc = document.createElement('canvas');
+                oc.width = Math.round(viewport.width);
+                oc.height = Math.round(viewport.height);
+                const octx = oc.getContext('2d');
+                const arr = editState.textObjects && editState.textObjects[p] ? editState.textObjects[p] : [];
+                arr.forEach(obj => {
+                    octx.fillStyle = obj.color || '#000';
+                    octx.font = obj.size + 'px ' + (obj.fontFamily || 'Arial');
+                    octx.fillText(obj.text, obj.x, obj.y);
+                });
+                if (p === editState.currentPage) {
+                    try { octx.drawImage(editCanvas, 0, 0); } catch (e) {}
+                }
+                const blob = await new Promise(resolve => oc.toBlob(resolve, 'image/png'));
+                if (blob) formData.append('overlays', blob, 'overlay-page-' + p + '-cw-' + oc.width + '-ch-' + oc.height + '.png');
+            }
+            showLoading('edit', true);
+            try {
+                const response = await fetchWithRetry(API_URL + '/edit', { method: 'POST', body: formData });
+                const data = await response.json();
+                showLoading('edit', false);
+                if (response.ok && data && data.file) {
+                    editState.pendingEdits = [];
+                    showAlert('✓ PDF berhasil disimpan!', 'success');
+                    setTimeout(() => { window.location.href = API_URL + '/download/' + data.file; }, 500);
+                } else {
+                    showAlert('Error: ' + (data.error || 'Unknown'), 'error');
+                }
+            } catch (error) {
+                showLoading('edit', false);
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-' + type;
+            alert.innerHTML = message;
+            alertBox.innerHTML = '';
+            alertBox.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function showLoading(feature, show) {
+            const loadingId = feature + 'Loading';
+            const loading = document.getElementById(loadingId);
+            if (loading) loading.style.display = show ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUploadArea('mergeUpload', 'merge');
+            setupUploadArea('splitUpload', 'split');
+            setupUploadArea('compressUpload', 'compress');
+            setupUploadArea('convertUpload', 'convert');
+            setupUploadArea('editUpload', 'edit');
+            document.getElementById('mergeBtnProcess').addEventListener('click', mergePDFs);
+            
+            // Update size display
+            const sizeSlider = document.getElementById('editSize');
+            if (sizeSlider) {
+                sizeSlider.addEventListener('input', (e) => {
+                    document.getElementById('sizeDisplay').textContent = e.target.value;
+                });
+            }
+            
+            setEditTool('select');
+            console.log('✓ HarywangPDF loaded successfully!');
+        });
+    </script>
+</body>
+</html>

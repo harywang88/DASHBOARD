@@ -1,0 +1,17 @@
+{
+  "name": "harywang-dashboard",
+  "version": "1.0.0",
+  "description": "Harywang Dashboard - Convert & PDF Tools",
+  "main": "server.js",
+  "scripts": {
+    "start": "node start.js",
+    "dashboard": "node server.js",
+    "install:all": "npm install && cd services/convert && npm install && cd ../pdf/backend && npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  },
+  "author": "Harywang",
+  "license": "MIT"
+}

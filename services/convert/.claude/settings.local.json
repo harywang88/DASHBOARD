@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(node:*)",
+      "Bash(where:*)",
+      "Bash(winget install:*)",
+      "Bash(curl:*)",
+      "Bash(dir:*)",
+      "Bash(fly version:*)",
+      "Bash(\"/c/Users/DARA BRANDSTORE/.fly/bin/flyctl\" launch --no-deploy --name cloudconvert-local --region sin --yes)",
+      "Bash(\"/c/Users/DARA BRANDSTORE/.fly/bin/flyctl\" certs check harywang.online --app cloudconvert-local)"
+    ]
+  }
+}

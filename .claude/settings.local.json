@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"$env:TEMP\")",
+      "Bash(powershell -Command \"wsl -d Ubuntu-22.04 -u root -- bash -c 'tail -20 /var/log/hestia/auth.log 2>/dev/null || tail -20 /usr/local/hestia/log/auth.log 2>/dev/null'\":*)",
+      "Bash(powershell -Command:*)"
+    ]
+  }
+}

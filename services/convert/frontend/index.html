@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HarywangConvert - File Converter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-pink: #ff006e;
+      --primary-purple: #b60ea8;
+      --light-pink: #ffb3d9;
+      --dark-bg: #0f0f1e;
+      --card-bg: #1a1a2e;
+      --text-light: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --success: #00ff88;
+      --error: #ff4466;
+      --warning: #ffaa00;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a0f2e 100%);
+      color: var(--text-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-purple) 100%);
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(255, 0, 110, 0.3);
+    }
+
+    .header h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .tools-status {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .tool-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: help;
+    }
+
+    .tool-badge.available {
+      background: rgba(0, 255, 136, 0.2);
+    }
+
+    .tool-badge.unavailable {
+      background: rgba(255, 68, 102, 0.2);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: rgba(255, 0, 110, 0.1);
+      border: 2px solid rgba(255, 0, 110, 0.2);
+      color: var(--text-light);
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--primary-pink);
+      background: rgba(255, 0, 110, 0.15);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+      border-color: var(--primary-pink);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      border: 2px solid rgba(255, 0, 110, 0.1);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 0, 110, 0.3);
+      box-shadow: 0 20px 60px rgba(255, 0, 110, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--light-pink), var(--primary-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .drop-zone {
+      border: 3px dashed rgba(255, 0, 110, 0.3);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 0, 110, 0.02);
+      margin-bottom: 20px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--primary-pink);
+      background: rgba(255, 0, 110, 0.05);
+      transform: scale(1.02);
+    }
+
+    .drop-zone-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.6;
+      transition: transform 0.3s ease;
+    }
+
+    .drop-zone:hover .drop-zone-icon,
+    .drop-zone.dragover .drop-zone-icon {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+
+    .drop-zone p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin: 10px 0;
+    }
+
+    .drop-zone p strong {
+      color: var(--primary-pink);
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    #fileInput, #optimizeFileInput {
+      display: none;
+    }
+
+    .file-item {
+      background: rgba(255, 0, 110, 0.05);
+      border: 1px solid rgba(255, 0, 110, 0.2);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .file-item:hover {
+      background: rgba(255, 0, 110, 0.1);
+      border-color: rgba(255, 0, 110, 0.4);
+    }
+
+    .file-info {
+      flex: 1;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: var(--light-pink);
+      margin-bottom: 5px;
+      word-break: break-all;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .btn-remove {
+      background: var(--error);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-remove:hover {
+      background: #ff2244;
+      transform: scale(1.05);
+    }
+
+    .format-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .format-btn {
+      background: rgba(255, 0, 110, 0.1);
+      border: 2px solid rgba(255, 0, 110, 0.2);
+      color: var(--text-light);
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .format-btn:hover {
+      border-color: var(--primary-pink);
+      background: rgba(255, 0, 110, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .format-btn.active {
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+      border-color: var(--primary-pink);
+      box-shadow: 0 10px 30px rgba(255, 0, 110, 0.3);
+    }
+
+    .format-category {
+      margin-bottom: 20px;
+    }
+
+    .format-category h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--light-pink);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 0, 110, 0.2);
+      color: var(--text-light);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="url"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-pink);
+      box-shadow: 0 0 0 3px rgba(255, 0, 110, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    textarea {
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+    }
+
+    .btn-convert {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(255, 0, 110, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-convert:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(255, 0, 110, 0.4);
+    }
+
+    .btn-convert:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .progress-container {
+      background: rgba(255, 0, 110, 0.08);
+      border: 1px solid rgba(255, 0, 110, 0.2);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .progress-container.active {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: rgba(255, 0, 110, 0.15);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 15px 0;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-pink), var(--primary-purple), var(--light-pink));
+      background-size: 200% 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
+      animation: progressGlow 2s ease-in-out infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes progressGlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .progress-text {
+      font-size: 14px;
+      color: var(--text-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-text .spinner {
+      width: 18px;
+      height: 18px;
+      border-width: 2px;
+    }
+
+    .progress-percent {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--light-pink);
+    }
+
+    .result-container {
+      margin-top: 20px;
+    }
+
+    .result-box {
+      background: rgba(255, 0, 110, 0.05);
+      border: 2px solid rgba(255, 0, 110, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      display: none;
+    }
+
+    .result-box.active {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    .result-box.success {
+      border-color: var(--success);
+      background: rgba(0, 255, 136, 0.05);
+    }
+
+    .result-box.error {
+      border-color: var(--error);
+      background: rgba(255, 68, 102, 0.05);
+    }
+
+    .result-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .result-box.success .result-title {
+      color: var(--success);
+    }
+
+    .result-box.error .result-title {
+      color: var(--error);
+    }
+
+    .result-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+
+    .download-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--success), #00cc66);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 255, 136, 0.3);
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 14px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 0, 110, 0.3);
+      border-top-color: var(--primary-pink);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .info-box {
+      background: rgba(255, 0, 110, 0.05);
+      border-left: 4px solid var(--primary-pink);
+      border-radius: 4px;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .batch-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 0, 110, 0.1);
+    }
+
+    .batch-section h3 {
+      margin-bottom: 15px;
+      color: var(--light-pink);
+    }
+
+    .file-list {
+      display: grid;
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+
+    .file-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .file-list::-webkit-scrollbar-track {
+      background: rgba(255, 0, 110, 0.05);
+      border-radius: 10px;
+    }
+
+    .file-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 0, 110, 0.3);
+      border-radius: 10px;
+    }
+
+    .file-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 0, 110, 0.5);
+    }
+
+    /* URL Conversion Styles */
+    .url-input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .url-input-group input {
+      flex: 1;
+    }
+
+    /* Optimization Styles */
+    .slider-group {
+      margin-bottom: 20px;
+    }
+
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .slider-group input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 0, 110, 0.2);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(255, 0, 110, 0.4);
+    }
+
+    /* Stats Panel */
+    .stats-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid rgba(255, 0, 110, 0.1);
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--light-pink), var(--primary-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 32px;
+      }
+
+      .main-grid {
+        margin: 20px 0;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .format-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      }
+
+      .tabs {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>HarywangConvert</h1>
+    <p>Convert files locally. Fast, secure, and free.</p>
+    <div class="tools-status" id="toolsStatus">
+      <div class="tool-badge">Loading tools status...</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="convert">File Convert</button>
+      <button class="tab-btn" data-tab="compress">File Compress</button>
+      <button class="tab-btn" data-tab="url">URL Convert</button>
+      <button class="tab-btn" data-tab="optimize">Image Optimize</button>
+      <button class="tab-btn" data-tab="stats">Server Stats</button>
+    </div>
+
+    <!-- Tab: File Conversion -->
+    <div class="tab-content active" id="tab-convert">
+      <div class="main-grid">
+        <!-- Upload Section -->
+        <div class="card">
+          <h2>Upload File</h2>
+          <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">+</div>
+            <p><strong>Click to upload or drag and drop</strong></p>
+            <p>Max 500MB per file, up to 20 files</p>
+          </div>
+          <input type="file" id="fileInput" accept="*/*" multiple>
+          <div class="file-list" id="fileList"></div>
+          <div class="batch-section" id="batchSection" style="display: none;">
+            <h3>Files Selected</h3>
+            <div class="file-list" id="selectedFiles"></div>
+          </div>
+        </div>
+
+        <!-- Format & Options Section -->
+        <div class="card">
+          <h2>Convert To</h2>
+
+          <div class="format-category">
+            <h4>Images</h4>
+            <div class="format-grid">
+              <button class="format-btn" data-format="jpg">JPG</button>
+              <button class="format-btn" data-format="png">PNG</button>
+              <button class="format-btn" data-format="webp">WebP</button>
+              <button class="format-btn" data-format="gif">GIF</button>
+              <button class="format-btn" data-format="bmp">BMP</button>
+              <button class="format-btn" data-format="tiff">TIFF</button>
+              <button class="format-btn" data-format="ico">ICO</button>
+            </div>
+          </div>
+
+          <div class="format-category">
+            <h4>Video</h4>
+            <div class="format-grid">
+              <button class="format-btn" data-format="mp4">MP4</button>
+              <button class="format-btn" data-format="webm">WebM</button>
+              <button class="format-btn" data-format="avi">AVI</button>
+              <button class="format-btn" data-format="mov">MOV</button>
+              <button class="format-btn" data-format="mkv">MKV</button>
+            </div>
+          </div>
+
+          <div class="format-category">
+            <h4>Audio</h4>
+            <div class="format-grid">
+              <button class="format-btn" data-format="mp3">MP3</button>
+              <button class="format-btn" data-format="wav">WAV</button>
+              <button class="format-btn" data-format="aac">AAC</button>
+              <button class="format-btn" data-format="ogg">OGG</button>
+              <button class="format-btn" data-format="flac">FLAC</button>
+              <button class="format-btn" data-format="m4a">M4A</button>
+            </div>
+          </div>
+
+          <div class="format-category">
+            <h4>Documents</h4>
+            <div class="format-grid">
+              <button class="format-btn" data-format="pdf">PDF</button>
+              <button class="format-btn" data-format="docx">DOCX</button>
+              <button class="format-btn" data-format="xlsx">XLSX</button>
+              <button class="format-btn" data-format="pptx">PPTX</button>
+              <button class="format-btn" data-format="txt">TXT</button>
+              <button class="format-btn" data-format="html">HTML</button>
+            </div>
+          </div>
+
+          <div class="format-category">
+            <h4>Archive</h4>
+            <div class="format-grid">
+              <button class="format-btn" data-format="zip">ZIP</button>
+              <button class="format-btn" data-format="7z">7Z</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Target File Size (KB) - Optional</label>
+            <input type="number" id="fileSizeLimit" min="10" max="500000" placeholder="e.g. 150">
+          </div>
+
+          <div class="form-group">
+            <label>Advanced Options (JSON)</label>
+            <textarea id="options" rows="2" placeholder='{"quality": 80, "bitrate": "192k"}'></textarea>
+            <div id="optionsStatus" style="font-size: 12px; margin-top: 5px;"></div>
+          </div>
+
+          <button class="btn-convert" id="convertBtn" disabled>Convert File</button>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-text">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="spinner"></span>
+            <span id="progressMessage">Converting...</span>
+          </span>
+          <span class="progress-percent" id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- Result Section -->
+      <div class="result-container">
+        <div class="result-box" id="resultBox"></div>
+      </div>
+    </div>
+
+    <!-- Tab: File Compression (Same Format) -->
+    <div class="tab-content" id="tab-compress">
+      <div class="main-grid">
+        <div class="card">
+          <h2>Upload Files to Compress</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 20px;">
+            Compress files to target size without changing format. Supports GIF, JPG, PNG, WebP, MP4, WebM. Up to 20 files.
+          </p>
+          <div class="drop-zone" id="compressDropZone">
+            <div class="drop-zone-icon">+</div>
+            <p><strong>Click to upload or drag and drop</strong></p>
+            <p>GIF, JPG, PNG, WebP, MP4, WebM (max 20 files)</p>
+          </div>
+          <input type="file" id="compressFileInput" accept=".gif,.jpg,.jpeg,.png,.webp,.mp4,.webm" multiple>
+
+          <div class="batch-section" id="compressBatchSection" style="display: none;">
+            <h3>Files Selected</h3>
+            <div class="file-list" id="compressSelectedFiles"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Compression Settings</h2>
+
+          <div class="form-group">
+            <label>Target File Size (KB) *</label>
+            <input type="number" id="compressTargetSize" min="10" max="50000" placeholder="e.g. 198" required>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+              Enter target size in KB. Example: 198 for 198KB
+            </p>
+          </div>
+
+          <div class="info-box" style="margin-bottom: 20px;">
+            <strong>Supported formats:</strong>
+            <ul style="margin: 10px 0 0 20px; color: var(--text-secondary);">
+              <li><strong>GIF</strong> - Animated GIF compression (reduces colors/frames)</li>
+              <li><strong>JPG/PNG/WebP</strong> - Image quality reduction</li>
+              <li><strong>MP4/WebM</strong> - Video bitrate adjustment</li>
+            </ul>
+          </div>
+
+          <button class="btn-convert" id="compressBtn" disabled>Compress Files</button>
+        </div>
+      </div>
+
+      <div class="progress-container" id="compressProgressContainer">
+        <div class="progress-text">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="spinner"></span>
+            <span id="compressProgressMessage">Compressing...</span>
+          </span>
+          <span class="progress-percent" id="compressProgressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="compressProgressFill"></div>
+        </div>
+      </div>
+
+      <div class="result-container">
+        <div class="result-box" id="compressResultBox"></div>
+      </div>
+    </div>
+
+    <!-- Tab: URL Conversion -->
+    <div class="tab-content" id="tab-url">
+      <div class="main-grid">
+        <div class="card">
+          <h2>Convert from URL</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 20px;">
+            Enter a direct link to a file (image, video, audio, document) and convert it to another format.
+          </p>
+
+          <div class="form-group">
+            <label>File URL</label>
+            <input type="url" id="urlInput" placeholder="https://example.com/image.png">
+          </div>
+
+          <div class="format-category">
+            <h4>Convert To</h4>
+            <div class="format-grid" id="urlFormatGrid">
+              <button class="format-btn url-format" data-format="jpg">JPG</button>
+              <button class="format-btn url-format" data-format="png">PNG</button>
+              <button class="format-btn url-format" data-format="webp">WebP</button>
+              <button class="format-btn url-format" data-format="mp4">MP4</button>
+              <button class="format-btn url-format" data-format="mp3">MP3</button>
+              <button class="format-btn url-format" data-format="pdf">PDF</button>
+            </div>
+          </div>
+
+          <button class="btn-convert" id="urlConvertBtn" disabled>Convert from URL</button>
+        </div>
+
+        <div class="card">
+          <h2>How It Works</h2>
+          <div class="info-box" style="margin-top: 0;">
+            <p><strong>1.</strong> Paste a direct link to a file</p>
+            <p style="margin-top: 10px;"><strong>2.</strong> Select the output format</p>
+            <p style="margin-top: 10px;"><strong>3.</strong> Click Convert - the file will be downloaded and converted locally</p>
+          </div>
+
+          <div class="info-box" style="border-color: var(--warning);">
+            <strong>Note:</strong> Make sure the URL points directly to a file, not a webpage.
+            The file will be downloaded to your server first, then converted.
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-container" id="urlProgressContainer">
+        <div class="progress-text">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="spinner"></span>
+            <span id="urlProgressMessage">Processing...</span>
+          </span>
+          <span class="progress-percent" id="urlProgressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="urlProgressFill"></div>
+        </div>
+      </div>
+
+      <div class="result-container">
+        <div class="result-box" id="urlResultBox"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Image Optimization -->
+    <div class="tab-content" id="tab-optimize">
+      <div class="main-grid">
+        <div class="card">
+          <h2>Optimize Image</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 20px;">
+            Reduce image file size while maintaining quality. Perfect for web optimization.
+          </p>
+
+          <div class="drop-zone" id="optimizeDropZone">
+            <div class="drop-zone-icon">+</div>
+            <p><strong>Click to upload image</strong></p>
+            <p>JPG, PNG, WebP, GIF supported</p>
+          </div>
+          <input type="file" id="optimizeFileInput" accept="image/*">
+
+          <div id="optimizeFileInfo" style="display: none;" class="file-item">
+            <div class="file-info">
+              <div class="file-name" id="optimizeFileName"></div>
+              <div class="file-size" id="optimizeFileSize"></div>
+            </div>
+            <button class="btn-remove" onclick="clearOptimizeFile()">Remove</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Optimization Settings</h2>
+
+          <div class="slider-group">
+            <label>
+              <span>Quality</span>
+              <span id="qualityValue">80%</span>
+            </label>
+            <input type="range" id="qualitySlider" min="10" max="100" value="80">
+          </div>
+
+          <div class="form-group">
+            <label>Max Width (px) - Optional</label>
+            <input type="number" id="maxWidth" min="1" max="10000" placeholder="e.g. 1920">
+          </div>
+
+          <div class="form-group">
+            <label>Max Height (px) - Optional</label>
+            <input type="number" id="maxHeight" min="1" max="10000" placeholder="e.g. 1080">
+          </div>
+
+          <div class="form-group">
+            <label>Target Size (KB) - Optional</label>
+            <input type="number" id="targetSize" min="1" max="50000" placeholder="e.g. 100">
+          </div>
+
+          <button class="btn-convert" id="optimizeBtn" disabled>Optimize Image</button>
+        </div>
+      </div>
+
+      <div class="progress-container" id="optimizeProgressContainer">
+        <div class="progress-text">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="spinner"></span>
+            <span id="optimizeProgressMessage">Optimizing...</span>
+          </span>
+          <span class="progress-percent" id="optimizeProgressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="optimizeProgressFill"></div>
+        </div>
+      </div>
+
+      <div class="result-container">
+        <div class="result-box" id="optimizeResultBox"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Server Stats -->
+    <div class="tab-content" id="tab-stats">
+      <div class="stats-panel" id="statsPanel">
+        <div class="stat-card">
+          <div class="stat-value" id="statUptime">-</div>
+          <div class="stat-label">Uptime</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">-</div>
+          <div class="stat-label">Total Jobs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCompleted">-</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statFailed">-</div>
+          <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statRunning">-</div>
+          <div class="stat-label">Running</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statQueued">-</div>
+          <div class="stat-label">Queued</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="card">
+          <h2>Available Tools</h2>
+          <div id="toolsDetail">Loading...</div>
+        </div>
+
+        <div class="card">
+          <h2>Supported Formats</h2>
+          <div id="formatsDetail">Loading...</div>
+        </div>
+      </div>
+
+      <button class="btn-convert" onclick="loadStats()" style="max-width: 200px; margin: 20px auto; display: block;">
+        Refresh Stats
+      </button>
+    </div>
+
+    <div class="info-box">
+      <strong>Info:</strong> All conversions happen locally on your server. Maximum file size: 500MB.
+      Your files are processed securely and automatically cleaned up.
+    </div>
+  </div>
+
+  <script>
+    // ==================== STATE ====================
+    let selectedFiles = [];
+    let selectedFormat = 'png';
+    let urlSelectedFormat = 'png';
+    let optimizeFile = null;
+    // Support running behind proxy (e.g., /convert/) or standalone
+    let basePath = window.location.pathname.replace(/\/+$/, '');
+    let baseUrl = `${window.location.protocol}//${window.location.host}${basePath}`;
+
+    // ==================== ELEMENTS ====================
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const selectedFilesContainer = document.getElementById('selectedFiles');
+    const batchSection = document.getElementById('batchSection');
+    const formatBtns = document.querySelectorAll('.format-btn:not(.url-format)');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    const progressMessage = document.getElementById('progressMessage');
+    const resultBox = document.getElementById('resultBox');
+    const optionsInput = document.getElementById('options');
+    const fileSizeLimit = document.getElementById('fileSizeLimit');
+    const optionsStatus = document.getElementById('optionsStatus');
+
+    // ==================== TABS ====================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+        if (btn.dataset.tab === 'stats') {
+          loadStats();
+        }
+      });
+    });
+
+    // ==================== TOOLS STATUS ====================
+    async function loadToolsStatus() {
+      try {
+        const resp = await fetch(`${baseUrl}/api/tools`);
+        const data = await resp.json();
+
+        const container = document.getElementById('toolsStatus');
+        container.innerHTML = '';
+
+        for (const [name, info] of Object.entries(data.tools)) {
+          const badge = document.createElement('div');
+          badge.className = `tool-badge ${info.available ? 'available' : 'unavailable'}`;
+          badge.title = info.description + (info.version ? ` (${info.version})` : '');
+          badge.innerHTML = `${info.available ? 'OK' : 'X'} ${name}`;
+          container.appendChild(badge);
+        }
+      } catch (e) {
+        document.getElementById('toolsStatus').innerHTML =
+          '<div class="tool-badge">Could not load tools status</div>';
+      }
+    }
+
+    // ==================== FILE SIZE LIMIT ====================
+    fileSizeLimit.addEventListener('input', updateOptionsFromUI);
+
+    function updateOptionsFromUI() {
+      const sizeLimit = fileSizeLimit.value;
+      let options = {};
+      if (sizeLimit) {
+        options.targetFileSize = parseInt(sizeLimit) * 1024;
+      }
+      if (Object.keys(options).length > 0) {
+        optionsInput.value = JSON.stringify(options, null, 2);
+      } else {
+        optionsInput.value = '';
+      }
+      validateOptions();
+    }
+
+    // ==================== FORMAT SELECTION ====================
+    formatBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        formatBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedFormat = btn.dataset.format;
+        updateConvertBtn();
+      });
+    });
+
+    document.querySelector('[data-format="png"]').classList.add('active');
+
+    // ==================== JSON VALIDATION ====================
+    function validateJSON(str) {
+      if (!str || !str.trim()) return { valid: true, message: 'No options' };
+      try {
+        JSON.parse(str);
+        return { valid: true, message: 'Valid JSON' };
+      } catch (err) {
+        return { valid: false, message: 'Invalid JSON: ' + err.message };
+      }
+    }
+
+    function validateOptions() {
+      const validation = validateJSON(optionsInput.value);
+      optionsStatus.textContent = validation.message;
+      optionsStatus.style.color = validation.valid ? 'var(--success)' : 'var(--error)';
+    }
+
+    optionsInput.addEventListener('input', validateOptions);
+    optionsStatus.textContent = 'Ready';
+    optionsStatus.style.color = 'var(--success)';
+
+    // ==================== DRAG AND DROP ====================
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+      let newFiles = Array.from(files);
+      const totalFiles = selectedFiles.length + newFiles.length;
+      if (totalFiles > 20) {
+        showError('Maximum 20 files allowed');
+        newFiles = newFiles.slice(0, Math.max(0, 20 - selectedFiles.length));
+      }
+      selectedFiles = selectedFiles.concat(newFiles);
+      renderFileList();
+      updateConvertBtn();
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = '';
+      selectedFilesContainer.innerHTML = '';
+
+      if (selectedFiles.length === 0) {
+        batchSection.style.display = 'none';
+        return;
+      }
+
+      batchSection.style.display = 'block';
+
+      selectedFiles.forEach((file, idx) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+          <div class="file-info">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+          </div>
+          <button class="btn-remove" onclick="removeFile(${idx})">Remove</button>
+        `;
+        selectedFilesContainer.appendChild(fileItem);
+      });
+    }
+
+    function removeFile(idx) {
+      selectedFiles.splice(idx, 1);
+      renderFileList();
+      updateConvertBtn();
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    function updateConvertBtn() {
+      if (selectedFiles.length === 0) {
+        convertBtn.disabled = true;
+        convertBtn.textContent = 'Convert File';
+        return;
+      }
+
+      const formatSelected = document.querySelector('.format-btn.active:not(.url-format)');
+      if (!formatSelected) {
+        convertBtn.disabled = true;
+        convertBtn.textContent = 'Select Format First';
+        return;
+      }
+
+      convertBtn.disabled = false;
+      const fileCount = selectedFiles.length;
+      convertBtn.textContent = fileCount === 1 ? 'Convert File' : `Convert ${fileCount} Files`;
+    }
+
+    // ==================== FILE CONVERSION ====================
+    const PARALLEL_LIMIT = 4; // Convert 4 files at once for speed
+
+    convertBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) {
+        showError('Please select a file first');
+        return;
+      }
+
+      const formatSelected = document.querySelector('.format-btn.active:not(.url-format)');
+      if (!formatSelected) {
+        showError('Please select an output format');
+        return;
+      }
+
+      await convertMultipleFiles(selectedFiles);
+    });
+
+    async function convertMultipleFiles(files) {
+      const optionsStr = optionsInput.value.trim();
+
+      if (optionsStr) {
+        const validation = validateJSON(optionsStr);
+        if (!validation.valid) {
+          showError('Invalid JSON in options');
+          return;
+        }
+      }
+
+      const totalFiles = files.length;
+      let completedCount = 0;
+      let successCount = 0;
+      let failureCount = 0;
+      const downloadLinks = [];
+      const originalNames = [];
+
+      // Show initial progress
+      showProgress(`Starting conversion of ${totalFiles} file(s)...`);
+      updateProgress(0, 0, totalFiles);
+
+      // Convert a single file
+      async function convertSingleFile(file, index) {
+        const fileNumber = index + 1;
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('targetFormat', selectedFormat);
+          formData.append('options', optionsStr || '{}');
+
+          const resp = await fetch(`${baseUrl}/convert`, {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!resp.ok) {
+            let errorMsg = resp.statusText;
+            try {
+              const errData = await resp.json();
+              errorMsg = errData.error || errorMsg;
+            } catch (e) {}
+            console.error('Server error:', errorMsg);
+            return { success: false, index };
+          }
+
+          const blob = await resp.blob();
+          const baseName = file.name.replace(/\.[^/.]+$/, '');
+          const filename = `${baseName}.${selectedFormat}`;
+
+          return { success: true, blob, filename, originalName: file.name, index };
+        } catch (err) {
+          console.error('Fetch error:', err);
+          return { success: false, index };
+        }
+      }
+
+      // Process files in parallel batches
+      const results = new Array(totalFiles);
+
+      for (let i = 0; i < totalFiles; i += PARALLEL_LIMIT) {
+        const batch = [];
+        const batchEnd = Math.min(i + PARALLEL_LIMIT, totalFiles);
+
+        for (let j = i; j < batchEnd; j++) {
+          batch.push(convertSingleFile(files[j], j));
+        }
+
+        // Update message to show current batch
+        const currentBatch = Math.floor(i / PARALLEL_LIMIT) + 1;
+        const totalBatches = Math.ceil(totalFiles / PARALLEL_LIMIT);
+        progressMessage.textContent = `Converting batch ${currentBatch}/${totalBatches} (files ${i + 1}-${batchEnd} of ${totalFiles})...`;
+
+        // Wait for all files in batch to complete
+        const batchResults = await Promise.all(batch);
+
+        // Process batch results
+        for (const result of batchResults) {
+          completedCount++;
+          results[result.index] = result;
+
+          if (result.success) {
+            successCount++;
+          } else {
+            failureCount++;
+          }
+
+          // Update progress with real percentage
+          const percent = (completedCount / totalFiles) * 100;
+          updateProgress(percent, completedCount, totalFiles);
+        }
+      }
+
+      // Collect successful downloads in order
+      for (let i = 0; i < results.length; i++) {
+        if (results[i] && results[i].success) {
+          downloadLinks.push({
+            blob: results[i].blob,
+            filename: results[i].filename,
+            originalName: results[i].originalName
+          });
+        }
+      }
+
+      progressContainer.classList.remove('active');
+
+      if (successCount === 0) {
+        showError(`All ${totalFiles} file(s) failed to convert`);
+        return;
+      }
+
+      if (successCount === 1 && downloadLinks.length === 1) {
+        showSuccess(downloadLinks[0].blob, downloadLinks[0].filename);
+      } else {
+        showMultipleSuccess(downloadLinks, successCount, failureCount, totalFiles);
+      }
+    }
+
+    function showMultipleSuccess(downloadLinks, successCount, failureCount, totalFiles) {
+      resultBox.classList.add('active', 'success');
+      resultBox.classList.remove('error');
+
+      let html = `
+        <div class="result-title">
+          <span class="result-icon">OK</span>
+          <span>Conversion Complete!</span>
+        </div>
+        <div>
+          <p style="margin-bottom: 15px;">${successCount} of ${totalFiles} file(s) converted successfully${failureCount > 0 ? ` (${failureCount} failed)` : ''}</p>
+
+          <!-- Download Options -->
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+            <button class="download-btn" onclick="downloadAllFiles()" style="background: linear-gradient(135deg, #00cc66, #00aa55);">
+              Download All (${successCount})
+            </button>
+            <button class="download-btn" onclick="downloadAllAsZip()" style="background: linear-gradient(135deg, #6644ff, #5533dd);">
+              Download All as ZIP
+            </button>
+          </div>
+
+          <!-- Individual Downloads -->
+          <div style="border-top: 1px solid rgba(255,0,110,0.2); padding-top: 15px;">
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">Or download individually:</p>
+            <div style="max-height: 200px; overflow-y: auto; display: grid; gap: 8px;">`;
+
+      downloadLinks.forEach((item, idx) => {
+        html += `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,0,110,0.05); padding: 8px 12px; border-radius: 6px;">
+            <span style="font-size: 13px; color: var(--text-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;" title="${item.filename}">${item.filename}</span>
+            <button class="download-btn" onclick="downloadFile(${idx})" style="padding: 6px 12px; font-size: 12px;">Download</button>
+          </div>`;
+      });
+
+      html += `</div></div></div>`;
+      resultBox.innerHTML = html;
+      window.downloadLinks = downloadLinks;
+    }
+
+    function downloadFile(index) {
+      const item = window.downloadLinks[index];
+      const url = URL.createObjectURL(item.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = item.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    async function downloadAllFiles() {
+      const links = window.downloadLinks;
+      for (let i = 0; i < links.length; i++) {
+        downloadFile(i);
+        // Small delay between downloads to prevent browser blocking
+        if (i < links.length - 1) {
+          await new Promise(r => setTimeout(r, 300));
+        }
+      }
+    }
+
+    async function downloadAllAsZip() {
+      const links = window.downloadLinks;
+
+      // Show loading state
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = 'Creating ZIP...';
+      btn.disabled = true;
+
+      try {
+        // Use JSZip library (loaded dynamically)
+        if (!window.JSZip) {
+          // Load JSZip from CDN
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        const zip = new JSZip();
+
+        // Add all files to zip
+        for (const item of links) {
+          zip.file(item.filename, item.blob);
+        }
+
+        // Generate zip file
+        const zipBlob = await zip.generateAsync({
+          type: 'blob',
+          compression: 'DEFLATE',
+          compressionOptions: { level: 6 }
+        });
+
+        // Download the zip
+        const url = URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `harywang_converted_${Date.now()}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+      } catch (err) {
+        console.error('ZIP creation error:', err);
+        alert('Failed to create ZIP file: ' + err.message);
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function showProgress(message) {
+      progressContainer.classList.add('active');
+      resultBox.classList.remove('active');
+      progressMessage.textContent = message || 'Converting...';
+      updateProgress(0, 0, 1);
+    }
+
+    function updateProgress(percent, completed, total) {
+      progressFill.style.width = percent + '%';
+      if (total > 1) {
+        progressPercent.textContent = `${Math.round(percent)}% (${completed}/${total})`;
+      } else {
+        progressPercent.textContent = Math.round(percent) + '%';
+      }
+    }
+
+    function showSuccess(blob, filename) {
+      progressContainer.classList.remove('active');
+      resultBox.classList.add('active', 'success');
+      resultBox.classList.remove('error');
+
+      resultBox.innerHTML = `
+        <div class="result-title">
+          <span class="result-icon">OK</span>
+          <span>Conversion successful!</span>
+        </div>
+        <div>
+          <p>File ready to download</p>
+          <button id="downloadBtn" class="download-btn">Download ${filename}</button>
+        </div>
+      `;
+
+      const downloadFn = () => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      document.getElementById('downloadBtn').addEventListener('click', downloadFn);
+      downloadFn();
+    }
+
+    function showError(message) {
+      progressContainer.classList.remove('active');
+      resultBox.classList.add('active', 'error');
+      resultBox.classList.remove('success');
+
+      resultBox.innerHTML = `
+        <div class="result-title">
+          <span class="result-icon">X</span>
+          <span>Conversion failed</span>
+        </div>
+        <div>
+          <p class="error-message">${message}</p>
+        </div>
+      `;
+    }
+
+    // ==================== URL CONVERSION ====================
+    const urlInput = document.getElementById('urlInput');
+    const urlConvertBtn = document.getElementById('urlConvertBtn');
+    const urlFormatBtns = document.querySelectorAll('.url-format');
+    const urlProgressContainer = document.getElementById('urlProgressContainer');
+    const urlProgressFill = document.getElementById('urlProgressFill');
+    const urlProgressPercent = document.getElementById('urlProgressPercent');
+    const urlProgressMessage = document.getElementById('urlProgressMessage');
+    const urlResultBox = document.getElementById('urlResultBox');
+
+    urlFormatBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        urlFormatBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        urlSelectedFormat = btn.dataset.format;
+        updateUrlConvertBtn();
+      });
+    });
+
+    urlInput.addEventListener('input', updateUrlConvertBtn);
+
+    function updateUrlConvertBtn() {
+      const hasUrl = urlInput.value.trim().length > 0;
+      const hasFormat = document.querySelector('.url-format.active');
+      urlConvertBtn.disabled = !hasUrl || !hasFormat;
+    }
+
+    urlConvertBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        showUrlError('Please enter a URL');
+        return;
+      }
+
+      const formatBtn = document.querySelector('.url-format.active');
+      if (!formatBtn) {
+        showUrlError('Please select an output format');
+        return;
+      }
+
+      showUrlProgress('Downloading and converting...');
+
+      try {
+        const resp = await fetch(`${baseUrl}/convert-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: url,
+            targetFormat: urlSelectedFormat,
+            options: {}
+          })
+        });
+
+        updateUrlProgress(80);
+
+        if (!resp.ok) {
+          let errorMsg = resp.statusText;
+          try {
+            const errData = await resp.json();
+            errorMsg = errData.error || errorMsg;
+          } catch (e) {}
+          throw new Error(errorMsg);
+        }
+
+        const blob = await resp.blob();
+        const filename = `harywang_url.${urlSelectedFormat}`;
+
+        showUrlSuccess(blob, filename);
+      } catch (err) {
+        showUrlError(err.message);
+      }
+    });
+
+    function showUrlProgress(message) {
+      urlProgressContainer.classList.add('active');
+      urlResultBox.classList.remove('active');
+      urlProgressMessage.textContent = message;
+      urlProgressFill.style.width = '30%';
+      urlProgressPercent.textContent = '30%';
+    }
+
+    function updateUrlProgress(percent) {
+      urlProgressFill.style.width = percent + '%';
+      urlProgressPercent.textContent = percent + '%';
+    }
+
+    function showUrlSuccess(blob, filename) {
+      urlProgressContainer.classList.remove('active');
+      urlResultBox.classList.add('active', 'success');
+      urlResultBox.classList.remove('error');
+
+      urlResultBox.innerHTML = `
+        <div class="result-title">
+          <span class="result-icon">OK</span>
+          <span>URL conversion successful!</span>
+        </div>
+        <div>
+          <button id="urlDownloadBtn" class="download-btn">Download ${filename}</button>
+        </div>
+      `;
+
+      document.getElementById('urlDownloadBtn').addEventListener('click', () => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
+    function showUrlError(message) {
+      urlProgressContainer.classList.remove('active');
+      urlResultBox.classList.add('active', 'error');
+      urlResultBox.classList.remove('success');
+
+      urlResultBox.innerHTML = `
+        <div class="result-title">
+          <span class="result-icon">X</span>
+          <span>URL conversion failed</span>
+        </div>
+        <div>
+          <p class="error-message">${message}</p>
+        </div>
+      `;
+    }
+
+    // ==================== IMAGE OPTIMIZATION ====================
+    const optimizeDropZone = document.getElementById('optimizeDropZone');
+    const optimizeFileInput = document.getElementById('optimizeFileInput');
+    const optimizeFileInfo = document.getElementById('optimizeFileInfo');
+    const optimizeFileName = document.getElementById('optimizeFileName');
+    const optimizeFileSize = document.getElementById('optimizeFileSize');
+    const qualitySlider = document.getElementById('qualitySlider');
+    const qualityValue = document.getElementById('qualityValue');
+    const maxWidthInput = document.getElementById('maxWidth');
+    const maxHeightInput = document.getElementById('maxHeight');
+    const targetSizeInput = document.getElementById('targetSize');
+    const optimizeBtn = document.getElementById('optimizeBtn');
+    const optimizeProgressContainer = document.getElementById('optimizeProgressContainer');
+    const optimizeProgressFill = document.getElementById('optimizeProgressFill');
+    const optimizeProgressPercent = document.getElementById('optimizeProgressPercent');
+    const optimizeResultBox = document.getElementById('optimizeResultBox');
+
+    optimizeDropZone.addEventListener('click', () => optimizeFileInput.click());
+
+    optimizeDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      optimizeDropZone.classList.add('dragover');
+    });
+
+    optimizeDropZone.addEventListener('dragleave', () => {
+      optimizeDropZone.classList.remove('dragover');
+    });
+
+    optimizeDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      optimizeDropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        setOptimizeFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    optimizeFileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        setOptimizeFile(e.target.files[0]);
+      }
+    });
+
+    function setOptimizeFile(file) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        alert('Please select a JPG, PNG, WebP, or GIF image');
+        return;
+      }
+      optimizeFile = file;
+      optimizeFileName.textContent = file.name;
+      optimizeFileSize.textContent = formatFileSize(file.size);
+      optimizeFileInfo.style.display = 'flex';
+      optimizeBtn.disabled = false;
+    }
+
+    window.clearOptimizeFile = function() {
+      optimizeFile = null;
+      optimizeFileInfo.style.display = 'none';
+      optimizeBtn.disabled = true;
+      optimizeFileInput.value = '';
+    };
+
+    qualitySlider.addEventListener('input', () => {
+      qualityValue.textContent = qualitySlider.value + '%';
+    });
+
+    optimizeBtn.addEventListener('click', async () => {
+      if (!optimizeFile) {
+        alert('Please select an image first');
+        return;
+      }
+
+      optimizeProgressContainer.classList.add('active');
+      optimizeResultBox.classList.remove('active');
+      optimizeProgressFill.style.width = '20%';
+      optimizeProgressPercent.textContent = '20%';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', optimizeFile);
+        formData.append('quality', qualitySlider.value);
+        if (maxWidthInput.value) formData.append('maxWidth', maxWidthInput.value);
+        if (maxHeightInput.value) formData.append('maxHeight', maxHeightInput.value);
+        if (targetSizeInput.value) formData.append('targetSize', targetSizeInput.value);
+
+        const resp = await fetch(`${baseUrl}/optimize`, {
+          method: 'POST',
+          body: formData
+        });
+
+        optimizeProgressFill.style.width = '80%';
+        optimizeProgressPercent.textContent = '80%';
+
+        if (!resp.ok) {
+          let errorMsg = resp.statusText;
+          try {
+            const errData = await resp.json();
+            errorMsg = errData.error || errorMsg;
+          } catch (e) {}
+          throw new Error(errorMsg);
+        }
+
+        const blob = await resp.blob();
+        const originalSize = optimizeFile.size;
+        const newSize = blob.size;
+        const savings = ((1 - newSize / originalSize) * 100).toFixed(1);
+
+        const ext = optimizeFile.name.split('.').pop();
+        const filename = `optimized_${Date.now()}.${ext}`;
+
+        optimizeProgressContainer.classList.remove('active');
+        optimizeResultBox.classList.add('active', 'success');
+        optimizeResultBox.classList.remove('error');
+
+        optimizeResultBox.innerHTML = `
+          <div class="result-title">
+            <span class="result-icon">OK</span>
+            <span>Optimization complete!</span>
+          </div>
+          <div>
+            <p>Original: ${formatFileSize(originalSize)} -> Optimized: ${formatFileSize(newSize)}</p>
+            <p style="color: var(--success); margin-top: 5px;">Saved ${savings}% file size</p>
+            <button id="optimizeDownloadBtn" class="download-btn" style="margin-top: 15px;">Download Optimized Image</button>
+          </div>
+        `;
+
+        document.getElementById('optimizeDownloadBtn').addEventListener('click', () => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+
+      } catch (err) {
+        optimizeProgressContainer.classList.remove('active');
+        optimizeResultBox.classList.add('active', 'error');
+        optimizeResultBox.classList.remove('success');
+
+        optimizeResultBox.innerHTML = `
+          <div class="result-title">
+            <span class="result-icon">X</span>
+            <span>Optimization failed</span>
+          </div>
+          <div>
+            <p class="error-message">${err.message}</p>
+          </div>
+        `;
+      }
+    });
+
+    // ==================== FILE COMPRESSION ====================
+    const compressDropZone = document.getElementById('compressDropZone');
+    const compressFileInput = document.getElementById('compressFileInput');
+    const compressBatchSection = document.getElementById('compressBatchSection');
+    const compressSelectedFilesContainer = document.getElementById('compressSelectedFiles');
+    const compressTargetSize = document.getElementById('compressTargetSize');
+    const compressBtn = document.getElementById('compressBtn');
+    const compressProgressContainer = document.getElementById('compressProgressContainer');
+    const compressProgressFill = document.getElementById('compressProgressFill');
+    const compressProgressPercent = document.getElementById('compressProgressPercent');
+    const compressProgressMessage = document.getElementById('compressProgressMessage');
+    const compressResultBox = document.getElementById('compressResultBox');
+    let compressFiles = [];
+
+    compressDropZone.addEventListener('click', () => compressFileInput.click());
+
+    compressDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      compressDropZone.classList.add('dragover');
+    });
+
+    compressDropZone.addEventListener('dragleave', () => {
+      compressDropZone.classList.remove('dragover');
+    });
+
+    compressDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      compressDropZone.classList.remove('dragover');
+      handleCompressFiles(e.dataTransfer.files);
+    });
+
+    compressFileInput.addEventListener('change', (e) => {
+      handleCompressFiles(e.target.files);
+    });
+
+    function handleCompressFiles(files) {
+      const validTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+      const validExts = ['.gif', '.jpg', '.jpeg', '.png', '.webp', '.mp4', '.webm'];
+
+      let newFiles = Array.from(files).filter(file => {
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        return validTypes.includes(file.type) || validExts.includes(ext);
+      });
+
+      if (newFiles.length < files.length) {
+        const skipped = files.length - newFiles.length;
+        alert(`${skipped} file(s) skipped - only GIF, JPG, PNG, WebP, MP4, WebM are supported`);
+      }
+
+      const totalFiles = compressFiles.length + newFiles.length;
+      if (totalFiles > 20) {
+        showCompressError('Maximum 20 files allowed');
+        newFiles = newFiles.slice(0, Math.max(0, 20 - compressFiles.length));
+      }
+
+      compressFiles = compressFiles.concat(newFiles);
+      renderCompressFileList();
+      updateCompressBtn();
+    }
+
+    function renderCompressFileList() {
+      compressSelectedFilesContainer.innerHTML = '';
+
+      if (compressFiles.length === 0) {
+        compressBatchSection.style.display = 'none';
+        return;
+      }
+
+      compressBatchSection.style.display = 'block';
+
+      compressFiles.forEach((file, idx) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+          <div class="file-info">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+          </div>
+          <button class="btn-remove" onclick="removeCompressFile(${idx})">Remove</button>
+        `;
+        compressSelectedFilesContainer.appendChild(fileItem);
+      });
+    }
+
+    window.removeCompressFile = function(idx) {
+      compressFiles.splice(idx, 1);
+      renderCompressFileList();
+      updateCompressBtn();
+    };
+
+    window.clearCompressFiles = function() {
+      compressFiles = [];
+      compressBatchSection.style.display = 'none';
+      compressBtn.disabled = true;
+      compressFileInput.value = '';
+    };
+
+    compressTargetSize.addEventListener('input', updateCompressBtn);
+
+    function updateCompressBtn() {
+      const hasFiles = compressFiles.length > 0;
+      const hasTarget = compressTargetSize.value && parseInt(compressTargetSize.value) >= 10;
+      compressBtn.disabled = !hasFiles || !hasTarget;
+
+      if (hasFiles) {
+        const fileCount = compressFiles.length;
+        compressBtn.textContent = fileCount === 1 ? 'Compress File' : `Compress ${fileCount} Files`;
+      } else {
+        compressBtn.textContent = 'Compress Files';
+      }
+    }
+
+    compressBtn.addEventListener('click', async () => {
+      if (compressFiles.length === 0) {
+        alert('Please select file(s) first');
+        return;
+      }
+
+      const targetSizeKB = parseInt(compressTargetSize.value);
+      if (!targetSizeKB || targetSizeKB < 10) {
+        alert('Please enter a valid target size (minimum 10 KB)');
+        return;
+      }
+
+      await compressMultipleFiles(compressFiles, targetSizeKB);
+    });
+
+    async function compressMultipleFiles(files, targetSizeKB) {
+      const totalFiles = files.length;
+      let completedCount = 0;
+      let successCount = 0;
+      let failureCount = 0;
+      const downloadLinks = [];
+
+      // Show initial progress
+      compressProgressContainer.classList.add('active');
+      compressResultBox.classList.remove('active');
+      compressProgressMessage.textContent = `Starting compression of ${totalFiles} file(s)...`;
+      updateCompressProgress(0, 0, totalFiles);
+
+      // Compress a single file
+      async function compressSingleFile(file, index) {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('targetSize', targetSizeKB);
+
+          const resp = await fetch(`${baseUrl}/compress`, {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!resp.ok) {
+            let errorMsg = resp.statusText;
+            try {
+              const errData = await resp.json();
+              errorMsg = errData.error || errorMsg;
+            } catch (e) {}
+            console.error('Server error:', errorMsg);
+            return { success: false, index };
+          }
+
+          const blob = await resp.blob();
+          const ext = file.name.split('.').pop();
+          const baseName = file.name.replace(/\.[^/.]+$/, '');
+          const filename = `${baseName}_compressed.${ext}`;
+
+          return { success: true, blob, filename, originalName: file.name, originalSize: file.size, newSize: blob.size, index };
+        } catch (err) {
+          console.error('Fetch error:', err);
+          return { success: false, index };
+        }
+      }
+
+      // Process files in parallel batches
+      const results = new Array(totalFiles);
+      const COMPRESS_PARALLEL_LIMIT = 4;
+
+      for (let i = 0; i < totalFiles; i += COMPRESS_PARALLEL_LIMIT) {
+        const batch = [];
+        const batchEnd = Math.min(i + COMPRESS_PARALLEL_LIMIT, totalFiles);
+
+        for (let j = i; j < batchEnd; j++) {
+          batch.push(compressSingleFile(files[j], j));
+        }
+
+        // Update message to show current batch
+        const currentBatch = Math.floor(i / COMPRESS_PARALLEL_LIMIT) + 1;
+        const totalBatches = Math.ceil(totalFiles / COMPRESS_PARALLEL_LIMIT);
+        compressProgressMessage.textContent = `Compressing batch ${currentBatch}/${totalBatches} (files ${i + 1}-${batchEnd} of ${totalFiles})...`;
+
+        // Wait for all files in batch to complete
+        const batchResults = await Promise.all(batch);
+
+        // Process batch results
+        for (const result of batchResults) {
+          completedCount++;
+          results[result.index] = result;
+
+          if (result.success) {
+            successCount++;
+          } else {
+            failureCount++;
+          }
+
+          // Update progress with real percentage
+          const percent = (completedCount / totalFiles) * 100;
+          updateCompressProgress(percent, completedCount, totalFiles);
+        }
+      }
+
+      // Collect successful downloads in order
+      for (let i = 0; i < results.length; i++) {
+        if (results[i] && results[i].success) {
+          downloadLinks.push({
+            blob: results[i].blob,
+            filename: results[i].filename,
+            originalName: results[i].originalName,
+            originalSize: results[i].originalSize,
+            newSize: results[i].newSize
+          });
+        }
+      }
+
+      compressProgressContainer.classList.remove('active');
+
+      if (successCount === 0) {
+        showCompressError(`All ${totalFiles} file(s) failed to compress`);
+        return;
+      }
+
+      if (successCount === 1 && downloadLinks.length === 1) {
+        showSingleCompressSuccess(downloadLinks[0], targetSizeKB);
+      } else {
+        showMultipleCompressSuccess(downloadLinks, successCount, failureCount, totalFiles, targetSizeKB);
+      }
+    }
+
+    function updateCompressProgress(percent, completed, total) {
+      compressProgressFill.style.width = percent + '%';
+      if (total > 1) {
+        compressProgressPercent.textContent = `${Math.round(percent)}% (${completed}/${total})`;
+      } else {
+        compressProgressPercent.textContent = Math.round(percent) + '%';
+      }
+    }
+
+    function showSingleCompressSuccess(item, targetSizeKB) {
+      const savings = ((1 - item.newSize / item.originalSize) * 100).toFixed(1);
+
+      compressResultBox.classList.add('active', 'success');
+      compressResultBox.classList.remove('error');
+
+      compressResultBox.innerHTML = `
+        <div class="result-title">
+          <span class="result-icon">OK</span>
+          <span>Compression complete!</span>
+        </div>
+        <div>
+          <p>Original: ${formatFileSize(item.originalSize)} -> Compressed: ${formatFileSize(item.newSize)}</p>
+          <p style="color: var(--success); margin-top: 5px;">Saved ${savings}% file size</p>
+          <p style="color: var(--text-secondary); margin-top: 5px; font-size: 12px;">Target was: ${targetSizeKB} KB</p>
+          <button id="compressDownloadBtn" class="download-btn" style="margin-top: 15px;">Download Compressed File</button>
+        </div>
+      `;
+
+      document.getElementById('compressDownloadBtn').addEventListener('click', () => {
+        const url = URL.createObjectURL(item.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = item.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function showMultipleCompressSuccess(downloadLinks, successCount, failureCount, totalFiles, targetSizeKB) {
+      compressResultBox.classList.add('active', 'success');
+      compressResultBox.classList.remove('error');
+
+      // Calculate total savings
+      let totalOriginal = 0;
+      let totalNew = 0;
+      downloadLinks.forEach(item => {
+        totalOriginal += item.originalSize;
+        totalNew += item.newSize;
+      });
+      const totalSavings = ((1 - totalNew / totalOriginal) * 100).toFixed(1);
+
+      let html = `
+        <div class="result-title">
+          <span class="result-icon">OK</span>
+          <span>Compression Complete!</span>
+        </div>
+        <div>
+          <p style="margin-bottom: 10px;">${successCount} of ${totalFiles} file(s) compressed successfully${failureCount > 0 ? ` (${failureCount} failed)` : ''}</p>
+          <p style="color: var(--success); margin-bottom: 5px;">Total saved: ${totalSavings}% (${formatFileSize(totalOriginal)} -> ${formatFileSize(totalNew)})</p>
+          <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 12px;">Target was: ${targetSizeKB} KB per file</p>
+
+          <!-- Download Options -->
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+            <button class="download-btn" onclick="downloadAllCompressedFiles()" style="background: linear-gradient(135deg, #00cc66, #00aa55);">
+              Download All (${successCount})
+            </button>
+            <button class="download-btn" onclick="downloadAllCompressedAsZip()" style="background: linear-gradient(135deg, #6644ff, #5533dd);">
+              Download All as ZIP
+            </button>
+          </div>
+
+          <!-- Individual Downloads -->
+          <div style="border-top: 1px solid rgba(255,0,110,0.2); padding-top: 15px;">
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">Or download individually:</p>
+            <div style="max-height: 200px; overflow-y: auto; display: grid; gap: 8px;">`;
+
+      downloadLinks.forEach((item, idx) => {
+        const savings = ((1 - item.newSize / item.originalSize) * 100).toFixed(1);
+        html += `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,0,110,0.05); padding: 8px 12px; border-radius: 6px;">
+            <div style="flex: 1; overflow: hidden;">
+              <span style="font-size: 13px; color: var(--text-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 180px;" title="${item.filename}">${item.filename}</span>
+              <span style="font-size: 11px; color: var(--success);">-${savings}%</span>
+            </div>
+            <button class="download-btn" onclick="downloadCompressedFile(${idx})" style="padding: 6px 12px; font-size: 12px;">Download</button>
+          </div>`;
+      });
+
+      html += `</div></div></div>`;
+      compressResultBox.innerHTML = html;
+      window.compressDownloadLinks = downloadLinks;
+    }
+
+    window.downloadCompressedFile = function(index) {
+      const item = window.compressDownloadLinks[index];
+      const url = URL.createObjectURL(item.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = item.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    window.downloadAllCompressedFiles = async function() {
+      const links = window.compressDownloadLinks;
+      for (let i = 0; i < links.length; i++) {
+        downloadCompressedFile(i);
+        // Small delay between downloads to prevent browser blocking
+        if (i < links.length - 1) {
+          await new Promise(r => setTimeout(r, 300));
+        }
+      }
+    };
+
+    window.downloadAllCompressedAsZip = async function() {
+      const links = window.compressDownloadLinks;
+
+      // Show loading state
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = 'Creating ZIP...';
+      btn.disabled = true;
+
+      try {
+        // Use JSZip library (loaded dynamically)
+        if (!window.JSZip) {
+          // Load JSZip from CDN
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        const zip = new JSZip();
+
+        // Add all files to zip
+        for (const item of links) {
+          zip.file(item.filename, item.blob);
+        }
+
+        // Generate zip file
+        const zipBlob = await zip.generateAsync({
+          type: 'blob',
+          compression: 'DEFLATE',
+          compressionOptions: { level: 6 }
+        });
+
+        // Download the zip
+        const url = URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `harywang_compressed_${Date.now()}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+      } catch (err) {
+        console.error('ZIP creation error:', err);
+        alert('Failed to create ZIP file: ' + err.message);
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    };
+
+    function showCompressError(message) {
+      compressProgressContainer.classList.remove('active');
+      compressResultBox.classList.add('active', 'error');
+      compressResultBox.classList.remove('success');
+
+      compressResultBox.innerHTML = `
+        <div class="result-title">
+          <span class="result-icon">X</span>
+          <span>Compression failed</span>
+        </div>
+        <div>
+          <p class="error-message">${message}</p>
+        </div>
+      `;
+    }
+
+    // ==================== SERVER STATS ====================
+    async function loadStats() {
+      try {
+        const [statsResp, toolsResp, formatsResp] = await Promise.all([
+          fetch(`${baseUrl}/api/stats`),
+          fetch(`${baseUrl}/api/tools`),
+          fetch(`${baseUrl}/api/formats`)
+        ]);
+
+        const stats = await statsResp.json();
+        const tools = await toolsResp.json();
+        const formats = await formatsResp.json();
+
+        // Update stats
+        document.getElementById('statUptime').textContent = formatUptime(stats.uptime);
+        document.getElementById('statTotal').textContent = stats.queue.total;
+        document.getElementById('statCompleted').textContent = stats.queue.completed;
+        document.getElementById('statFailed').textContent = stats.queue.failed;
+        document.getElementById('statRunning').textContent = stats.queue.running;
+        document.getElementById('statQueued').textContent = stats.queue.queued;
+
+        // Update tools detail
+        let toolsHtml = '<div style="display: grid; gap: 10px;">';
+        for (const [name, info] of Object.entries(tools.tools)) {
+          const status = info.available ? 'var(--success)' : 'var(--error)';
+          toolsHtml += `
+            <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(255,0,110,0.05); border-radius: 6px;">
+              <span><strong>${name}</strong> - ${info.description}</span>
+              <span style="color: ${status}">${info.available ? 'Available' : 'Not Found'}</span>
+            </div>
+          `;
+        }
+        toolsHtml += '</div>';
+        document.getElementById('toolsDetail').innerHTML = toolsHtml;
+
+        // Update formats detail
+        let formatsHtml = '';
+        for (const [category, fmts] of Object.entries(formats)) {
+          formatsHtml += `
+            <div style="margin-bottom: 15px;">
+              <h4 style="color: var(--light-pink); margin-bottom: 8px; text-transform: capitalize;">${category}</h4>
+              <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                ${fmts.map(f => `<span style="background: rgba(255,0,110,0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; text-transform: uppercase;">${f}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+        document.getElementById('formatsDetail').innerHTML = formatsHtml;
+
+      } catch (e) {
+        console.error('Failed to load stats:', e);
+      }
+    }
+
+    function formatUptime(seconds) {
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+      if (hrs > 0) return `${hrs}h ${mins}m`;
+      if (mins > 0) return `${mins}m ${secs}s`;
+      return `${secs}s`;
+    }
+
+    // ==================== INITIALIZE ====================
+    updateConvertBtn();
+    loadToolsStatus();
+  </script>
+</body>
+</html>
