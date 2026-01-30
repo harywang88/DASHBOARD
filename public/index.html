@@ -249,7 +249,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
-            max-width: 900px;
+            max-width: 1200px;
             width: 100%;
             animation: fadeInUp 0.6s ease 0.3s backwards;
         }
@@ -317,6 +317,19 @@
 
         .pdf-card .service-icon {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(236, 72, 153, 0.05));
+        }
+
+        .cloud-card .service-icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+        }
+
+        .service-card.cloud-card:hover {
+            border-color: var(--success);
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.3);
+        }
+
+        .cloud-card:hover .service-arrow {
+            background: var(--success);
         }
 
         .service-title {
@@ -575,6 +588,7 @@
                 <a href="#" class="nav-link active" data-page="landing" onclick="showPage('landing')">Home</a>
                 <a href="#" class="nav-link" data-page="convert" onclick="showPage('convert')">Convert</a>
                 <a href="#" class="nav-link" data-page="pdf" onclick="showPage('pdf')">PDF Tools</a>
+                <a href="#" class="nav-link" data-page="cloud" onclick="showPage('cloud')">HarywangCloud</a>
             </div>
         </div>
     </nav>
@@ -647,6 +661,30 @@
                         </svg>
                     </div>
                 </div>
+
+                <!-- Cloud Card -->
+                <div class="service-card cloud-card" onclick="showPage('cloud')">
+                    <div class="service-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                        </svg>
+                    </div>
+                    <h3 class="service-title">HarywangCloud</h3>
+                    <p class="service-desc">
+                        Penyimpanan aman hingga 20GB. Upload & download cepat untuk semua jenis file.
+                    </p>
+                    <div class="service-features">
+                        <span class="feature-tag">20GB Storage</span>
+                        <span class="feature-tag">Fast Upload</span>
+                        <span class="feature-tag">All Files</span>
+                        <span class="feature-tag">Secure</span>
+                    </div>
+                    <div class="service-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
 
             <div class="status-bar">
@@ -657,6 +695,10 @@
                 <div class="status-item">
                     <span class="status-dot" id="pdfStatus"></span>
                     <span>PDF Server</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="cloudStatus"></span>
+                    <span>Cloud Server</span>
                 </div>
             </div>
 
@@ -698,6 +740,23 @@
                 <iframe src="/pdf/" id="pdfFrame" onload="hideLoading('pdf')"></iframe>
             </div>
         </section>
+
+        <!-- Cloud Page -->
+        <section class="page" id="cloud">
+            <div class="page-header">
+                <a href="#" class="back-btn" onclick="showPage('landing')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Kembali
+                </a>
+                <h1 class="page-title">HarywangCloud</h1>
+                <p class="page-subtitle">Penyimpanan aman hingga 20GB</p>
+            </div>
+            <div class="iframe-container">
+                <iframe src="/cloud/" id="cloudFrame" onload="hideLoading('cloud')"></iframe>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -734,7 +793,7 @@
         // Check URL hash on load
         window.addEventListener('load', () => {
             const hash = window.location.hash.slice(1);
-            if (hash && ['convert', 'pdf'].includes(hash)) {
+            if (hash && ['convert', 'pdf', 'cloud'].includes(hash)) {
                 showPage(hash);
             }
         });
@@ -757,6 +816,14 @@
             } catch {
                 pdfStatus.classList.add('offline');
             }
+
+            const cloudStatus = document.getElementById('cloudStatus');
+            try {
+                const cloudRes = await fetch('/cloud/health', { timeout: 3000 });
+                cloudStatus.classList.toggle('offline', !cloudRes.ok);
+            } catch {
+                cloudStatus.classList.add('offline');
+            }
         }
 
         // Check status on load and periodically
@@ -773,7 +840,7 @@
             const hash = window.location.hash.slice(1);
             if (!hash || hash === 'landing') {
                 showPage('landing');
-            } else if (['convert', 'pdf'].includes(hash)) {
+            } else if (['convert', 'pdf', 'cloud'].includes(hash)) {
                 showPage(hash);
             }
         });

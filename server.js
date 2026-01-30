@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 80;
 // Port untuk services
 const CONVERT_PORT = 3001;
 const PDF_PORT = 3002;
+const CLOUD_PORT = 3003;
 
 // Serve static dashboard files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,6 +36,17 @@ app.use('/pdf', createProxyMiddleware({
     }
 }));
 
+// Proxy untuk Cloud service
+app.use('/cloud', createProxyMiddleware({
+    target: `http://localhost:${CLOUD_PORT}`,
+    changeOrigin: true,
+    pathRewrite: { '^/cloud': '' },
+    onError: (err, req, res) => {
+        console.error('[Cloud Proxy Error]', err.message);
+        res.status(502).json({ error: 'Cloud service unavailable' });
+    }
+}));
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({
@@ -42,7 +54,8 @@ app.get('/health', (req, res) => {
         services: {
             dashboard: 'running',
             convert: `http://localhost:${CONVERT_PORT}`,
-            pdf: `http://localhost:${PDF_PORT}`
+            pdf: `http://localhost:${PDF_PORT}`,
+            cloud: `http://localhost:${CLOUD_PORT}`
         },
         timestamp: new Date().toISOString()
     });
@@ -56,5 +69,6 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`   Main:    http://localhost:${PORT}`);
     console.log(`   Convert: http://localhost:${PORT}/convert`);
     console.log(`   PDF:     http://localhost:${PORT}/pdf`);
+    console.log(`   Cloud:   http://localhost:${PORT}/cloud`);
     console.log('\n=========================================\n');
 });

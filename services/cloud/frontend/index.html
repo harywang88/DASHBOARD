@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarywangCloud - Secure Storage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: rgba(16, 185, 129, 0.15);
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --accent: #06b6d4;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p { color: var(--text-secondary); font-size: 15px; }
+
+        /* Storage Bar */
+        .storage-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            animation: fadeIn 0.5s ease 0.1s backwards;
+        }
+
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .storage-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .storage-info { font-size: 14px; color: var(--text-secondary); }
+        .storage-info strong { color: var(--text-primary); }
+
+        .storage-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: var(--bg-hover);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .storage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 6px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 0;
+        }
+
+        .storage-bar-fill.warning { background: linear-gradient(90deg, var(--warning), var(--danger)); }
+
+        .storage-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat { font-size: 13px; color: var(--text-secondary); }
+        .stat strong { color: var(--primary); }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            animation: fadeIn 0.5s ease 0.2s backwards;
+            position: relative;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-zone.dragover { transform: scale(1.01); }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-zone h3 { font-size: 18px; margin-bottom: 8px; }
+        .upload-zone p { color: var(--text-secondary); font-size: 14px; }
+
+        .upload-input { display: none; }
+
+        /* Progress */
+        .upload-progress {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .upload-progress.active { display: block; animation: fadeIn 0.3s ease; }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .progress-filename { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+        .progress-percent { color: var(--primary); font-weight: 600; }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-hover);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            animation: fadeIn 0.5s ease 0.3s backwards;
+        }
+
+        .toolbar h3 { font-size: 18px; font-weight: 700; }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            flex: 1;
+            max-width: 320px;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .search-box input::placeholder { color: var(--text-secondary); }
+
+        .sort-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .sort-btn:hover { border-color: var(--primary); color: var(--text-primary); }
+
+        /* File List */
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            animation: fadeIn 0.5s ease 0.4s backwards;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .file-icon.image { background: rgba(236, 72, 153, 0.15); }
+        .file-icon.video { background: rgba(168, 85, 247, 0.15); }
+        .file-icon.audio { background: rgba(245, 158, 11, 0.15); }
+        .file-icon.document { background: rgba(59, 130, 246, 0.15); }
+        .file-icon.archive { background: rgba(16, 185, 129, 0.15); }
+        .file-icon.other { background: rgba(148, 163, 184, 0.15); }
+
+        .file-info { flex: 1; min-width: 0; }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-download {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .btn-download:hover { background: var(--primary); color: white; }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg { margin-bottom: 16px; opacity: 0.3; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text-primary); }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { border-color: var(--danger); }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .file-item { flex-wrap: wrap; }
+            .file-actions { width: 100%; }
+            .btn { flex: 1; justify-content: center; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h1><span>HarywangCloud</span></h1>
+        <p>Penyimpanan aman hingga 20GB &mdash; Upload & download cepat</p>
+    </div>
+
+    <!-- Storage Bar -->
+    <div class="storage-card">
+        <div class="storage-header">
+            <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                    <path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                </svg>
+                Storage
+            </h3>
+            <span class="storage-info"><strong id="usedText">0 B</strong> / 20 GB</span>
+        </div>
+        <div class="storage-bar-bg">
+            <div class="storage-bar-fill" id="storageBar" style="width: 0%"></div>
+        </div>
+        <div class="storage-stats">
+            <span class="stat">Tersisa: <strong id="availText">20 GB</strong></span>
+            <span class="stat">File: <strong id="fileCount">0</strong></span>
+        </div>
+    </div>
+
+    <!-- Upload Zone -->
+    <div class="upload-zone" id="uploadZone">
+        <input type="file" class="upload-input" id="fileInput" multiple>
+        <div class="upload-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+        </div>
+        <h3>Drop file di sini atau klik untuk upload</h3>
+        <p>Semua tipe file &bull; Maks 500MB per file</p>
+    </div>
+
+    <!-- Upload Progress -->
+    <div class="upload-progress" id="uploadProgress">
+        <div class="progress-info">
+            <span class="progress-filename" id="progressName">file.zip</span>
+            <span class="progress-percent" id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <h3>File Saya</h3>
+        <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Cari file..." id="searchInput" oninput="renderFiles()">
+        </div>
+        <button class="sort-btn" id="sortBtn" onclick="toggleSort()">Terbaru</button>
+    </div>
+
+    <!-- File List -->
+    <div class="file-list" id="fileList"></div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let files = [];
+        let sortBy = 'newest';
+
+        // Init
+        async function init() {
+            await loadStorage();
+            await loadFiles();
+        }
+
+        // Load storage info
+        async function loadStorage() {
+            try {
+                const res = await fetch('/api/storage');
+                const data = await res.json();
+                const pct = (data.used / data.total) * 100;
+
+                document.getElementById('usedText').textContent = formatSize(data.used);
+                document.getElementById('availText').textContent = formatSize(data.available);
+                document.getElementById('fileCount').textContent = data.fileCount;
+
+                const bar = document.getElementById('storageBar');
+                bar.style.width = pct + '%';
+                bar.classList.toggle('warning', pct > 80);
+            } catch {}
+        }
+
+        // Load files
+        async function loadFiles() {
+            try {
+                const res = await fetch('/api/files');
+                const data = await res.json();
+                files = data.files || [];
+                renderFiles();
+            } catch {}
+        }
+
+        // Render file list
+        function renderFiles() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = files.filter(f => f.originalName.toLowerCase().includes(search));
+
+            if (sortBy === 'newest') filtered.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            else if (sortBy === 'oldest') filtered.sort((a, b) => new Date(a.uploadedAt) - new Date(b.uploadedAt));
+            else if (sortBy === 'largest') filtered.sort((a, b) => b.size - a.size);
+            else if (sortBy === 'name') filtered.sort((a, b) => a.originalName.localeCompare(b.originalName));
+
+            const list = document.getElementById('fileList');
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+                            <path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                        </svg>
+                        <h3>Belum ada file</h3>
+                        <p>Upload file pertama kamu di atas</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(f => `
+                <div class="file-item">
+                    <div class="file-icon ${getFileCategory(f.mimetype)}">
+                        ${getFileEmoji(f.mimetype)}
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name" title="${escapeHtml(f.originalName)}">${escapeHtml(f.originalName)}</div>
+                        <div class="file-meta">
+                            <span>${formatSize(f.size)}</span>
+                            <span>${formatDate(f.uploadedAt)}</span>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-download" onclick="downloadFile('${f.id}', '${escapeHtml(f.originalName)}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteFile('${f.id}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Upload
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleUpload(e.dataTransfer.files);
+        });
+        fileInput.addEventListener('change', () => handleUpload(fileInput.files));
+
+        async function handleUpload(fileList) {
+            for (const file of fileList) {
+                await uploadFile(file);
+            }
+            fileInput.value = '';
+        }
+
+        async function uploadFile(file) {
+            const progress = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressName = document.getElementById('progressName');
+            const progressPercent = document.getElementById('progressPercent');
+
+            progress.classList.add('active');
+            progressName.textContent = file.name;
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', e => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = pct + '%';
+                        progressPercent.textContent = pct + '%';
+                    }
+                });
+
+                await new Promise((resolve, reject) => {
+                    xhr.onload = () => {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            showToast('Upload berhasil: ' + file.name);
+                            resolve();
+                        } else {
+                            const err = JSON.parse(xhr.responseText);
+                            showToast(err.error || 'Upload gagal', true);
+                            reject();
+                        }
+                    };
+                    xhr.onerror = () => { showToast('Upload gagal', true); reject(); };
+                    xhr.open('POST', '/api/upload');
+                    xhr.send(formData);
+                });
+            } catch {}
+
+            progress.classList.remove('active');
+            await loadStorage();
+            await loadFiles();
+        }
+
+        // Download
+        async function downloadFile(id, name) {
+            try {
+                const res = await fetch('/api/download/' + id);
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch { showToast('Download gagal', true); }
+        }
+
+        // Delete
+        async function deleteFile(id) {
+            if (!confirm('Hapus file ini?')) return;
+            try {
+                await fetch('/api/delete/' + id, { method: 'DELETE' });
+                showToast('File dihapus');
+                await loadStorage();
+                await loadFiles();
+            } catch { showToast('Gagal menghapus', true); }
+        }
+
+        // Sort
+        function toggleSort() {
+            const orders = ['newest', 'oldest', 'largest', 'name'];
+            const labels = ['Terbaru', 'Terlama', 'Terbesar', 'Nama A-Z'];
+            const idx = (orders.indexOf(sortBy) + 1) % orders.length;
+            sortBy = orders[idx];
+            document.getElementById('sortBtn').textContent = labels[idx];
+            renderFiles();
+        }
+
+        // Toast
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // Helpers
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatDate(iso) {
+            const d = new Date(iso);
+            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getFileCategory(mime) {
+            if (!mime) return 'other';
+            if (mime.startsWith('image/')) return 'image';
+            if (mime.startsWith('video/')) return 'video';
+            if (mime.startsWith('audio/')) return 'audio';
+            if (mime.includes('pdf') || mime.includes('document') || mime.includes('text') || mime.includes('sheet') || mime.includes('presentation')) return 'document';
+            if (mime.includes('zip') || mime.includes('rar') || mime.includes('tar') || mime.includes('7z') || mime.includes('compress')) return 'archive';
+            return 'other';
+        }
+
+        function getFileEmoji(mime) {
+            const cat = getFileCategory(mime);
+            const icons = { image: '🖼️', video: '🎬', audio: '🎵', document: '📄', archive: '📦', other: '📁' };
+            return icons[cat];
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        init();
+    </script>
+</body>
+</html>

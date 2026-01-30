@@ -43,6 +43,19 @@ module.exports = {
       max_memory_restart: '1G'
     },
     {
+      name: 'harywang-cloud',
+      script: 'server.js',
+      cwd: '/var/www/harywang-dashboard/services/cloud',
+      env: {
+        PORT: 3003,
+        NODE_ENV: 'production'
+      },
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G'
+    },
+    {
       name: 'webhook',
       script: 'deploy/webhook.js',
       cwd: '/var/www/harywang-dashboard',
