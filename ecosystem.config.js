@@ -41,6 +41,21 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: '1G'
+    },
+    {
+      name: 'webhook',
+      script: 'deploy/webhook.js',
+      cwd: '/var/www/harywang-dashboard',
+      env: {
+        WEBHOOK_PORT: 9000,
+        WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || 'ganti-dengan-secret-anda',
+        PROJECT_DIR: '/var/www/harywang-dashboard',
+        NODE_ENV: 'production'
+      },
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '200M'
     }
   ]
 };
