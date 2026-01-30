@@ -9,153 +9,22 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #0a0a0a;
+            background: #0f1117;
             color: #e5e5e5;
             min-height: 100vh;
         }
 
-        /* ============ AUTH SCREENS ============ */
-
-        .auth-overlay {
-            position: fixed; inset: 0;
-            background: #0a0a0a;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1000;
-            animation: fadeIn .3s;
-        }
-
-        .auth-box {
-            background: #171717;
-            border: 1px solid #262626;
-            border-radius: 16px;
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .auth-box h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .auth-box p {
-            color: #737373;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        .auth-box .field {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-
-        .auth-box label {
-            display: block;
-            font-size: 13px;
-            color: #a3a3a3;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .auth-box input {
-            width: 100%;
-            padding: 12px 14px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 15px;
-            outline: none;
-            transition: border-color .2s;
-        }
-
-        .auth-box input:focus {
-            border-color: #10b981;
-        }
-
-        .auth-box input::placeholder {
-            color: #525252;
-        }
-
-        .auth-box .hint {
-            font-size: 11px;
-            color: #525252;
-            margin-top: 4px;
-        }
-
-        .auth-box .btn-primary {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: opacity .2s, transform .1s;
-        }
-
-        .auth-box .btn-primary:hover { opacity: .9; }
-        .auth-box .btn-primary:active { transform: scale(.98); }
-
-        .auth-box .divider {
-            display: flex; align-items: center; gap: 12px;
-            margin: 20px 0;
-            color: #404040;
-            font-size: 12px;
-        }
-
-        .auth-box .divider::before,
-        .auth-box .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #262626;
-        }
-
-        .auth-box .toggle-link {
-            color: #10b981;
-            cursor: pointer;
-            font-size: 13px;
-            text-decoration: underline;
-            background: none;
-            border: none;
-        }
-
-        .auth-error {
-            background: #450a0a;
-            border: 1px solid #7f1d1d;
-            color: #fca5a5;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .auth-error.show { display: block; }
-
-        /* ============ MAIN APP ============ */
-
-        .app { display: none; }
-        .app.active { display: block; }
+        /* ============ HEADER ============ */
 
         .header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #1a1a1a;
+            padding: 16px 24px;
+            border-bottom: 1px solid #1e2030;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: sticky;
             top: 0;
-            background: rgba(10,10,10,.92);
+            background: rgba(15,17,23,.95);
             backdrop-filter: blur(12px);
             z-index: 50;
         }
@@ -163,271 +32,296 @@
         .header-left {
             display: flex;
             align-items: center;
-            gap: 14px;
-        }
-
-        .header-left .logo {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: #fff;
-        }
-
-        .header-left h1 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
             gap: 12px;
         }
 
-        .storage-bar-mini {
+        .header-left .logo {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: #fff;
+        }
+
+        .header-left h1 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .storage-info {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #171717;
-            padding: 8px 14px;
-            border-radius: 10px;
-            border: 1px solid #262626;
+            font-size: 12px;
+            color: #737373;
         }
 
-        .storage-bar-mini .bar {
-            width: 100px;
-            height: 6px;
-            background: #262626;
+        .storage-info .bar {
+            width: 80px; height: 5px;
+            background: #1e2030;
             border-radius: 3px;
             overflow: hidden;
         }
 
-        .storage-bar-mini .bar-fill {
+        .storage-info .bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #10b981, #34d399);
+            background: #10b981;
             border-radius: 3px;
-            transition: width .4s ease;
-        }
-
-        .storage-bar-mini span {
-            font-size: 12px;
-            color: #a3a3a3;
-            white-space: nowrap;
-        }
-
-        .btn-logout {
-            padding: 8px 14px;
-            background: #1c1c1c;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #a3a3a3;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-
-        .btn-logout:hover {
-            background: #2a1215;
-            border-color: #7f1d1d;
-            color: #fca5a5;
+            transition: width .4s;
         }
 
         /* ============ TOOLBAR ============ */
 
         .toolbar {
-            padding: 16px 24px;
+            padding: 10px 24px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            border-bottom: 1px solid #1a1d2a;
             flex-wrap: wrap;
         }
 
         .breadcrumb {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             flex: 1;
             min-width: 0;
             flex-wrap: wrap;
+            font-size: 13px;
         }
 
         .breadcrumb a {
-            color: #10b981;
+            color: #60a5fa;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
             cursor: pointer;
-            transition: opacity .2s;
-            white-space: nowrap;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background .15s;
         }
 
-        .breadcrumb a:hover { opacity: .7; }
+        .breadcrumb a:hover { background: rgba(96,165,250,.1); }
 
         .breadcrumb a.current {
             color: #e5e5e5;
             cursor: default;
         }
 
+        .breadcrumb a.current:hover { background: transparent; }
+
         .breadcrumb .sep {
-            color: #404040;
-            font-size: 12px;
+            color: #404050;
+            font-size: 11px;
         }
 
-        .toolbar-actions {
+        .toolbar-btns {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .btn {
-            padding: 9px 16px;
-            border-radius: 9px;
-            font-size: 13px;
+        .tb {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
-            border: none;
-            transition: all .2s;
+            border: 1px solid #2a2d3a;
+            background: #181b26;
+            color: #c0c0c0;
+            transition: all .15s;
             display: flex;
             align-items: center;
-            gap: 6px;
-            white-space: nowrap;
+            gap: 5px;
         }
 
-        .btn-green {
-            background: linear-gradient(135deg, #10b981, #059669);
+        .tb:hover { background: #22263a; border-color: #3a3d4a; color: #fff; }
+
+        .tb-green {
+            background: #10b981;
+            border-color: #10b981;
             color: #fff;
         }
 
-        .btn-green:hover { opacity: .85; }
+        .tb-green:hover { background: #059669; border-color: #059669; }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #333;
-            color: #d4d4d4;
+        /* ============ UPLOAD ZONE ============ */
+
+        .upload-zone {
+            margin: 12px 24px;
+            border: 2px dashed #1e2030;
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .25s;
         }
 
-        .btn-outline:hover {
-            background: #1c1c1c;
-            border-color: #444;
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #10b981;
+            background: rgba(16,185,129,.04);
         }
 
-        /* ============ FILE GRID ============ */
+        .upload-zone p { color: #555; font-size: 13px; }
+        .upload-zone .sub { font-size: 11px; color: #333; margin-top: 3px; }
 
-        .content {
+        .upload-progress {
+            display: none;
+            margin: 0 24px 8px;
+            background: #181b26;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .upload-progress.show { display: block; }
+
+        .upload-progress .bar-w {
+            width: 100%;
+            height: 6px;
+            background: #1e2030;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .upload-progress .bar-f {
+            height: 100%;
+            background: #10b981;
+            border-radius: 3px;
+            transition: width .2s;
+            width: 0%;
+        }
+
+        .upload-progress .info { font-size: 11px; color: #666; }
+
+        /* ============ EXPLORER TABLE ============ */
+
+        .explorer {
             padding: 0 24px 24px;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 80px 24px;
-            color: #525252;
+        .explorer-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+        .explorer-table thead th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: 1px solid #1e2030;
+            position: sticky;
+            top: 55px;
+            background: #0f1117;
+            z-index: 10;
+            user-select: none;
         }
 
-        .empty-state p {
-            font-size: 15px;
-        }
+        .explorer-table thead th:first-child { padding-left: 16px; }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-        }
-
-        .card {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 16px;
+        .explorer-table tbody tr {
+            border-bottom: 1px solid #141620;
+            transition: background .1s;
             cursor: pointer;
-            transition: all .2s;
-            position: relative;
-            overflow: hidden;
         }
 
-        .card:hover {
-            border-color: #333;
-            background: #1a1a1a;
-            transform: translateY(-2px);
+        .explorer-table tbody tr:hover {
+            background: #161924;
         }
 
-        .card .card-icon {
-            width: 44px; height: 44px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px;
-            margin-bottom: 12px;
-        }
-
-        .card.folder .card-icon {
-            background: rgba(234, 179, 8, .15);
-        }
-
-        .card.file .card-icon {
-            background: rgba(16, 185, 129, .15);
-        }
-
-        .card .card-name {
+        .explorer-table td {
+            padding: 10px 12px;
             font-size: 13px;
-            font-weight: 500;
-            color: #e5e5e5;
+            vertical-align: middle;
+        }
+
+        .explorer-table td:first-child { padding-left: 16px; }
+
+        .cell-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cell-name .icon {
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .cell-name .icon.folder-icon {
+            background: rgba(234,179,8,.12);
+        }
+
+        .cell-name .icon.file-icon {
+            background: rgba(96,165,250,.1);
+        }
+
+        .cell-name .name-text {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            margin-bottom: 4px;
-            padding-right: 28px;
+            font-weight: 500;
         }
 
-        .card .card-info {
-            font-size: 11px;
-            color: #525252;
+        .cell-name .lock-badge {
+            font-size: 10px;
+            background: rgba(234,179,8,.15);
+            color: #eab308;
+            padding: 1px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
         }
 
-        .card .card-actions {
-            position: absolute;
-            top: 12px;
-            right: 12px;
+        .cell-date, .cell-size, .cell-type {
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .cell-actions {
+            opacity: 0;
+            transition: opacity .15s;
             display: flex;
             gap: 4px;
-            opacity: 0;
-            transition: opacity .2s;
         }
 
-        .card:hover .card-actions { opacity: 1; }
+        tr:hover .cell-actions { opacity: 1; }
 
-        .card .card-actions button {
+        .act-btn {
             width: 28px; height: 28px;
             border-radius: 6px;
             border: none;
-            background: rgba(255,255,255,.06);
-            color: #a3a3a3;
-            font-size: 14px;
+            background: rgba(255,255,255,.04);
+            color: #888;
+            font-size: 13px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all .15s;
+            display: flex; align-items: center; justify-content: center;
+            transition: all .1s;
         }
 
-        .card .card-actions button:hover {
-            background: rgba(255,255,255,.12);
-            color: #fff;
+        .act-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+        .act-btn.del:hover { background: rgba(239,68,68,.15); color: #ef4444; }
+
+        /* Empty */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #444;
         }
 
-        .card .card-actions button.del:hover {
-            background: rgba(239, 68, 68, .2);
-            color: #ef4444;
-        }
+        .empty-state .e-icon { font-size: 40px; margin-bottom: 12px; opacity: .5; }
+        .empty-state p { font-size: 14px; }
 
         /* ============ MODALS ============ */
 
-        .modal-overlay {
+        .modal-bg {
             position: fixed; inset: 0;
-            background: rgba(0,0,0,.6);
+            background: rgba(0,0,0,.55);
             display: flex; align-items: center; justify-content: center;
             z-index: 200;
             opacity: 0;
@@ -435,487 +329,440 @@
             transition: all .2s;
         }
 
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-bg.show { opacity: 1; visibility: visible; }
 
         .modal {
-            background: #171717;
-            border: 1px solid #262626;
-            border-radius: 14px;
-            padding: 28px;
+            background: #181b26;
+            border: 1px solid #2a2d3a;
+            border-radius: 12px;
+            padding: 24px;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
             transform: scale(.95);
             transition: transform .2s;
         }
 
-        .modal-overlay.show .modal {
-            transform: scale(1);
+        .modal-bg.show .modal { transform: scale(1); }
+
+        .modal h3 { font-size: 16px; margin-bottom: 16px; font-weight: 600; }
+
+        .modal .field { margin-bottom: 14px; }
+
+        .modal label {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        .modal h3 {
-            font-size: 18px;
-            margin-bottom: 16px;
-        }
-
-        .modal input {
+        .modal input[type="text"],
+        .modal input[type="password"] {
             width: 100%;
-            padding: 11px 14px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
+            padding: 10px 12px;
+            background: #0f1117;
+            border: 1px solid #2a2d3a;
+            border-radius: 7px;
             color: #fff;
             font-size: 14px;
             outline: none;
-            margin-bottom: 16px;
+            transition: border-color .15s;
         }
 
         .modal input:focus { border-color: #10b981; }
+        .modal input::placeholder { color: #3a3d4a; }
+
+        .modal .hint { font-size: 11px; color: #444; margin-top: 3px; }
+
+        .modal .radio-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .modal .radio-opt {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #2a2d3a;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+            transition: all .15s;
+        }
+
+        .modal .radio-opt:hover { border-color: #3a3d4a; color: #ccc; }
+
+        .modal .radio-opt.selected {
+            border-color: #10b981;
+            background: rgba(16,185,129,.08);
+            color: #10b981;
+        }
+
+        .modal .m-error {
+            background: #2a1215;
+            border: 1px solid #5c1d24;
+            color: #fca5a5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .modal .m-error.show { display: block; }
 
         .modal-btns {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: flex-end;
+            margin-top: 4px;
         }
 
         .modal-btns button {
-            padding: 9px 20px;
-            border-radius: 8px;
+            padding: 8px 18px;
+            border-radius: 7px;
             border: none;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: opacity .2s;
+            transition: opacity .15s;
         }
 
-        .modal-btns .cancel {
-            background: #262626;
-            color: #a3a3a3;
-        }
-
-        .modal-btns .confirm {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #fff;
-        }
-
-        /* ============ UPLOAD AREA ============ */
-
-        .upload-zone {
-            border: 2px dashed #262626;
-            border-radius: 14px;
-            padding: 32px;
-            text-align: center;
-            margin-bottom: 20px;
-            transition: all .3s;
-            cursor: pointer;
-        }
-
-        .upload-zone.dragover {
-            border-color: #10b981;
-            background: rgba(16,185,129,.05);
-        }
-
-        .upload-zone .uz-icon { font-size: 36px; margin-bottom: 10px; }
-
-        .upload-zone p { color: #737373; font-size: 14px; }
-
-        .upload-zone .sub { font-size: 12px; color: #404040; margin-top: 4px; }
-
-        .upload-progress {
-            display: none;
-            margin-bottom: 20px;
-        }
-
-        .upload-progress.show { display: block; }
-
-        .upload-progress .bar-wrap {
-            width: 100%;
-            height: 8px;
-            background: #1c1c1c;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 6px;
-        }
-
-        .upload-progress .bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #10b981, #34d399);
-            border-radius: 4px;
-            transition: width .3s;
-            width: 0%;
-        }
-
-        .upload-progress .info {
-            font-size: 12px;
-            color: #737373;
-        }
+        .modal-btns .m-cancel { background: #2a2d3a; color: #999; }
+        .modal-btns .m-cancel:hover { background: #333; }
+        .modal-btns .m-ok { background: #10b981; color: #fff; }
+        .modal-btns .m-ok:hover { opacity: .85; }
+        .modal-btns .m-del { background: #dc2626; color: #fff; }
+        .modal-btns .m-del:hover { opacity: .85; }
 
         /* ============ TOAST ============ */
 
-        .toast-container {
+        .toast-box {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 20px;
+            right: 20px;
             z-index: 300;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .toast {
-            background: #1c1c1c;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 12px 18px;
-            font-size: 13px;
-            color: #e5e5e5;
-            animation: slideUp .3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background: #1e2030;
+            border: 1px solid #2a2d3a;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #ddd;
+            animation: slideUp .25s;
         }
 
-        .toast.success { border-color: #065f46; }
-        .toast.error { border-color: #7f1d1d; color: #fca5a5; }
+        .toast.ok { border-color: #065f46; }
+        .toast.err { border-color: #7f1d1d; color: #fca5a5; }
 
-        /* ============ ANIMATIONS ============ */
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ============ RESPONSIVE ============ */
 
-        @media (max-width: 600px) {
-            .header { padding: 14px 16px; }
-            .toolbar { padding: 12px 16px; }
-            .content { padding: 0 16px 16px; }
-            .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-            .storage-bar-mini { display: none; }
-            .auth-box { padding: 28px 20px; margin: 16px; }
+        @media (max-width: 640px) {
+            .header { padding: 12px 14px; }
+            .toolbar { padding: 8px 14px; }
+            .upload-zone { margin: 8px 14px; padding: 18px; }
+            .explorer { padding: 0 14px 14px; }
+            .explorer-table td:nth-child(3),
+            .explorer-table th:nth-child(3),
+            .explorer-table td:nth-child(4),
+            .explorer-table th:nth-child(4) { display: none; }
         }
     </style>
 </head>
 <body>
-    <!-- AUTH SCREEN -->
-    <div id="authScreen" class="auth-overlay" style="display:none;">
-        <!-- Setup Form -->
-        <div id="setupBox" class="auth-box" style="display:none;">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">&#9729;</div>
             <h1>HarywangCloud</h1>
-            <p>Buat password dan PIN untuk mengamankan data kamu</p>
-            <div id="setupError" class="auth-error"></div>
-            <div class="field">
-                <label>Password</label>
-                <input type="text" id="setupPassword" placeholder="Contoh: HARY123" autocomplete="off" spellcheck="false">
-                <div class="hint">Huruf besar (A-Z) dan angka (0-9), minimal 4 karakter</div>
-            </div>
-            <div class="field">
-                <label>PIN</label>
-                <input type="password" id="setupPin" placeholder="6 digit angka" maxlength="6" inputmode="numeric">
-                <div class="hint">PIN 6 digit untuk login cepat</div>
-            </div>
-            <button class="btn-primary" onclick="doSetup()">Buat Akun</button>
         </div>
-
-        <!-- Login Form -->
-        <div id="loginBox" class="auth-box" style="display:none;">
-            <h1>HarywangCloud</h1>
-            <p>Masukkan password atau PIN untuk masuk</p>
-            <div id="loginError" class="auth-error"></div>
-            <div id="loginPasswordField" class="field">
-                <label>Password</label>
-                <input type="password" id="loginPassword" placeholder="Masukkan password" autocomplete="off">
-            </div>
-            <div id="loginPinField" class="field" style="display:none;">
-                <label>PIN</label>
-                <input type="password" id="loginPin" placeholder="6 digit PIN" maxlength="6" inputmode="numeric">
-            </div>
-            <button class="btn-primary" onclick="doLogin()">Masuk</button>
-            <div class="divider">atau</div>
-            <button class="toggle-link" id="toggleAuth" onclick="toggleLoginMode()">Masuk dengan PIN</button>
+        <div class="storage-info">
+            <div class="bar"><div class="bar-fill" id="storageBarFill"></div></div>
+            <span id="storageText">--</span>
         </div>
     </div>
 
-    <!-- MAIN APP -->
-    <div id="app" class="app">
-        <div class="header">
-            <div class="header-left">
-                <div class="logo">&#9729;</div>
-                <h1>HarywangCloud</h1>
-            </div>
-            <div class="header-right">
-                <div class="storage-bar-mini">
-                    <div class="bar"><div class="bar-fill" id="storageBarFill"></div></div>
-                    <span id="storageText">--</span>
-                </div>
-                <button class="btn-logout" onclick="doLogout()">Logout</button>
-            </div>
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="breadcrumb" id="breadcrumb"><a class="current">Root</a></div>
+        <div class="toolbar-btns">
+            <button class="tb" onclick="showNewFolderModal()">+ Folder</button>
+            <button class="tb tb-green" onclick="triggerUpload()">Upload</button>
         </div>
+    </div>
 
-        <div class="toolbar">
-            <div class="breadcrumb" id="breadcrumb">
-                <a class="current">Root</a>
-            </div>
-            <div class="toolbar-actions">
-                <button class="btn btn-outline" onclick="showNewFolderModal()">+ Folder</button>
-                <button class="btn btn-green" onclick="triggerUpload()">Upload</button>
-            </div>
-        </div>
+    <!-- UPLOAD ZONE -->
+    <div class="upload-zone" id="uploadZone">
+        <p>Klik atau drag file ke sini untuk upload</p>
+        <div class="sub">Maks 500MB per file</div>
+    </div>
 
-        <div class="content">
-            <div class="upload-zone" id="uploadZone">
-                <div class="uz-icon">&#128228;</div>
-                <p>Klik atau drag file ke sini untuk upload</p>
-                <div class="sub">Maksimal 500MB per file</div>
-            </div>
+    <div class="upload-progress" id="uploadProgress">
+        <div class="bar-w"><div class="bar-f" id="uploadBarFill"></div></div>
+        <div class="info" id="uploadInfo">Mengupload...</div>
+    </div>
 
-            <div class="upload-progress" id="uploadProgress">
-                <div class="bar-wrap"><div class="bar-fill" id="uploadBarFill"></div></div>
-                <div class="info" id="uploadInfo">Mengupload...</div>
-            </div>
-
-            <div id="fileGrid" class="grid"></div>
-            <div id="emptyState" class="empty-state" style="display:none;">
-                <div class="icon">&#128193;</div>
-                <p>Folder ini masih kosong</p>
-            </div>
+    <!-- EXPLORER -->
+    <div class="explorer">
+        <table class="explorer-table" id="explorerTable">
+            <thead>
+                <tr>
+                    <th style="width:50%;">Nama</th>
+                    <th style="width:18%;">Tanggal</th>
+                    <th style="width:12%;">Ukuran</th>
+                    <th style="width:12%;">Tipe</th>
+                    <th style="width:8%;"></th>
+                </tr>
+            </thead>
+            <tbody id="explorerBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">
+            <div class="e-icon">&#128193;</div>
+            <p>Folder ini kosong</p>
         </div>
     </div>
 
     <!-- NEW FOLDER MODAL -->
-    <div class="modal-overlay" id="folderModal">
+    <div class="modal-bg" id="folderModal">
         <div class="modal">
             <h3>Buat Folder Baru</h3>
-            <input type="text" id="folderNameInput" placeholder="Nama folder" maxlength="100">
+            <div class="m-error" id="folderError"></div>
+            <div class="field">
+                <label>Nama Folder</label>
+                <input type="text" id="folderNameInput" placeholder="Nama folder" maxlength="100">
+            </div>
+            <label style="font-size:12px;color:#888;margin-bottom:6px;display:block;">Keamanan Folder</label>
+            <div class="radio-group">
+                <div class="radio-opt selected" id="optPwd" onclick="setAuthType('password')">Password</div>
+                <div class="radio-opt" id="optPin" onclick="setAuthType('pin')">PIN</div>
+            </div>
+            <div class="field" id="pwdField">
+                <label>Password</label>
+                <input type="password" id="folderPassword" placeholder="Min 8 karakter" autocomplete="off">
+                <div class="hint">Huruf besar, kecil, dan angka</div>
+            </div>
+            <div class="field" id="pinField" style="display:none;">
+                <label>PIN</label>
+                <input type="password" id="folderPin" placeholder="6 digit angka" maxlength="6" inputmode="numeric">
+                <div class="hint">6 digit angka</div>
+            </div>
             <div class="modal-btns">
-                <button class="cancel" onclick="closeFolderModal()">Batal</button>
-                <button class="confirm" onclick="createFolder()">Buat</button>
+                <button class="m-cancel" onclick="closeFolderModal()">Batal</button>
+                <button class="m-ok" onclick="createFolder()">Buat</button>
             </div>
         </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL -->
-    <div class="modal-overlay" id="deleteModal">
+    <!-- UNLOCK MODAL -->
+    <div class="modal-bg" id="unlockModal">
+        <div class="modal">
+            <h3 id="unlockTitle">Buka Folder</h3>
+            <div class="m-error" id="unlockError"></div>
+            <div class="field">
+                <label id="unlockLabel">Password</label>
+                <input type="password" id="unlockInput" placeholder="Masukkan password" autocomplete="off">
+            </div>
+            <div class="modal-btns">
+                <button class="m-cancel" onclick="closeUnlockModal()">Batal</button>
+                <button class="m-ok" onclick="doUnlock()">Buka</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div class="modal-bg" id="deleteModal">
         <div class="modal">
             <h3 id="deleteTitle">Hapus?</h3>
-            <p style="color:#a3a3a3;font-size:14px;margin-bottom:20px;" id="deleteMsg">Item ini akan dihapus permanen.</p>
+            <p style="color:#888;font-size:13px;margin-bottom:16px;" id="deleteMsg"></p>
             <div class="modal-btns">
-                <button class="cancel" onclick="closeDeleteModal()">Batal</button>
-                <button class="confirm" style="background:#dc2626;" onclick="confirmDelete()">Hapus</button>
+                <button class="m-cancel" onclick="closeDeleteModal()">Batal</button>
+                <button class="m-del" onclick="confirmDelete()">Hapus</button>
             </div>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div class="toast-container" id="toastContainer"></div>
+    <div class="toast-box" id="toastBox"></div>
 
     <!-- HIDDEN FILE INPUT -->
     <input type="file" id="fileInput" style="display:none;" multiple>
 
     <script>
         // ============ STATE ============
-        let authToken = localStorage.getItem('cloud_token') || '';
-        let currentFolder = null;
-        let folderPath = [];
-        let deleteTarget = null;
-        let loginMode = 'password';
+        var currentFolder = null;
+        var folderPath = [];
+        var folderTokens = {};  // { folderId: token }
+        var deleteTarget = null;
+        var unlockTarget = null;
+        var newFolderAuthType = 'password';
 
-        // ============ API HELPER ============
-        function api(endpoint, opts = {}) {
-            const headers = opts.headers || {};
-            if (authToken) headers['X-Auth-Token'] = authToken;
+        // ============ API ============
+        function api(endpoint, opts) {
+            opts = opts || {};
+            var headers = opts.headers || {};
+            // Attach folder token if we have one for the current folder
+            if (currentFolder && folderTokens[currentFolder]) {
+                headers['X-Folder-Token'] = folderTokens[currentFolder];
+            }
             if (opts.json) {
                 headers['Content-Type'] = 'application/json';
                 opts.body = JSON.stringify(opts.json);
                 delete opts.json;
             }
-            return fetch('api/' + endpoint, { ...opts, headers });
+            opts.headers = headers;
+            return fetch('api/' + endpoint, opts);
         }
 
-        // ============ AUTH ============
-        async function checkAuth() {
-            try {
-                const r = await api('auth/status');
-                const data = await r.json();
-                if (!data.isSetup) { showAuthScreen('setup'); return; }
-                if (!data.isLoggedIn) { showAuthScreen('login'); return; }
-                showApp();
-            } catch (e) {
-                showAuthScreen('login');
-            }
-        }
-
-        function showAuthScreen(mode) {
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('app').classList.remove('active');
-            document.getElementById('setupBox').style.display = mode === 'setup' ? 'block' : 'none';
-            document.getElementById('loginBox').style.display = mode === 'login' ? 'block' : 'none';
-        }
-
-        function showApp() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('app').classList.add('active');
-            loadFiles();
-            loadStorage();
-        }
-
-        async function doSetup() {
-            const password = document.getElementById('setupPassword').value.trim();
-            const pin = document.getElementById('setupPin').value.trim();
-            const errEl = document.getElementById('setupError');
-            errEl.classList.remove('show');
-
-            if (!password || !pin) {
-                errEl.textContent = 'Password dan PIN wajib diisi';
-                errEl.classList.add('show');
-                return;
-            }
-
-            try {
-                const r = await api('auth/setup', { method: 'POST', json: { password, pin } });
-                const data = await r.json();
-                if (!r.ok) {
-                    errEl.textContent = data.error || 'Gagal setup';
-                    errEl.classList.add('show');
-                    return;
-                }
-                authToken = data.token;
-                localStorage.setItem('cloud_token', authToken);
-                toast('Akun berhasil dibuat!', 'success');
-                showApp();
-            } catch (e) {
-                errEl.textContent = 'Koneksi gagal';
-                errEl.classList.add('show');
-            }
-        }
-
-        async function doLogin() {
-            const errEl = document.getElementById('loginError');
-            errEl.classList.remove('show');
-
-            const body = {};
-            if (loginMode === 'password') {
-                body.password = document.getElementById('loginPassword').value.trim();
-                if (!body.password) { errEl.textContent = 'Masukkan password'; errEl.classList.add('show'); return; }
-            } else {
-                body.pin = document.getElementById('loginPin').value.trim();
-                if (!body.pin) { errEl.textContent = 'Masukkan PIN'; errEl.classList.add('show'); return; }
-            }
-
-            try {
-                const r = await api('auth/login', { method: 'POST', json: body });
-                const data = await r.json();
-                if (!r.ok) {
-                    errEl.textContent = data.error || 'Login gagal';
-                    errEl.classList.add('show');
-                    return;
-                }
-                authToken = data.token;
-                localStorage.setItem('cloud_token', authToken);
-                toast('Login berhasil!', 'success');
-                showApp();
-            } catch (e) {
-                errEl.textContent = 'Koneksi gagal';
-                errEl.classList.add('show');
-            }
-        }
-
-        function doLogout() {
-            authToken = '';
-            localStorage.removeItem('cloud_token');
-            currentFolder = null;
-            folderPath = [];
-            showAuthScreen('login');
-        }
-
-        function toggleLoginMode() {
-            const toggle = document.getElementById('toggleAuth');
-            if (loginMode === 'password') {
-                loginMode = 'pin';
-                document.getElementById('loginPasswordField').style.display = 'none';
-                document.getElementById('loginPinField').style.display = 'block';
-                toggle.textContent = 'Masuk dengan Password';
-            } else {
-                loginMode = 'password';
-                document.getElementById('loginPasswordField').style.display = 'block';
-                document.getElementById('loginPinField').style.display = 'none';
-                toggle.textContent = 'Masuk dengan PIN';
-            }
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key !== 'Enter') return;
-            if (document.getElementById('setupBox').style.display === 'block') doSetup();
-            else if (document.getElementById('loginBox').style.display === 'block') doLogin();
-            else if (document.getElementById('folderModal').classList.contains('show')) createFolder();
-        });
-
-        // ============ FILES & FOLDERS ============
+        // ============ LOAD ============
         async function loadFiles() {
             try {
-                const url = currentFolder ? 'files?folder=' + currentFolder : 'files';
-                const r = await api(url);
-                if (r.status === 401) { doLogout(); return; }
-                const data = await r.json();
-                renderGrid(data.folders || [], data.files || []);
+                var url = currentFolder ? 'files?folder=' + currentFolder : 'files';
+                var headers = {};
+                if (currentFolder && folderTokens[currentFolder]) {
+                    headers['X-Folder-Token'] = folderTokens[currentFolder];
+                }
+                var r = await fetch('api/' + url, { headers: headers });
+                if (r.status === 403) {
+                    // Folder locked, should not happen if we always unlock first
+                    toast('Folder terkunci', 'err');
+                    return;
+                }
+                var data = await r.json();
+                renderExplorer(data.folders || [], data.files || []);
                 updateBreadcrumb();
             } catch (e) {
-                toast('Gagal memuat file', 'error');
+                toast('Gagal memuat', 'err');
             }
         }
 
         async function loadStorage() {
             try {
-                const r = await api('storage');
+                var r = await fetch('api/storage');
                 if (!r.ok) return;
-                const data = await r.json();
-                const pct = (data.used / data.total * 100).toFixed(1);
+                var data = await r.json();
+                var pct = (data.used / data.total * 100).toFixed(1);
                 document.getElementById('storageBarFill').style.width = pct + '%';
-                document.getElementById('storageText').textContent = formatSize(data.used) + ' / ' + formatSize(data.total);
+                document.getElementById('storageText').textContent = fmtSize(data.used) + ' / ' + fmtSize(data.total);
             } catch (e) {}
         }
 
-        function renderGrid(folders, files) {
-            const grid = document.getElementById('fileGrid');
-            const empty = document.getElementById('emptyState');
+        // ============ RENDER EXPLORER ============
+        function renderExplorer(folders, files) {
+            var body = document.getElementById('explorerBody');
+            var empty = document.getElementById('emptyState');
 
             if (folders.length === 0 && files.length === 0) {
-                grid.innerHTML = '';
+                body.innerHTML = '';
                 empty.style.display = 'block';
                 return;
             }
-
             empty.style.display = 'none';
-            let html = '';
 
-            folders.forEach(f => {
-                html += '<div class="card folder" ondblclick="openFolder(\'' + f.id + '\',\'' + escAttr(f.name) + '\')">'
-                    + '<div class="card-actions">'
-                    + '<button class="del" title="Hapus folder" onclick="event.stopPropagation();askDelete(\'folder\',\'' + f.id + '\',\'' + escAttr(f.name) + '\')">&#10005;</button>'
-                    + '</div>'
-                    + '<div class="card-icon">&#128193;</div>'
-                    + '<div class="card-name">' + esc(f.name) + '</div>'
-                    + '<div class="card-info">Folder</div>'
-                    + '</div>';
+            var html = '';
+
+            folders.forEach(function(f) {
+                var lockLabel = f.authType === 'pin' ? 'PIN' : 'PWD';
+                html += '<tr ondblclick="openFolder(\'' + f.id + '\',\'' + escA(f.name) + '\',\'' + (f.authType || 'password') + '\')">'
+                    + '<td><div class="cell-name">'
+                    + '<div class="icon folder-icon">&#128193;</div>'
+                    + '<span class="name-text">' + esc(f.name) + '</span>'
+                    + '<span class="lock-badge">&#128274; ' + lockLabel + '</span>'
+                    + '</div></td>'
+                    + '<td class="cell-date">' + fmtDate(f.createdAt) + '</td>'
+                    + '<td class="cell-size">—</td>'
+                    + '<td class="cell-type">Folder</td>'
+                    + '<td><div class="cell-actions">'
+                    + '<button class="act-btn del" title="Hapus" onclick="event.stopPropagation();askDelete(\'folder\',\'' + f.id + '\',\'' + escA(f.name) + '\')">&#10005;</button>'
+                    + '</div></td>'
+                    + '</tr>';
             });
 
-            files.forEach(f => {
-                html += '<div class="card file" ondblclick="downloadFile(\'' + f.id + '\')">'
-                    + '<div class="card-actions">'
-                    + '<button title="Download" onclick="event.stopPropagation();downloadFile(\'' + f.id + '\')">&#11015;</button>'
-                    + '<button class="del" title="Hapus" onclick="event.stopPropagation();askDelete(\'file\',\'' + f.id + '\',\'' + escAttr(f.originalName) + '\')">&#10005;</button>'
-                    + '</div>'
-                    + '<div class="card-icon">' + fileIcon(f.mimetype) + '</div>'
-                    + '<div class="card-name">' + esc(f.originalName) + '</div>'
-                    + '<div class="card-info">' + formatSize(f.size) + '</div>'
-                    + '</div>';
+            files.forEach(function(f) {
+                html += '<tr ondblclick="downloadFile(\'' + f.id + '\')">'
+                    + '<td><div class="cell-name">'
+                    + '<div class="icon file-icon">' + fileIcon(f.mimetype) + '</div>'
+                    + '<span class="name-text">' + esc(f.originalName) + '</span>'
+                    + '</div></td>'
+                    + '<td class="cell-date">' + fmtDate(f.uploadedAt) + '</td>'
+                    + '<td class="cell-size">' + fmtSize(f.size) + '</td>'
+                    + '<td class="cell-type">' + fmtType(f.mimetype) + '</td>'
+                    + '<td><div class="cell-actions">'
+                    + '<button class="act-btn" title="Download" onclick="event.stopPropagation();downloadFile(\'' + f.id + '\')">&#11015;</button>'
+                    + '<button class="act-btn del" title="Hapus" onclick="event.stopPropagation();askDelete(\'file\',\'' + f.id + '\',\'' + escA(f.originalName) + '\')">&#10005;</button>'
+                    + '</div></td>'
+                    + '</tr>';
             });
 
-            grid.innerHTML = html;
+            body.innerHTML = html;
         }
 
-        function openFolder(id, name) {
+        // ============ FOLDER NAVIGATION ============
+        function openFolder(id, name, authType) {
+            // Check if already unlocked
+            if (folderTokens[id]) {
+                enterFolder(id, name);
+                return;
+            }
+            // Need to unlock
+            unlockTarget = { id: id, name: name, authType: authType };
+            document.getElementById('unlockTitle').textContent = 'Buka "' + name + '"';
+            document.getElementById('unlockLabel').textContent = authType === 'pin' ? 'PIN' : 'Password';
+            document.getElementById('unlockInput').placeholder = authType === 'pin' ? 'Masukkan 6 digit PIN' : 'Masukkan password';
+            document.getElementById('unlockInput').value = '';
+            document.getElementById('unlockError').classList.remove('show');
+            document.getElementById('unlockModal').classList.add('show');
+            setTimeout(function() { document.getElementById('unlockInput').focus(); }, 100);
+        }
+
+        async function doUnlock() {
+            if (!unlockTarget) return;
+            var value = document.getElementById('unlockInput').value;
+            var errEl = document.getElementById('unlockError');
+            errEl.classList.remove('show');
+
+            if (!value) {
+                errEl.textContent = 'Masukkan ' + (unlockTarget.authType === 'pin' ? 'PIN' : 'password');
+                errEl.classList.add('show');
+                return;
+            }
+
+            try {
+                var r = await fetch('api/folder/' + unlockTarget.id + '/unlock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value: value })
+                });
+                var data = await r.json();
+                if (!r.ok) {
+                    errEl.textContent = data.error || 'Gagal';
+                    errEl.classList.add('show');
+                    return;
+                }
+                folderTokens[unlockTarget.id] = data.token;
+                closeUnlockModal();
+                enterFolder(unlockTarget.id, unlockTarget.name);
+            } catch (e) {
+                errEl.textContent = 'Koneksi gagal';
+                errEl.classList.add('show');
+            }
+        }
+
+        function closeUnlockModal() {
+            document.getElementById('unlockModal').classList.remove('show');
+            unlockTarget = null;
+        }
+
+        function enterFolder(id, name) {
             folderPath.push({ id: id, name: name });
             currentFolder = id;
             loadFiles();
@@ -933,9 +780,8 @@
         }
 
         function updateBreadcrumb() {
-            const bc = document.getElementById('breadcrumb');
-            let html = '';
-
+            var bc = document.getElementById('breadcrumb');
+            var html = '';
             if (folderPath.length === 0) {
                 html = '<a class="current">Root</a>';
             } else {
@@ -949,8 +795,87 @@
                     }
                 });
             }
-
             bc.innerHTML = html;
+        }
+
+        // ============ CREATE FOLDER ============
+        function showNewFolderModal() {
+            document.getElementById('folderNameInput').value = '';
+            document.getElementById('folderPassword').value = '';
+            document.getElementById('folderPin').value = '';
+            document.getElementById('folderError').classList.remove('show');
+            setAuthType('password');
+            document.getElementById('folderModal').classList.add('show');
+            setTimeout(function() { document.getElementById('folderNameInput').focus(); }, 100);
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folderModal').classList.remove('show');
+        }
+
+        function setAuthType(type) {
+            newFolderAuthType = type;
+            document.getElementById('optPwd').className = 'radio-opt' + (type === 'password' ? ' selected' : '');
+            document.getElementById('optPin').className = 'radio-opt' + (type === 'pin' ? ' selected' : '');
+            document.getElementById('pwdField').style.display = type === 'password' ? 'block' : 'none';
+            document.getElementById('pinField').style.display = type === 'pin' ? 'block' : 'none';
+        }
+
+        async function createFolder() {
+            var name = document.getElementById('folderNameInput').value.trim();
+            var errEl = document.getElementById('folderError');
+            errEl.classList.remove('show');
+
+            if (!name) {
+                errEl.textContent = 'Nama folder wajib diisi';
+                errEl.classList.add('show');
+                return;
+            }
+
+            var authValue = '';
+            if (newFolderAuthType === 'password') {
+                authValue = document.getElementById('folderPassword').value;
+            } else {
+                authValue = document.getElementById('folderPin').value;
+            }
+
+            if (!authValue) {
+                errEl.textContent = newFolderAuthType === 'password' ? 'Password wajib diisi' : 'PIN wajib diisi';
+                errEl.classList.add('show');
+                return;
+            }
+
+            closeFolderModal();
+
+            try {
+                var headers = { 'Content-Type': 'application/json' };
+                if (currentFolder && folderTokens[currentFolder]) {
+                    headers['X-Folder-Token'] = folderTokens[currentFolder];
+                }
+                var r = await fetch('api/folder', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        name: name,
+                        parentId: currentFolder,
+                        authType: newFolderAuthType,
+                        authValue: authValue
+                    })
+                });
+                var data = await r.json();
+                if (!r.ok) {
+                    toast(data.error || 'Gagal buat folder', 'err');
+                    return;
+                }
+                // Store the folder token
+                if (data.folderToken) {
+                    folderTokens[data.folder.id] = data.folderToken;
+                }
+                toast('Folder "' + name + '" dibuat', 'ok');
+                loadFiles();
+            } catch (e) {
+                toast('Gagal buat folder', 'err');
+            }
         }
 
         // ============ UPLOAD ============
@@ -958,119 +883,105 @@
         var fileInput = document.getElementById('fileInput');
 
         function triggerUpload() { fileInput.click(); }
-
         uploadZone.addEventListener('click', function() { fileInput.click(); });
 
         uploadZone.addEventListener('dragover', function(e) {
             e.preventDefault();
             uploadZone.classList.add('dragover');
         });
-
         uploadZone.addEventListener('dragleave', function() {
             uploadZone.classList.remove('dragover');
         });
-
         uploadZone.addEventListener('drop', function(e) {
             e.preventDefault();
             uploadZone.classList.remove('dragover');
             if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
         });
-
         fileInput.addEventListener('change', function() {
             if (fileInput.files.length) uploadFiles(fileInput.files);
             fileInput.value = '';
         });
 
-        async function uploadFiles(fileList) {
-            for (var i = 0; i < fileList.length; i++) {
-                await uploadSingle(fileList[i], i + 1, fileList.length);
+        async function uploadFiles(list) {
+            for (var i = 0; i < list.length; i++) {
+                await uploadOne(list[i], i + 1, list.length);
             }
             loadFiles();
             loadStorage();
         }
 
-        function uploadSingle(file, num, total) {
+        function uploadOne(file, num, total) {
             return new Promise(function(resolve) {
-                var progEl = document.getElementById('uploadProgress');
-                var barFill = document.getElementById('uploadBarFill');
+                var prog = document.getElementById('uploadProgress');
+                var bar = document.getElementById('uploadBarFill');
                 var info = document.getElementById('uploadInfo');
-
-                progEl.classList.add('show');
+                prog.classList.add('show');
+                bar.style.width = '0%';
                 info.textContent = 'Mengupload (' + num + '/' + total + '): ' + file.name;
-                barFill.style.width = '0%';
 
-                var formData = new FormData();
-                formData.append('file', file);
-                if (currentFolder) formData.append('folderId', currentFolder);
+                var fd = new FormData();
+                fd.append('file', file);
+                if (currentFolder) fd.append('folderId', currentFolder);
 
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', 'api/upload');
-                xhr.setRequestHeader('X-Auth-Token', authToken);
+                if (currentFolder && folderTokens[currentFolder]) {
+                    xhr.setRequestHeader('X-Folder-Token', folderTokens[currentFolder]);
+                }
 
                 xhr.upload.onprogress = function(e) {
                     if (e.lengthComputable) {
                         var pct = (e.loaded / e.total * 100).toFixed(0);
-                        barFill.style.width = pct + '%';
+                        bar.style.width = pct + '%';
                         info.textContent = 'Mengupload (' + num + '/' + total + '): ' + file.name + ' — ' + pct + '%';
                     }
                 };
-
                 xhr.onload = function() {
                     if (xhr.status === 200) {
-                        toast(file.name + ' berhasil diupload', 'success');
+                        toast(file.name + ' diupload', 'ok');
                     } else {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            toast(data.error || 'Upload gagal', 'error');
-                        } catch (ex) {
-                            toast('Upload gagal', 'error');
-                        }
-                        if (xhr.status === 401) doLogout();
+                        try { toast(JSON.parse(xhr.responseText).error || 'Upload gagal', 'err'); }
+                        catch (x) { toast('Upload gagal', 'err'); }
                     }
-                    progEl.classList.remove('show');
+                    prog.classList.remove('show');
                     resolve();
                 };
-
                 xhr.onerror = function() {
-                    toast('Upload gagal (koneksi error)', 'error');
-                    progEl.classList.remove('show');
+                    toast('Upload gagal', 'err');
+                    prog.classList.remove('show');
                     resolve();
                 };
-
-                xhr.send(formData);
+                xhr.send(fd);
             });
         }
 
         // ============ DOWNLOAD ============
         function downloadFile(id) {
-            api('download/' + id).then(function(r) {
-                if (r.status === 401) { doLogout(); return; }
-                if (!r.ok) { toast('Download gagal', 'error'); return; }
-                var disposition = r.headers.get('Content-Disposition');
-                var filename = 'download';
-                if (disposition) {
-                    var match = disposition.match(/filename="?(.+?)"?$/);
-                    if (match) filename = match[1];
-                }
+            var headers = {};
+            if (currentFolder && folderTokens[currentFolder]) {
+                headers['X-Folder-Token'] = folderTokens[currentFolder];
+            }
+            fetch('api/download/' + id, { headers: headers }).then(function(r) {
+                if (!r.ok) { toast('Download gagal', 'err'); return; }
+                var disp = r.headers.get('Content-Disposition');
+                var fname = 'download';
+                if (disp) { var m = disp.match(/filename="?(.+?)"?$/); if (m) fname = m[1]; }
                 return r.blob().then(function(blob) {
                     var url = URL.createObjectURL(blob);
-                    var link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    link.click();
+                    var a = document.createElement('a');
+                    a.href = url; a.download = fname; a.click();
                     URL.revokeObjectURL(url);
                 });
-            }).catch(function() { toast('Download gagal', 'error'); });
+            }).catch(function() { toast('Download gagal', 'err'); });
         }
 
         // ============ DELETE ============
         function askDelete(type, id, name) {
             deleteTarget = { type: type, id: id };
             document.getElementById('deleteTitle').textContent = type === 'folder' ? 'Hapus Folder?' : 'Hapus File?';
-            document.getElementById('deleteMsg').textContent =
-                type === 'folder'
-                    ? 'Folder "' + name + '" dan semua isinya akan dihapus permanen.'
-                    : 'File "' + name + '" akan dihapus permanen.';
+            document.getElementById('deleteMsg').textContent = type === 'folder'
+                ? 'Folder "' + name + '" dan seluruh isinya akan dihapus permanen.'
+                : 'File "' + name + '" akan dihapus permanen.';
             document.getElementById('deleteModal').classList.add('show');
         }
 
@@ -1081,67 +992,65 @@
 
         async function confirmDelete() {
             if (!deleteTarget) return;
-            var type = deleteTarget.type;
-            var id = deleteTarget.id;
+            var t = deleteTarget.type, id = deleteTarget.id;
             closeDeleteModal();
 
             try {
-                var endpoint = type === 'folder' ? 'folder/' + id : 'delete/' + id;
-                var r = await api(endpoint, { method: 'DELETE' });
-                if (r.status === 401) { doLogout(); return; }
+                var endpoint = t === 'folder' ? 'folder/' + id : 'delete/' + id;
+                var headers = {};
+                if (t === 'folder' && folderTokens[id]) {
+                    headers['X-Folder-Token'] = folderTokens[id];
+                } else if (currentFolder && folderTokens[currentFolder]) {
+                    headers['X-Folder-Token'] = folderTokens[currentFolder];
+                }
+                var r = await fetch('api/' + endpoint, { method: 'DELETE', headers: headers });
                 if (r.ok) {
-                    toast('Berhasil dihapus', 'success');
+                    toast('Dihapus', 'ok');
                     loadFiles();
                     loadStorage();
                 } else {
                     var data = await r.json();
-                    toast(data.error || 'Gagal menghapus', 'error');
+                    toast(data.error || 'Gagal hapus', 'err');
                 }
-            } catch (ex) {
-                toast('Gagal menghapus', 'error');
+            } catch (e) {
+                toast('Gagal hapus', 'err');
             }
         }
 
-        // ============ FOLDER MODAL ============
-        function showNewFolderModal() {
-            document.getElementById('folderNameInput').value = '';
-            document.getElementById('folderModal').classList.add('show');
-            setTimeout(function() { document.getElementById('folderNameInput').focus(); }, 100);
-        }
-
-        function closeFolderModal() {
-            document.getElementById('folderModal').classList.remove('show');
-        }
-
-        async function createFolder() {
-            var name = document.getElementById('folderNameInput').value.trim();
-            if (!name) return;
-            closeFolderModal();
-
-            try {
-                var r = await api('folder', {
-                    method: 'POST',
-                    json: { name: name, parentId: currentFolder }
-                });
-                if (r.status === 401) { doLogout(); return; }
-                if (r.ok) {
-                    toast('Folder "' + name + '" dibuat', 'success');
-                    loadFiles();
-                } else {
-                    var data = await r.json();
-                    toast(data.error || 'Gagal buat folder', 'error');
-                }
-            } catch (ex) {
-                toast('Gagal buat folder', 'error');
-            }
-        }
+        // ============ KEYBOARD ============
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') return;
+            if (document.getElementById('folderModal').classList.contains('show')) createFolder();
+            else if (document.getElementById('unlockModal').classList.contains('show')) doUnlock();
+        });
 
         // ============ UTILS ============
-        function formatSize(bytes) {
-            if (bytes === 0) return '0 B';
-            var units = ['B', 'KB', 'MB', 'GB'];
-            var i = Math.floor(Math.log(bytes) / Math.log(1024));
-            return (bytes / Math.pow(1024, i)).toFixed(i > 1 ? 1 : 0) + ' ' + units[i];
+        function fmtSize(b) {
+            if (!b || b === 0) return '0 B';
+            var u = ['B','KB','MB','GB'];
+            var i = Math.floor(Math.log(b) / Math.log(1024));
+            return (b / Math.pow(1024, i)).toFixed(i > 1 ? 1 : 0) + ' ' + u[i];
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '—';
+            var d = new Date(iso);
+            var dd = d.getDate(), mm = d.getMonth() + 1, yy = d.getFullYear();
+            var hh = ('0' + d.getHours()).slice(-2), mn = ('0' + d.getMinutes()).slice(-2);
+            return dd + '/' + mm + '/' + yy + ' ' + hh + ':' + mn;
+        }
+
+        function fmtType(mime) {
+            if (!mime) return 'File';
+            if (mime.startsWith('image/')) return 'Image';
+            if (mime.startsWith('video/')) return 'Video';
+            if (mime.startsWith('audio/')) return 'Audio';
+            if (mime.indexOf('pdf') !== -1) return 'PDF';
+            if (mime.indexOf('zip') !== -1 || mime.indexOf('rar') !== -1 || mime.indexOf('7z') !== -1) return 'Archive';
+            if (mime.indexOf('word') !== -1 || mime.indexOf('document') !== -1) return 'Document';
+            if (mime.indexOf('sheet') !== -1 || mime.indexOf('excel') !== -1) return 'Spreadsheet';
+            if (mime.indexOf('text') !== -1) return 'Text';
+            return 'File';
         }
 
         function fileIcon(mime) {
@@ -1153,36 +1062,24 @@
             if (mime.indexOf('zip') !== -1 || mime.indexOf('rar') !== -1 || mime.indexOf('7z') !== -1) return '&#128230;';
             if (mime.indexOf('word') !== -1 || mime.indexOf('document') !== -1) return '&#128196;';
             if (mime.indexOf('sheet') !== -1 || mime.indexOf('excel') !== -1) return '&#128202;';
-            if (mime.indexOf('text') !== -1) return '&#128221;';
             return '&#128196;';
         }
 
-        function esc(str) {
-            var d = document.createElement('div');
-            d.textContent = str;
-            return d.innerHTML;
-        }
-
-        function escAttr(str) {
-            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        }
+        function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function escA(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 
         function toast(msg, type) {
-            type = type || 'success';
-            var container = document.getElementById('toastContainer');
+            var box = document.getElementById('toastBox');
             var el = document.createElement('div');
-            el.className = 'toast ' + type;
-            el.innerHTML = (type === 'success' ? '&#10003; ' : '&#10007; ') + esc(msg);
-            container.appendChild(el);
-            setTimeout(function() {
-                el.style.opacity = '0';
-                el.style.transition = 'opacity .3s';
-                setTimeout(function() { el.remove(); }, 300);
-            }, 3000);
+            el.className = 'toast ' + (type || 'ok');
+            el.textContent = msg;
+            box.appendChild(el);
+            setTimeout(function() { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(function() { el.remove(); }, 300); }, 3000);
         }
 
         // ============ INIT ============
-        checkAuth();
+        loadFiles();
+        loadStorage();
     </script>
 </body>
 </html>
