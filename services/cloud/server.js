@@ -90,15 +90,21 @@ function generateMasterToken() {
 
 function checkMasterAccess(req, res, next) {
     // Get IP (handle proxy headers)
-    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || 
-                req.headers['x-real-ip'] || 
-                req.socket.remoteAddress || 
-                req.connection.remoteAddress;
+    let ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || 
+             req.headers['x-real-ip'] || 
+             req.socket.remoteAddress || 
+             req.connection.remoteAddress;
+
+    // Normalize IPv6-mapped IPv4 addresses
+    if (ip && ip.startsWith('::ffff:')) {
+        ip = ip.substring(7);
+    }
 
     console.log('[MASTER PANEL] Access attempt from IP:', ip);
 
-    // Check IP whitelist
-    if (ip !== MASTER_PANEL_IP && ip !== '::1' && ip !== '127.0.0.1') {
+    // Check IP whitelist (allow localhost and master IP)
+    const allowedIPs = [MASTER_PANEL_IP, '::1', '127.0.0.1', 'localhost'];
+    if (!allowedIPs.includes(ip)) {
         console.log('[MASTER PANEL] BLOCKED - IP not whitelisted');
         return res.status(403).json({ error: 'Access denied' });
     }
