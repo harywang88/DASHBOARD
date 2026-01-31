@@ -638,25 +638,20 @@
         const API_URL = '/cloud/api/master/';
         let currentUser = null;
         
-        // Store device token (for this device/browser)
-        let DEVICE_TOKEN = localStorage.getItem('deviceToken');
-        if (!DEVICE_TOKEN) {
-            // First time access - ask for device token
-            DEVICE_TOKEN = prompt('Enter Device Token (16 characters):');
-            if (!DEVICE_TOKEN || DEVICE_TOKEN.length !== 16) {
-                alert('Device token harus 16 karakter!\nHubungi administrator untuk mendapatkan token.');
-                window.location.href = '/';
-            } else {
-                localStorage.setItem('deviceToken', DEVICE_TOKEN);
-            }
+        // Check if user is logged in
+        const masterAuth = localStorage.getItem('masterAuth');
+        if (!masterAuth) {
+            // Not logged in - redirect to login page
+            window.location.href = '/cloud/masterpanel';
         }
 
         // Helper functions
         function getHeaders() {
+            const masterAuth = localStorage.getItem('masterAuth');
             const headers = {
-                'X-Device-Token': DEVICE_TOKEN
+                'Authorization': 'Basic ' + masterAuth,
+                'Content-Type': 'application/json'
             };
-            console.log('Sending device token:', DEVICE_TOKEN);
             return headers;
         }
 
