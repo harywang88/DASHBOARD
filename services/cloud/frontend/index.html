@@ -980,7 +980,9 @@
                 }
             }
 
-            closeFolderModal();
+            // Disable button to prevent double submit
+            var submitBtn = event ? event.target : document.querySelector('#folderModal .m-ok');
+            if (submitBtn) submitBtn.disabled = true;
 
             try {
                 var headers = { 'Content-Type': 'application/json' };
@@ -999,17 +1001,22 @@
                 });
                 var data = await r.json();
                 if (!r.ok) {
-                    toast(data.error || 'Gagal buat folder', 'err');
+                    if (submitBtn) submitBtn.disabled = false;
+                    errEl.textContent = data.error || 'Gagal buat folder';
+                    errEl.classList.add('show');
                     return;
                 }
                 // Store the folder token
                 if (data.folderToken) {
                     folderTokens[data.folder.id] = data.folderToken;
                 }
+                closeFolderModal();
                 toast('Folder "' + name + '" dibuat', 'ok');
                 loadFiles();
             } catch (e) {
-                toast('Gagal buat folder', 'err');
+                if (submitBtn) submitBtn.disabled = false;
+                errEl.textContent = 'Gagal buat folder: ' + e.message;
+                errEl.classList.add('show');
             }
         }
 

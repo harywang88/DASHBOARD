@@ -81,15 +81,22 @@ const upload = multer({ storage, limits: { fileSize: MAX_FILE_SIZE } });
 // ============ FOLDER API ============
 
 app.post('/api/folder', (req, res) => {
+    console.log('[CREATE FOLDER] Request body:', req.body);
     const { name, parentId, authType, authValue } = req.body;
-    if (!name || !name.trim()) return res.status(400).json({ error: 'Nama folder wajib diisi' });
+    
+    if (!name || !name.trim()) {
+        console.log('[CREATE FOLDER] Error: Nama folder kosong');
+        return res.status(400).json({ error: 'Nama folder wajib diisi' });
+    }
 
     if (!authType || !authValue) {
+        console.log('[CREATE FOLDER] Error: authType atau authValue kosong');
         return res.status(400).json({ error: 'Password atau PIN wajib diisi' });
     }
 
     // Validasi minimal - authValue tidak boleh kosong
     if (!authValue.trim()) {
+        console.log('[CREATE FOLDER] Error: authValue trim kosong');
         return res.status(400).json({ error: authType === 'pin' ? 'PIN tidak boleh kosong' : 'Password tidak boleh kosong' });
     }
 
@@ -122,6 +129,7 @@ app.post('/api/folder', (req, res) => {
     const token = uuidv4();
     folderSessions.set(token, { folderId: folder.id });
 
+    console.log('[CREATE FOLDER] Success:', folder.name, 'ID:', folder.id);
     res.json({ success: true, folder: { id: folder.id, name: folder.name, parentId: folder.parentId, authType: folder.authType, createdAt: folder.createdAt }, folderToken: token });
 });
 
