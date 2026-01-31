@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Control Panel - Harywang Dashboard</title>
+    <title>Master Harywang - Control Panel</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>👑</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -413,22 +414,19 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="logo">
-            <div class="icon">🔐</div>
-            <span>Master Panel</span>
+            <div class="icon">�</div>
+            <span>Master Harywang</span>
         </div>
         <div class="menu-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
         <div class="menu-item" onclick="showSection('users')">👥 User Management</div>
-        <div class="menu-item" onclick="showSection('cloud')">☁️ HarywangCloud</div>
-        <div class="menu-item" onclick="showSection('convert')">🔄 File Converter</div>
-        <div class="menu-item" onclick="showSection('pdf')">📄 PDF Tools</div>
+        <div class="menu-item" onclick="showSection('whitelist')">🛡️ IP Whitelist</div>
         <div class="menu-item" onclick="showSection('logs')">📋 System Logs</div>
-        <div class="menu-item" onclick="showSection('settings')">⚙️ Settings</div>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="header">
-            <h1>Master Control Panel</h1>
+            <h1>Master Harywang</h1>
             <p>Kontrol penuh untuk semua layanan Harywang Dashboard</p>
         </div>
 
@@ -524,30 +522,71 @@
             </div>
         </div>
 
-        <!-- CLOUD SECTION -->
-        <div id="cloud" class="section">
-            <div class="card">
-                <h2>☁️ HarywangCloud Control</h2>
-                <p style="color:#718096;margin-bottom:16px;">Manage cloud storage, files, and folders</p>
-                <button class="btn btn-primary" onclick="window.open('/cloud', '_blank')">Open HarywangCloud</button>
-            </div>
-        </div>
+        <!-- IP WHITELIST SECTION -->
+        <div id="whitelist" class="section">
+            <div style="margin-bottom:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div>
+                        <h2>🛡️ IP Whitelist</h2>
+                        <p style="color:#718096;">Kelola akses berdasarkan IP Address</p>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-success" onclick="alert('Whitelist Aktif')">🛡️ Whitelist Aktif</button>
+                        <button class="btn btn-primary" onclick="showAddIPModal()">➕ Tambah Whitelist</button>
+                    </div>
+                </div>
 
-        <!-- CONVERT SECTION -->
-        <div id="convert" class="section">
-            <div class="card">
-                <h2>🔄 File Converter Control</h2>
-                <p style="color:#718096;margin-bottom:16px;">Monitor and manage file conversion service</p>
-                <button class="btn btn-primary" onclick="window.open('/convert', '_blank')">Open Converter</button>
+                <!-- Stats Cards -->
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Whitelist</div>
+                        <div class="stat-value" id="totalWhitelist">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Aktif</div>
+                        <div class="stat-value" style="color:#10b981;" id="activeWhitelist">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Nonaktif</div>
+                        <div class="stat-value" style="color:#94a3b8;" id="inactiveWhitelist">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Diblokir Hari Ini</div>
+                        <div class="stat-value" style="color:#ef4444;" id="blockedToday">0</div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- PDF SECTION -->
-        <div id="pdf" class="section">
+            <!-- Whitelist Table -->
             <div class="card">
-                <h2>📄 PDF Tools Control</h2>
-                <p style="color:#718096;margin-bottom:16px;">Manage PDF processing service</p>
-                <button class="btn btn-primary" onclick="window.open('/pdf', '_blank')">Open PDF Tools</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device / IP</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="whitelistTable">
+                        <tr>
+                            <td>
+                                <div><strong>💻 Master Access</strong></div>
+                                <div style="color:#718096;font-size:12px;">IP: 27.111.11.11</div>
+                            </td>
+                            <td><span class="badge badge-master" style="background:#10b981;">● Aktif</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-small" disabled>Protected</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Info Box -->
+            <div style="margin-top:16px;padding:16px;background:#fff3cd;border-radius:8px;color:#856404;">
+                <strong>ℹ️ Info Akses Anda</strong><br>
+                IP Address Anda: <strong>27.111.11.11</strong><br>
+                Status: <span style="color:#10b981;">✓ Whitelisted</span>
             </div>
         </div>
 
@@ -556,18 +595,6 @@
             <div class="card">
                 <h2>📋 System Logs</h2>
                 <p style="color:#718096;">System logs feature coming soon...</p>
-            </div>
-        </div>
-
-        <!-- SETTINGS SECTION -->
-        <div id="settings" class="section">
-            <div class="card">
-                <h2>⚙️ Settings</h2>
-                <div class="form-group">
-                    <label>Master Token</label>
-                    <input type="text" id="currentToken" readonly>
-                </div>
-                <button class="btn btn-success" onclick="generateToken()">Generate New Token</button>
             </div>
         </div>
     </div>

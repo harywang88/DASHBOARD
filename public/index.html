@@ -1270,7 +1270,7 @@
                 <p class="page-subtitle">Penyimpanan aman hingga 20GB</p>
             </div>
             <div class="iframe-container">
-                <iframe src="/cloud/" id="cloudFrame" onload="hideLoading('cloud')"></iframe>
+                <iframe src="" id="cloudFrame" onload="hideLoading('cloud')"></iframe>
             </div>
         </section>
     </main>
@@ -1519,6 +1519,21 @@
         // ============ PAGE NAVIGATION ============
 
         function showPage(pageId) {
+            // Check if user trying to access cloud
+            if (pageId === 'cloud') {
+                var token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Silakan login terlebih dahulu untuk mengakses HarywangCloud');
+                    showLoginModal();
+                    return;
+                }
+                // Load cloud iframe
+                var cloudFrame = document.getElementById('cloudFrame');
+                if (!cloudFrame.src || cloudFrame.src === 'about:blank') {
+                    cloudFrame.src = '/cloud/';
+                }
+            }
+
             document.querySelectorAll('.page').forEach(function(page) {
                 page.classList.remove('active');
             });

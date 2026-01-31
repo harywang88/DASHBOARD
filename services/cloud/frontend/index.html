@@ -772,7 +772,19 @@
         // ============ LOAD ============
         async function loadFiles() {
             try {
+                // Try to get token from localStorage or parent window
                 var token = localStorage.getItem('token');
+                if (!token && window.parent !== window) {
+                    try {
+                        token = window.parent.localStorage.getItem('token');
+                        if (token) {
+                            localStorage.setItem('token', token);
+                        }
+                    } catch (e) {
+                        console.log('Cannot access parent localStorage');
+                    }
+                }
+                
                 if (!token) {
                     window.location.href = '/';
                     return;
