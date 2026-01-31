@@ -421,9 +421,21 @@ app.get('/api/master/users', checkMasterAccess, (req, res) => {
         const userFolders = meta.folders.filter(f => f.owner === user.username);
         const storage = userFiles.reduce((sum, f) => sum + f.size, 0);
         
+        // Format date
+        let registeredDate = 'N/A';
+        if (user.createdAt) {
+            const date = new Date(user.createdAt);
+            registeredDate = date.toLocaleDateString('id-ID', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+        
         return {
             username: user.username,
-            registeredAt: user.registeredAt || 'N/A',
+            email: user.email || 'N/A',
+            registeredAt: registeredDate,
             fileCount: userFiles.length,
             folderCount: userFolders.length,
             storageUsed: storage
