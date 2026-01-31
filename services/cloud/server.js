@@ -79,12 +79,23 @@ function verifyToken(req, res, next) {
 
 // ============ MASTER PANEL MIDDLEWARE ============
 
-const MASTER_PANEL_IP = '27.111.11.11';
-const MASTER_TOKENS = new Set(); // Valid tokens untuk IP whitelist
+// IP Whitelist with device tokens
+const IP_WHITELIST = {
+    '27.111.11.11': {
+        name: 'Master Access',
+        token: 'HARY2026MASTER01', // 16 character device token
+        active: true,
+        lastAccess: null
+    }
+    // Add more IPs with their device tokens here
+};
 
-function generateMasterToken() {
-    const token = crypto.randomBytes(32).toString('hex');
-    MASTER_TOKENS.add(token);
+function generateDeviceToken() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < 16; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
     return token;
 }
 
@@ -102,32 +113,37 @@ function checkMasterAccess(req, res, next) {
 
     console.log('[MASTER PANEL] Access attempt from IP:', ip);
 
-    // Check IP whitelist (allow localhost and master IP)
-    const allowedIPs = [MASTER_PANEL_IP, '::1', '127.0.0.1', 'localhost'];
-    if (!allowedIPs.includes(ip)) {
+    // For localhost, allow without token (development)
+    if (ip === '::1' || ip === '127.0.0.1' || ip === 'localhost') {
+        console.log('[MASTER PANEL] Access GRANTED (localhost)');
+        return next();
+    }
+
+    // Check IP whitelist
+    const ipData = IP_WHITELIST[ip];
+    if (!ipData) {
         console.log('[MASTER PANEL] BLOCKED - IP not whitelisted');
-        return res.status(403).json({ error: 'Access denied' });
+        return res.status(403).json({ error: 'IP not whitelisted' });
     }
 
-    // Check token
-    const token = req.headers['x-master-token'];
-    if (!token || !MASTER_TOKENS.has(token)) {
-        console.log('[MASTER PANEL] BLOCKED - Invalid or missing token');
-        return res.status(403).json({ error: 'Invalid token' });
+    if (!ipData.active) {
+        console.log('[MASTER PANEL] BLOCKED - IP disabled');
+        return res.status(403).json({ error: 'IP access disabled' });
     }
 
-    // Check if user is harywang
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        try {
-            const decoded = jwt.verify(authHeader.substring(7), JWT_SECRET);
-            if (decoded.username !== 'harywang') {
-                console.log('[MASTER PANEL] BLOCKED - Not master user');
-                return res.status(403).json({ error: 'Not authorized' });
-            }
-            req.user = decoded;
-        } catch (err) {
-            return res.status(401).json({ error: 'Invalid auth token' });
+    // Check device token
+    const deviceToken = req.headers['x-device-token'];
+    if (!deviceToken || deviceToken !== ipData.token) {
+        console.log('[MASTER PANEL] BLOCKED - Invalid device token');
+        return res.status(403).json({ error: 'Invalid device token' });
+    }
+
+    // Update last access
+    ipData.lastAccess = new Date().toISOString();
+
+    console.log('[MASTER PANEL] Access GRANTED');
+    next();
+}
         }
     }
 
@@ -135,11 +151,12 @@ function checkMasterAccess(req, res, next) {
     next();
 }
 
-// Generate initial master token (log it on startup)
-const INITIAL_MASTER_TOKEN = generateMasterToken();
+// Log IP whitelist on startup
 console.log('\n========================================');
-console.log('MASTER PANEL TOKEN:', INITIAL_MASTER_TOKEN);
-console.log('Save this token securely!');
+console.log('IP WHITELIST CONFIGURED:');
+Object.keys(IP_WHITELIST).forEach(ip => {
+    console.log(`  ${ip} - ${IP_WHITELIST[ip].name} (Token: ${IP_WHITELIST[ip].token})`);
+});
 console.log('========================================\n');
 
 // ============ MULTER ============
@@ -402,12 +419,21 @@ app.get('/api/folder-path/:id', verifyToken, (req, res) => {
 
 // ============ MASTER PANEL API ============
 
-// Get master token (requires master auth)
-app.post('/api/master/generate-token', verifyToken, (req, res) => {
-    if (req.user.username !== 'harywang') {
-        return res.status(403).json({ error: 'Not authorized' });
-    }
-    const token = generateMasterToken();
+// Get IP whitelist
+app.get('/api/master/whitelist', checkMasterAccess, (req, res) => {
+    const whitelist = Object.keys(IP_WHITELIST).map(ip => ({
+        ip: ip,
+        name: IP_WHITELIST[ip].name,
+        token: IP_WHITELIST[ip].token,
+        active: IP_WHITELIST[ip].active,
+        lastAccess: IP_WHITELIST[ip].lastAccess
+    }));
+    res.json({ whitelist });
+});
+
+// Generate new device token
+app.post('/api/master/generate-device-token', checkMasterAccess, (req, res) => {
+    const token = generateDeviceToken();
     res.json({ token });
 });
 

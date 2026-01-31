@@ -529,11 +529,11 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <div>
                         <h2>🛡️ IP Whitelist</h2>
-                        <p style="color:#718096;">Kelola akses berdasarkan IP Address</p>
+                        <p style="color:#718096;">Kelola akses berdasarkan IP Address dan Device Token</p>
                     </div>
                     <div style="display:flex;gap:8px;">
-                        <button class="btn btn-success" onclick="alert('Whitelist Aktif')">🛡️ Whitelist Aktif</button>
-                        <button class="btn btn-primary" onclick="showAddIPModal()">➕ Tambah Whitelist</button>
+                        <button class="btn btn-success" onclick="generateDeviceToken()">🔑 Generate Token</button>
+                        <button class="btn btn-primary" onclick="loadWhitelist()">🔄 Refresh</button>
                     </div>
                 </div>
 
@@ -564,19 +564,16 @@
                     <thead>
                         <tr>
                             <th>Device / IP</th>
+                            <th>Device Token</th>
+                            <th>Last Access</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="whitelistTable">
                         <tr>
-                            <td>
-                                <div><strong>💻 Master Access</strong></div>
-                                <div style="color:#718096;font-size:12px;">IP: 27.111.11.11</div>
-                            </td>
-                            <td><span class="badge badge-master" style="background:#10b981;">● Aktif</span></td>
-                            <td>
-                                <button class="btn btn-primary btn-small" disabled>Protected</button>
+                            <td colspan="5" style="text-align:center;color:#718096;padding:24px;">
+                                Loading whitelist...
                             </td>
                         </tr>
                     </tbody>
@@ -640,28 +637,26 @@
         // Define constants first
         const API_URL = '/cloud/api/master/';
         let currentUser = null;
-        let MASTER_TOKEN = localStorage.getItem('masterToken');
         
-        if (!MASTER_TOKEN) {
-            MASTER_TOKEN = prompt('Enter master token:');
-            if (!MASTER_TOKEN) {
-                alert('Token required!');
+        // Store device token (for this device/browser)
+        let DEVICE_TOKEN = localStorage.getItem('deviceToken');
+        if (!DEVICE_TOKEN) {
+            // First time access - ask for device token
+            DEVICE_TOKEN = prompt('Enter Device Token (16 characters):');
+            if (!DEVICE_TOKEN || DEVICE_TOKEN.length !== 16) {
+                alert('Device token harus 16 karakter!\nHubungi administrator untuk mendapatkan token.');
                 window.location.href = '/';
             } else {
-                localStorage.setItem('masterToken', MASTER_TOKEN);
+                localStorage.setItem('deviceToken', DEVICE_TOKEN);
             }
         }
 
         // Helper functions
         function getHeaders() {
-            const token = localStorage.getItem('token');
             const headers = {
-                'X-Master-Token': MASTER_TOKEN
+                'X-Device-Token': DEVICE_TOKEN
             };
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-            console.log('Sending headers:', headers);
+            console.log('Sending device token:', DEVICE_TOKEN);
             return headers;
         }
 
@@ -672,6 +667,7 @@
             event.target.classList.add('active');
 
             if (section === 'users') loadUsers();
+            if (section === 'whitelist') loadWhitelist();
         }
 
         function showAlert(message, type = 'success') {
@@ -838,9 +834,60 @@
             }
         }
 
-        async function generateToken() {
+        async function loadWhitelist() {
             try {
-                const r = await fetch(API_URL + 'generate-token', {
+                const r = await fetch(API_URL + 'whitelist', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load whitelist');
+                const data = await r.json();
+                
+                const tbody = document.getElementById('whitelistTable');
+                const totalActive = data.whitelist.filter(w => w.active).length;
+                const totalInactive = data.whitelist.filter(w => !w.active).length;
+                
+                // Update stats
+                document.getElementById('totalWhitelist').textContent = data.whitelist.length;
+                document.getElementById('activeWhitelist').textContent = totalActive;
+                document.getElementById('inactiveWhitelist').textContent = totalInactive;
+                
+                tbody.innerHTML = data.whitelist.map(item => `
+                    <tr>
+                        <td>
+                            <div><strong>💻 ${item.name}</strong></div>
+                            <div style="color:#718096;font-size:12px;">IP: ${item.ip}</div>
+                        </td>
+                        <td>
+                            <code style="background:#1e2030;padding:4px 8px;border-radius:4px;font-size:12px;">${item.token}</code>
+                        </td>
+                        <td style="font-size:12px;color:#718096;">
+                            ${item.lastAccess ? new Date(item.lastAccess).toLocaleString('id-ID') : 'Never'}
+                        </td>
+                        <td>
+                            <span class="badge badge-master" style="background:${item.active ? '#10b981' : '#94a3b8'};">
+                                ${item.active ? '● Aktif' : '○ Nonaktif'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-small" onclick="copyToken('${item.token}')">Copy Token</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                showAlert('Failed to load whitelist: ' + e.message, 'error');
+            }
+        }
+
+        function copyToken(token) {
+            navigator.clipboard.writeText(token);
+            showAlert('Token copied to clipboard!', 'success');
+        }
+
+        async function generateDeviceToken() {
+            try {
+                const r = await fetch(API_URL + 'generate-device-token', {
                     method: 'POST',
                     headers: getHeaders()
                 });
@@ -848,8 +895,9 @@
                 const data = await r.json();
                 if (!r.ok) throw new Error(data.error || 'Failed');
 
-                showAlert('New token generated: ' + data.token, 'success');
-                document.getElementById('currentToken').value = data.token;
+                showAlert('New device token: ' + data.token, 'success');
+                // Auto copy to clipboard
+                navigator.clipboard.writeText(data.token);
             } catch (e) {
                 showAlert('Failed to generate token: ' + e.message, 'error');
             }
