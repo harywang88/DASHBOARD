@@ -157,6 +157,28 @@ app.get('/api/folder/:id/info', (req, res) => {
     });
 });
 
+// Reset folder password/PIN
+app.post('/api/folder/:id/reset', (req, res) => {
+    const { newValue } = req.body;
+    if (!newValue || !newValue.trim()) {
+        return res.status(400).json({ error: 'Password/PIN baru wajib diisi' });
+    }
+
+    const meta = loadMeta();
+    const folder = meta.folders.find(f => f.id === req.params.id);
+    if (!folder) return res.status(404).json({ error: 'Folder tidak ditemukan' });
+
+    // Update password/PIN hash
+    folder.authHash = hashValue(newValue);
+    saveMeta(meta);
+
+    // Auto-unlock with new credentials
+    const token = uuidv4();
+    folderSessions.set(token, { folderId: folder.id });
+
+    res.json({ success: true, message: 'Password/PIN berhasil direset', token });
+});
+
 app.delete('/api/folder/:id', (req, res) => {
     const meta = loadMeta();
     const folderId = req.params.id;

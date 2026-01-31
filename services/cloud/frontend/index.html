@@ -414,6 +414,19 @@
 
         .modal .m-error.show { display: block; }
 
+        .modal .m-success {
+            background: rgba(16,185,129,.1);
+            border: 1px solid rgba(16,185,129,.3);
+            color: #6ee7b7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .modal .m-success.show { display: block; }
+
         .modal-btns {
             display: flex;
             gap: 8px;
@@ -575,6 +588,27 @@
             <div class="modal-btns">
                 <button class="m-cancel" onclick="closeUnlockModal()">Batal</button>
                 <button class="m-ok" onclick="doUnlock()">Buka</button>
+            </div>
+            <div style="text-align:center;margin-top:12px;">
+                <a href="javascript:void(0)" onclick="showResetPassword()" style="color:#60a5fa;font-size:12px;text-decoration:underline;">Lupa Password/PIN?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET PASSWORD MODAL -->
+    <div class="modal-bg" id="resetModal">
+        <div class="modal">
+            <h3>Reset Password/PIN</h3>
+            <div class="m-error" id="resetError"></div>
+            <div class="m-success" id="resetSuccess"></div>
+            <p style="color:#888;font-size:13px;margin-bottom:16px;">Masukkan password/PIN baru untuk folder "<span id="resetFolderName"></span>"</p>
+            <div class="field">
+                <label id="resetLabel">Password/PIN Baru</label>
+                <input type="password" id="resetInput" placeholder="Masukkan password/PIN baru" autocomplete="off">
+            </div>
+            <div class="modal-btns">
+                <button class="m-cancel" onclick="closeResetModal()">Batal</button>
+                <button class="m-ok" onclick="doResetPassword()">Reset</button>
             </div>
         </div>
     </div>
@@ -772,6 +806,70 @@
             document.getElementById('unlockError').classList.remove('show');
             document.getElementById('unlockError').textContent = '';
             unlockTarget = null;
+        }
+
+        // ============ RESET PASSWORD ============
+        function showResetPassword() {
+            if (!unlockTarget) return;
+            closeUnlockModal();
+            document.getElementById('resetFolderName').textContent = unlockTarget.name;
+            document.getElementById('resetLabel').textContent = unlockTarget.authType === 'pin' ? 'PIN Baru' : 'Password Baru';
+            document.getElementById('resetInput').placeholder = unlockTarget.authType === 'pin' ? 'Masukkan PIN baru' : 'Masukkan password baru';
+            document.getElementById('resetInput').value = '';
+            document.getElementById('resetError').classList.remove('show');
+            document.getElementById('resetSuccess').classList.remove('show');
+            document.getElementById('resetModal').classList.add('show');
+            setTimeout(function() { document.getElementById('resetInput').focus(); }, 100);
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('show');
+            document.getElementById('resetInput').value = '';
+            document.getElementById('resetError').classList.remove('show');
+            document.getElementById('resetSuccess').classList.remove('show');
+        }
+
+        async function doResetPassword() {
+            if (!unlockTarget) return;
+            var newValue = document.getElementById('resetInput').value.trim();
+            var errEl = document.getElementById('resetError');
+            var sucEl = document.getElementById('resetSuccess');
+            errEl.classList.remove('show');
+            sucEl.classList.remove('show');
+
+            if (!newValue) {
+                errEl.textContent = 'Masukkan ' + (unlockTarget.authType === 'pin' ? 'PIN' : 'password') + ' baru';
+                errEl.classList.add('show');
+                return;
+            }
+
+            try {
+                var r = await fetch('api/folder/' + unlockTarget.id + '/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newValue: newValue })
+                });
+                var data = await r.json();
+                if (!r.ok) {
+                    errEl.textContent = data.error || 'Reset gagal';
+                    errEl.classList.add('show');
+                    return;
+                }
+                
+                // Save new token and auto-open folder
+                folderTokens[unlockTarget.id] = data.token;
+                sucEl.textContent = 'Reset berhasil! Membuka folder...';
+                sucEl.classList.add('show');
+                
+                setTimeout(function() {
+                    closeResetModal();
+                    enterFolder(unlockTarget.id, unlockTarget.name);
+                    unlockTarget = null;
+                }, 1500);
+            } catch (e) {
+                errEl.textContent = 'Koneksi gagal';
+                errEl.classList.add('show');
+            }
         }
 
         function enterFolder(id, name) {
