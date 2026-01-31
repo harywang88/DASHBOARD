@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Control Panel - Harywang Dashboard</title>
+    <title>Master Panel - HarywangCloud</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -11,68 +11,12 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
         }
 
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
-            background: rgba(0,0,0,.3);
-            backdrop-filter: blur(10px);
-            padding: 24px;
-            overflow-y: auto;
-        }
-
-        .logo {
-            color: white;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 32px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo .icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .menu-item {
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: rgba(255,255,255,.7);
-            margin-bottom: 6px;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-        }
-
-        .menu-item:hover {
-            background: rgba(255,255,255,.1);
-            color: white;
-        }
-
-        .menu-item.active {
-            background: rgba(255,255,255,.15);
-            color: white;
-            font-weight: 600;
-        }
-
-        .main-content {
-            margin-left: 260px;
-            padding: 24px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .header {
@@ -97,7 +41,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -108,11 +52,6 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 16px rgba(0,0,0,.08);
-            transition: transform .2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
         }
 
         .stat-card .label {
@@ -129,12 +68,6 @@
             color: #1a202c;
         }
 
-        .stat-card .subtext {
-            font-size: 12px;
-            color: #a0aec0;
-            margin-top: 4px;
-        }
-
         .card {
             background: rgba(255,255,255,.95);
             backdrop-filter: blur(10px);
@@ -148,38 +81,6 @@
             font-size: 20px;
             color: #1a202c;
             margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .service-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .service-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 20px;
-            color: white;
-        }
-
-        .service-card h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .service-card .status {
-            font-size: 12px;
-            margin-bottom: 12px;
-            opacity: .8;
-        }
-
-        .service-card .stat {
-            font-size: 14px;
-            margin-bottom: 4px;
         }
 
         table {
@@ -244,15 +145,6 @@
         .btn-danger:hover {
             background: #e53e3e;
             transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
         }
 
         .btn-small {
@@ -356,219 +248,53 @@
             background: #e2e8f0;
             color: #4a5568;
         }
-
-        .badge-online {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-
-        .badge-offline {
-            background: #fed7d7;
-            color: #742a2a;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            flex: 1;
-            min-width: 200px;
-            padding: 16px;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-
-        .action-btn:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .action-btn .icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-
-        .action-btn .title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #2d3748;
-        }
     </style>
 </head>
 <body>
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="icon">🔐</div>
-            <span>Master Panel</span>
-        </div>
-        <div class="menu-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
-        <div class="menu-item" onclick="showSection('users')">👥 User Management</div>
-        <div class="menu-item" onclick="showSection('cloud')">☁️ HarywangCloud</div>
-        <div class="menu-item" onclick="showSection('convert')">🔄 File Converter</div>
-        <div class="menu-item" onclick="showSection('pdf')">📄 PDF Tools</div>
-        <div class="menu-item" onclick="showSection('logs')">📋 System Logs</div>
-        <div class="menu-item" onclick="showSection('settings')">⚙️ Settings</div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
+    <div class="container">
         <div class="header">
-            <h1>Master Control Panel</h1>
-            <p>Kontrol penuh untuk semua layanan Harywang Dashboard</p>
+            <h1>🔐 Master Panel</h1>
+            <p>Dashboard kontrol untuk administrator</p>
         </div>
 
         <div id="alertBox"></div>
 
-        <!-- DASHBOARD SECTION -->
-        <div id="dashboard" class="section active">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="label">Total Users</div>
-                    <div class="value" id="statUsers">-</div>
-                    <div class="subtext">Registered accounts</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Total Files</div>
-                    <div class="value" id="statFiles">-</div>
-                    <div class="subtext">Across all services</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Total Folders</div>
-                    <div class="value" id="statFolders">-</div>
-                    <div class="subtext">In HarywangCloud</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Storage Used</div>
-                    <div class="value" id="statStorage">-</div>
-                    <div class="subtext">Of 20GB total</div>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Users</div>
+                <div class="value" id="statUsers">-</div>
             </div>
-
-            <div class="card">
-                <h2>🚀 Quick Actions</h2>
-                <div class="quick-actions">
-                    <div class="action-btn" onclick="showSection('users')">
-                        <div class="icon">👥</div>
-                        <div class="title">Manage Users</div>
-                    </div>
-                    <div class="action-btn" onclick="generateToken()">
-                        <div class="icon">🔑</div>
-                        <div class="title">Generate Token</div>
-                    </div>
-                    <div class="action-btn" onclick="refreshStats()">
-                        <div class="icon">🔄</div>
-                        <div class="title">Refresh Data</div>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="label">Total Files</div>
+                <div class="value" id="statFiles">-</div>
             </div>
-
-            <div class="card">
-                <h2>📡 Service Status</h2>
-                <div class="service-grid">
-                    <div class="service-card">
-                        <h3>☁️ HarywangCloud</h3>
-                        <div class="status">Port 3003 • <span class="badge badge-online">ONLINE</span></div>
-                        <div class="stat">Files: <span id="cloudFiles">-</span></div>
-                        <div class="stat">Folders: <span id="cloudFolders">-</span></div>
-                    </div>
-                    <div class="service-card">
-                        <h3>🔄 File Converter</h3>
-                        <div class="status">Port 3001 • <span class="badge badge-online">ONLINE</span></div>
-                        <div class="stat">Pending: <span id="convertPending">-</span></div>
-                        <div class="stat">Completed: <span id="convertCompleted">-</span></div>
-                    </div>
-                    <div class="service-card">
-                        <h3>📄 PDF Tools</h3>
-                        <div class="status">Port 3002 • <span class="badge badge-online">ONLINE</span></div>
-                        <div class="stat">Processed: <span id="pdfProcessed">-</span></div>
-                        <div class="stat">Active: <span id="pdfActive">-</span></div>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="label">Total Folders</div>
+                <div class="value" id="statFolders">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Storage Used</div>
+                <div class="value" id="statStorage">-</div>
             </div>
         </div>
 
-        <!-- USERS SECTION -->
-        <div id="users" class="section">
-            <div class="card">
-                <h2>👥 User Management</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Registered</th>
-                            <th>Files</th>
-                            <th>Folders</th>
-                            <th>Storage</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTable">
-                        <tr><td colspan="6" style="text-align:center;color:#999;">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- CLOUD SECTION -->
-        <div id="cloud" class="section">
-            <div class="card">
-                <h2>☁️ HarywangCloud Control</h2>
-                <p style="color:#718096;margin-bottom:16px;">Manage cloud storage, files, and folders</p>
-                <button class="btn btn-primary" onclick="window.open('/cloud', '_blank')">Open HarywangCloud</button>
-            </div>
-        </div>
-
-        <!-- CONVERT SECTION -->
-        <div id="convert" class="section">
-            <div class="card">
-                <h2>🔄 File Converter Control</h2>
-                <p style="color:#718096;margin-bottom:16px;">Monitor and manage file conversion service</p>
-                <button class="btn btn-primary" onclick="window.open('/convert', '_blank')">Open Converter</button>
-            </div>
-        </div>
-
-        <!-- PDF SECTION -->
-        <div id="pdf" class="section">
-            <div class="card">
-                <h2>📄 PDF Tools Control</h2>
-                <p style="color:#718096;margin-bottom:16px;">Manage PDF processing service</p>
-                <button class="btn btn-primary" onclick="window.open('/pdf', '_blank')">Open PDF Tools</button>
-            </div>
-        </div>
-
-        <!-- LOGS SECTION -->
-        <div id="logs" class="section">
-            <div class="card">
-                <h2>📋 System Logs</h2>
-                <p style="color:#718096;">System logs feature coming soon...</p>
-            </div>
-        </div>
-
-        <!-- SETTINGS SECTION -->
-        <div id="settings" class="section">
-            <div class="card">
-                <h2>⚙️ Settings</h2>
-                <div class="form-group">
-                    <label>Master Token</label>
-                    <input type="text" id="currentToken" readonly>
-                </div>
-                <button class="btn btn-success" onclick="generateToken()">Generate New Token</button>
-            </div>
+        <div class="card">
+            <h2>User Management</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Registered</th>
+                        <th>Files</th>
+                        <th>Folders</th>
+                        <th>Storage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <tr><td colspan="6" style="text-align:center;color:#999;">Loading...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -610,10 +336,7 @@
             window.location.href = '/';
         }
 
-        // Store token
-        document.getElementById('currentToken').value = MASTER_TOKEN;
-
-        const API_URL = '../api/master/';
+        const API_URL = '/api/master/';
         let currentUser = null;
 
         function getHeaders() {
@@ -623,15 +346,6 @@
                 'X-Master-Token': MASTER_TOKEN,
                 'Content-Type': 'application/json'
             };
-        }
-
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-            event.target.classList.add('active');
-
-            if (section === 'users') loadUsers();
         }
 
         function showAlert(message, type = 'success') {
@@ -649,10 +363,7 @@
                 document.getElementById('statUsers').textContent = data.totalUsers;
                 document.getElementById('statFiles').textContent = data.totalFiles;
                 document.getElementById('statFolders').textContent = data.totalFolders;
-                document.getElementById('statStorage').textContent = formatSize(data.totalStorage);
-
-                document.getElementById('cloudFiles').textContent = data.totalFiles;
-                document.getElementById('cloudFolders').textContent = data.totalFolders;
+                document.getElementById('statStorage').textContent = formatSize(data.totalStorage) + ' / ' + formatSize(data.maxStorage);
             } catch (e) {
                 showAlert('Failed to load statistics: ' + e.message, 'error');
             }
@@ -767,34 +478,14 @@
             }
         }
 
-        async function generateToken() {
-            try {
-                const r = await fetch(API_URL + 'generate-token', {
-                    method: 'POST',
-                    headers: getHeaders()
-                });
-
-                const data = await r.json();
-                if (!r.ok) throw new Error(data.error || 'Failed');
-
-                showAlert('New token generated: ' + data.token, 'success');
-                document.getElementById('currentToken').value = data.token;
-            } catch (e) {
-                showAlert('Failed to generate token: ' + e.message, 'error');
-            }
-        }
-
-        function refreshStats() {
-            loadStats();
-            showAlert('Stats refreshed', 'success');
-        }
-
         // Init
         loadStats();
+        loadUsers();
 
         // Refresh every 30 seconds
         setInterval(() => {
             loadStats();
+            loadUsers();
         }, 30000);
     </script>
 </body>
