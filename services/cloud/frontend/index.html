@@ -553,7 +553,7 @@
             </div>
             <div class="field" id="pinField" style="display:none;">
                 <label>PIN</label>
-                <input type="password" id="folderPin" placeholder="6 digit angka" maxlength="6" inputmode="numeric">
+                <input type="password" id="folderPin" placeholder="6 digit angka" maxlength="6" inputmode="numeric" pattern="[0-9]{6}">
                 <div class="hint">6 digit angka</div>
             </div>
             <div class="modal-btns">
@@ -718,16 +718,25 @@
             unlockTarget = { id: id, name: name, authType: authType };
             document.getElementById('unlockTitle').textContent = 'Buka "' + name + '"';
             document.getElementById('unlockLabel').textContent = authType === 'pin' ? 'PIN' : 'Password';
-            document.getElementById('unlockInput').placeholder = authType === 'pin' ? 'Masukkan 6 digit PIN' : 'Masukkan password';
-            document.getElementById('unlockInput').value = '';
+            var unlockInput = document.getElementById('unlockInput');
+            unlockInput.placeholder = authType === 'pin' ? 'Masukkan 6 digit PIN' : 'Masukkan password';
+            unlockInput.value = '';
+            // Set input mode untuk PIN agar keyboard numeric muncul di mobile
+            if (authType === 'pin') {
+                unlockInput.setAttribute('inputmode', 'numeric');
+                unlockInput.setAttribute('maxlength', '6');
+            } else {
+                unlockInput.removeAttribute('inputmode');
+                unlockInput.removeAttribute('maxlength');
+            }
             document.getElementById('unlockError').classList.remove('show');
             document.getElementById('unlockModal').classList.add('show');
-            setTimeout(function() { document.getElementById('unlockInput').focus(); }, 100);
+            setTimeout(function() { unlockInput.focus(); }, 100);
         }
 
         async function doUnlock() {
             if (!unlockTarget) return;
-            var value = document.getElementById('unlockInput').value;
+            var value = document.getElementById('unlockInput').value.trim();
             var errEl = document.getElementById('unlockError');
             errEl.classList.remove('show');
 
@@ -735,6 +744,21 @@
                 errEl.textContent = 'Masukkan ' + (unlockTarget.authType === 'pin' ? 'PIN' : 'password');
                 errEl.classList.add('show');
                 return;
+            }
+
+            // Validasi format sebelum kirim ke server
+            if (unlockTarget.authType === 'pin') {
+                if (!/^\\d{6}$/.test(value)) {
+                    errEl.textContent = 'PIN harus 6 digit angka';
+                    errEl.classList.add('show');
+                    return;
+                }
+            } else if (unlockTarget.authType === 'password') {
+                if (value.length < 8) {
+                    errEl.textContent = 'Password minimal 8 karakter';
+                    errEl.classList.add('show');
+                    return;
+                }
             }
 
             try {
@@ -760,6 +784,10 @@
 
         function closeUnlockModal() {
             document.getElementById('unlockModal').classList.remove('show');
+            // Bersihkan input dan error saat modal ditutup
+            document.getElementById('unlockInput').value = '';
+            document.getElementById('unlockError').classList.remove('show');
+            document.getElementById('unlockError').textContent = '';
             unlockTarget = null;
         }
 
@@ -819,6 +847,7 @@
             document.getElementById('folderPassword').value = '';
             document.getElementById('folderPin').value = '';
             document.getElementById('folderError').classList.remove('show');
+            document.getElementById('folderError').textContent = '';
             setAuthType('password');
             document.getElementById('folderModal').classList.add('show');
             setTimeout(function() { document.getElementById('folderNameInput').focus(); }, 100);
@@ -826,6 +855,12 @@
 
         function closeFolderModal() {
             document.getElementById('folderModal').classList.remove('show');
+            // Bersihkan semua input saat modal ditutup
+            document.getElementById('folderNameInput').value = '';
+            document.getElementById('folderPassword').value = '';
+            document.getElementById('folderPin').value = '';
+            document.getElementById('folderError').classList.remove('show');
+            document.getElementById('folderError').textContent = '';
         }
 
         function setAuthType(type) {
@@ -850,14 +885,30 @@
             var authValue = '';
             if (newFolderAuthType === 'password') {
                 authValue = document.getElementById('folderPassword').value;
+                if (!authValue) {
+                    errEl.textContent = 'Password wajib diisi';
+                    errEl.classList.add('show');
+                    return;
+                }
+                // Validasi password: minimal 8 karakter, huruf besar, kecil, dan angka
+                if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(authValue)) {
+                    errEl.textContent = 'Password harus minimal 8 karakter dengan huruf besar, kecil, dan angka';
+                    errEl.classList.add('show');
+                    return;
+                }
             } else {
                 authValue = document.getElementById('folderPin').value;
-            }
-
-            if (!authValue) {
-                errEl.textContent = newFolderAuthType === 'password' ? 'Password wajib diisi' : 'PIN wajib diisi';
-                errEl.classList.add('show');
-                return;
+                if (!authValue) {
+                    errEl.textContent = 'PIN wajib diisi';
+                    errEl.classList.add('show');
+                    return;
+                }
+                // Validasi PIN: harus 6 digit angka
+                if (!/^\d{6}$/.test(authValue)) {
+                    errEl.textContent = 'PIN harus 6 digit angka';
+                    errEl.classList.add('show');
+                    return;
+                }
             }
 
             closeFolderModal();
