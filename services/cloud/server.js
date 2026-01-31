@@ -144,12 +144,6 @@ function checkMasterAccess(req, res, next) {
     console.log('[MASTER PANEL] Access GRANTED');
     next();
 }
-        }
-    }
-
-    console.log('[MASTER PANEL] Access GRANTED');
-    next();
-}
 
 // Log IP whitelist on startup
 console.log('\n========================================');
