@@ -85,19 +85,12 @@ app.post('/api/folder', (req, res) => {
     if (!name || !name.trim()) return res.status(400).json({ error: 'Nama folder wajib diisi' });
 
     if (!authType || !authValue) {
-        return res.status(400).json({ error: 'Pilih password atau PIN untuk folder' });
+        return res.status(400).json({ error: 'Password atau PIN wajib diisi' });
     }
 
-    if (authType === 'password') {
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(authValue)) {
-            return res.status(400).json({ error: 'Password harus huruf besar, kecil, dan angka, minimal 8 karakter' });
-        }
-    } else if (authType === 'pin') {
-        if (!/^\d{6}$/.test(authValue)) {
-            return res.status(400).json({ error: 'PIN harus 6 digit angka' });
-        }
-    } else {
-        return res.status(400).json({ error: 'authType harus "password" atau "pin"' });
+    // Validasi minimal - authValue tidak boleh kosong
+    if (!authValue.trim()) {
+        return res.status(400).json({ error: authType === 'pin' ? 'PIN tidak boleh kosong' : 'Password tidak boleh kosong' });
     }
 
     // If creating inside a protected folder, check access

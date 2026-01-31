@@ -548,13 +548,13 @@
             </div>
             <div class="field" id="pwdField">
                 <label>Password</label>
-                <input type="password" id="folderPassword" placeholder="Min 8 karakter" autocomplete="off">
-                <div class="hint">Huruf besar, kecil, dan angka</div>
+                <input type="password" id="folderPassword" placeholder="Masukkan password" autocomplete="off">
+                <div class="hint">Bisa pakai password apa saja</div>
             </div>
             <div class="field" id="pinField" style="display:none;">
                 <label>PIN</label>
-                <input type="password" id="folderPin" placeholder="6 digit angka" maxlength="6" inputmode="numeric" pattern="[0-9]{6}">
-                <div class="hint">6 digit angka</div>
+                <input type="password" id="folderPin" placeholder="Masukkan PIN" inputmode="numeric">
+                <div class="hint">Bisa pakai angka apa saja</div>
             </div>
             <div class="modal-btns">
                 <button class="m-cancel" onclick="closeFolderModal()">Batal</button>
@@ -719,15 +719,13 @@
             document.getElementById('unlockTitle').textContent = 'Buka "' + name + '"';
             document.getElementById('unlockLabel').textContent = authType === 'pin' ? 'PIN' : 'Password';
             var unlockInput = document.getElementById('unlockInput');
-            unlockInput.placeholder = authType === 'pin' ? 'Masukkan 6 digit PIN' : 'Masukkan password';
+            unlockInput.placeholder = authType === 'pin' ? 'Masukkan PIN' : 'Masukkan password';
             unlockInput.value = '';
             // Set input mode untuk PIN agar keyboard numeric muncul di mobile
             if (authType === 'pin') {
                 unlockInput.setAttribute('inputmode', 'numeric');
-                unlockInput.setAttribute('maxlength', '6');
             } else {
                 unlockInput.removeAttribute('inputmode');
-                unlockInput.removeAttribute('maxlength');
             }
             document.getElementById('unlockError').classList.remove('show');
             document.getElementById('unlockModal').classList.add('show');
@@ -744,21 +742,6 @@
                 errEl.textContent = 'Masukkan ' + (unlockTarget.authType === 'pin' ? 'PIN' : 'password');
                 errEl.classList.add('show');
                 return;
-            }
-
-            // Validasi format sebelum kirim ke server
-            if (unlockTarget.authType === 'pin') {
-                if (!/^\d{6}$/.test(value)) {
-                    errEl.textContent = 'PIN harus 6 digit angka';
-                    errEl.classList.add('show');
-                    return;
-                }
-            } else if (unlockTarget.authType === 'password') {
-                if (value.length < 8) {
-                    errEl.textContent = 'Password minimal 8 karakter';
-                    errEl.classList.add('show');
-                    return;
-                }
             }
 
             try {
@@ -884,28 +867,16 @@
 
             var authValue = '';
             if (newFolderAuthType === 'password') {
-                authValue = document.getElementById('folderPassword').value;
+                authValue = document.getElementById('folderPassword').value.trim();
                 if (!authValue) {
                     errEl.textContent = 'Password wajib diisi';
                     errEl.classList.add('show');
                     return;
                 }
-                // Validasi password: minimal 8 karakter, huruf besar, kecil, dan angka
-                if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(authValue)) {
-                    errEl.textContent = 'Password harus minimal 8 karakter dengan huruf besar, kecil, dan angka';
-                    errEl.classList.add('show');
-                    return;
-                }
             } else {
-                authValue = document.getElementById('folderPin').value;
+                authValue = document.getElementById('folderPin').value.trim();
                 if (!authValue) {
                     errEl.textContent = 'PIN wajib diisi';
-                    errEl.classList.add('show');
-                    return;
-                }
-                // Validasi PIN: harus 6 digit angka
-                if (!/^\d{6}$/.test(authValue)) {
-                    errEl.textContent = 'PIN harus 6 digit angka';
                     errEl.classList.add('show');
                     return;
                 }
