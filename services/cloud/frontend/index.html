@@ -772,17 +772,28 @@
         // ============ LOAD ============
         async function loadFiles() {
             try {
-                var url = currentFolder ? 'files?folder=' + currentFolder : 'files';
-                var headers = {};
-                if (currentFolder && folderTokens[currentFolder]) {
-                    headers['X-Folder-Token'] = folderTokens[currentFolder];
-                }
-                var r = await fetch('api/' + url, { headers: headers });
-                if (r.status === 403) {
-                    // Folder locked, should not happen if we always unlock first
-                    toast('Folder terkunci', 'err');
+                var token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/';
                     return;
                 }
+                
+                var url = currentFolder ? 'files?folder=' + currentFolder : 'files';
+                var r = await fetch('api/' + url, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                if (r.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/';
+                    return;
+                }
+                
+                if (!r.ok) {
+                    toast('Gagal memuat', 'err');
+                    return;
+                }
+                
                 var data = await r.json();
                 renderExplorer(data.folders || [], data.files || []);
                 updateBreadcrumb();
@@ -793,7 +804,12 @@
 
         async function loadStorage() {
             try {
-                var r = await fetch('api/storage');
+                var token = localStorage.getItem('token');
+                if (!token) return;
+                
+                var r = await fetch('api/storage', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
                 if (!r.ok) return;
                 var data = await r.json();
                 var pct = (data.used / data.total * 100).toFixed(1);
@@ -817,12 +833,11 @@
             var html = '';
 
             folders.forEach(function(f) {
-                var lockLabel = f.authType === 'pin' ? 'PIN' : 'PWD';
-                html += '<tr ondblclick="openFolder(\'' + f.id + '\',\'' + escA(f.name) + '\',\'' + (f.authType || 'password') + '\')">'
+                html += '<tr ondblclick="openFolder(\'' + f.id + '\',\'' + escA(f.name) + '\')">'
                     + '<td><div class="cell-name">'
                     + '<div class="icon folder-icon">&#128193;</div>'
                     + '<span class="name-text">' + esc(f.name) + '</span>'
-                    + '<span class="lock-badge">&#128274; ' + lockLabel + '</span>'
+                    + (f.owner ? '<span class="lock-badge" style="background:#10b981;color:#fff;border:none;">👤 ' + f.owner + '</span>' : '')
                     + '</div></td>'
                     + '<td class="cell-date">' + fmtDate(f.createdAt) + '</td>'
                     + '<td class="cell-size">—</td>'
@@ -853,28 +868,9 @@
         }
 
         // ============ FOLDER NAVIGATION ============
-        function openFolder(id, name, authType) {
-            // Check if already unlocked
-            if (folderTokens[id]) {
-                enterFolder(id, name);
-                return;
-            }
-            // Need to unlock
-            unlockTarget = { id: id, name: name, authType: authType };
-            document.getElementById('unlockTitle').textContent = 'Buka "' + name + '"';
-            document.getElementById('unlockLabel').textContent = authType === 'pin' ? 'PIN' : 'Password';
-            var unlockInput = document.getElementById('unlockInput');
-            unlockInput.placeholder = authType === 'pin' ? 'Masukkan PIN' : 'Masukkan password';
-            unlockInput.value = '';
-            // Set input mode untuk PIN agar keyboard numeric muncul di mobile
-            if (authType === 'pin') {
-                unlockInput.setAttribute('inputmode', 'numeric');
-            } else {
-                unlockInput.removeAttribute('inputmode');
-            }
-            document.getElementById('unlockError').classList.remove('show');
-            document.getElementById('unlockModal').classList.add('show');
-            setTimeout(function() { unlockInput.focus(); }, 100);
+        function openFolder(id, name) {
+            // No password/PIN required anymore - just enter
+            enterFolder(id, name);
         }
 
         async function doUnlock() {
@@ -1074,40 +1070,25 @@
                 return;
             }
 
-            var authValue = '';
-            if (newFolderAuthType === 'password') {
-                authValue = document.getElementById('folderPassword').value.trim();
-                if (!authValue) {
-                    errEl.textContent = 'Password wajib diisi';
-                    errEl.classList.add('show');
-                    return;
-                }
-            } else {
-                authValue = document.getElementById('folderPin').value.trim();
-                if (!authValue) {
-                    errEl.textContent = 'PIN wajib diisi';
-                    errEl.classList.add('show');
-                    return;
-                }
-            }
-
-            // Disable button to prevent double submit
             var submitBtn = event ? event.target : document.querySelector('#folderModal .m-ok');
             if (submitBtn) submitBtn.disabled = true;
 
             try {
-                var headers = { 'Content-Type': 'application/json' };
-                if (currentFolder && folderTokens[currentFolder]) {
-                    headers['X-Folder-Token'] = folderTokens[currentFolder];
+                var token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/';
+                    return;
                 }
+                
                 var r = await fetch('api/folder', {
                     method: 'POST',
-                    headers: headers,
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         name: name,
-                        parentId: currentFolder,
-                        authType: newFolderAuthType,
-                        authValue: authValue
+                        parentId: currentFolder
                     })
                 });
                 var data = await r.json();
@@ -1116,10 +1097,6 @@
                     errEl.textContent = data.error || 'Gagal buat folder';
                     errEl.classList.add('show');
                     return;
-                }
-                // Store the folder token
-                if (data.folderToken) {
-                    folderTokens[data.folder.id] = data.folderToken;
                 }
                 closeFolderModal();
                 toast('Folder "' + name + '" dibuat', 'ok');
@@ -1165,6 +1142,13 @@
 
         function uploadOne(file, num, total) {
             return new Promise(function(resolve) {
+                var token = localStorage.getItem('token');
+                if (!token) {
+                    toast('Not authenticated', 'err');
+                    resolve();
+                    return;
+                }
+                
                 var prog = document.getElementById('uploadProgress');
                 var bar = document.getElementById('uploadBarFill');
                 var info = document.getElementById('uploadInfo');
@@ -1178,9 +1162,7 @@
 
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', 'api/upload');
-                if (currentFolder && folderTokens[currentFolder]) {
-                    xhr.setRequestHeader('X-Folder-Token', folderTokens[currentFolder]);
-                }
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
 
                 xhr.upload.onprogress = function(e) {
                     if (e.lengthComputable) {
@@ -1210,11 +1192,15 @@
 
         // ============ DOWNLOAD ============
         function downloadFile(id) {
-            var headers = {};
-            if (currentFolder && folderTokens[currentFolder]) {
-                headers['X-Folder-Token'] = folderTokens[currentFolder];
+            var token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/';
+                return;
             }
-            fetch('api/download/' + id, { headers: headers }).then(function(r) {
+            
+            fetch('api/download/' + id, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(function(r) {
                 if (!r.ok) { toast('Download gagal', 'err'); return; }
                 var disp = r.headers.get('Content-Disposition');
                 var fname = 'download';
@@ -1239,12 +1225,15 @@
             modal.classList.add('show');
             content.innerHTML = '<div class=\"preview-unsupported\"><div class=\"icon\">⏳</div><p>Loading...</p></div>';
 
-            var headers = {};
-            if (currentFolder && folderTokens[currentFolder]) {
-                headers['X-Folder-Token'] = folderTokens[currentFolder];
+            var token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/';
+                return;
             }
 
-            fetch('api/download/' + id, { headers: headers })
+            fetch('api/download/' + id, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
                 .then(function(r) {
                     if (!r.ok) throw new Error('Gagal memuat file');
                     return r.blob();
@@ -1351,14 +1340,18 @@
             closeDeleteModal();
 
             try {
-                var endpoint = t === 'folder' ? 'folder/' + id : 'delete/' + id;
-                var headers = {};
-                if (t === 'folder' && folderTokens[id]) {
-                    headers['X-Folder-Token'] = folderTokens[id];
-                } else if (currentFolder && folderTokens[currentFolder]) {
-                    headers['X-Folder-Token'] = folderTokens[currentFolder];
+                var token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/';
+                    return;
                 }
-                var r = await fetch('api/' + endpoint, { method: 'DELETE', headers: headers });
+                
+                var endpoint = t === 'folder' ? 'folder/' + id : 'delete/' + id;
+                var r = await fetch('api/' + endpoint, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
                 if (r.ok) {
                     toast('Dihapus', 'ok');
                     loadFiles();
@@ -1376,7 +1369,6 @@
         document.addEventListener('keydown', function(e) {
             if (e.key !== 'Enter') return;
             if (document.getElementById('folderModal').classList.contains('show')) createFolder();
-            else if (document.getElementById('unlockModal').classList.contains('show')) doUnlock();
         });
 
         // ============ UTILS ============
