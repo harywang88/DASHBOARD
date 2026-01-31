@@ -9,8 +9,12 @@
     "install:all": "npm install && cd services/convert && npm install && cd ../pdf/backend && npm install"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
     "express": "^4.18.2",
-    "http-proxy-middleware": "^2.0.6"
+    "http-proxy-middleware": "^2.0.6",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^7.0.13"
   },
   "author": "Harywang",
   "license": "MIT"

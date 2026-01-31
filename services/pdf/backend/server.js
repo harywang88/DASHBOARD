@@ -276,13 +276,13 @@ app.get('/api/download/:filename', (req, res) => {
                 console.error('Error downloading file:', err);
                 return;
             }
-            // Delete file after download
+            // Delete file after 5 minutes (allow slow downloads)
             setTimeout(() => {
                 fs.unlink(filePath, (unlinkErr) => {
                     if (unlinkErr) console.error('Gagal menghapus file:', unlinkErr);
                     else console.log('File deleted:', filename);
                 });
-            }, 1000);
+            }, 300000);
         });
     } catch (error) {
         console.error('Download error:', error);

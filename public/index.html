@@ -567,10 +567,240 @@
             background: #ef4444;
             animation: none;
         }
+
+        /* Auth Overlay */
+        .auth-overlay {
+            position: fixed; inset: 0;
+            background: var(--bg-dark);
+            z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .auth-overlay.hidden { display: none; }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+        }
+
+        .auth-card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .auth-card h2 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-card .auth-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .auth-card .a-field { margin-bottom: 16px; }
+
+        .auth-card .a-field label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .auth-card .a-field input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color .2s;
+            font-family: inherit;
+        }
+
+        .auth-card .a-field input:focus { border-color: var(--primary); }
+        .auth-card .a-field input::placeholder { color: #475569; }
+
+        .auth-card .a-field .a-hint {
+            font-size: 11px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .auth-card .a-error {
+            background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.2);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-card .a-error.show { display: block; }
+
+        .auth-card .a-success {
+            background: rgba(16,185,129,.1);
+            border: 1px solid rgba(16,185,129,.2);
+            color: #6ee7b7;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-card .a-success.show { display: block; }
+
+        .auth-card .a-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: opacity .2s;
+            font-family: inherit;
+        }
+
+        .auth-card .a-btn:hover { opacity: .9; }
+
+        .auth-card .a-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .auth-card .a-switch a {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+
+        /* Logout button in nav */
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-username {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .nav-logout {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit;
+        }
+
+        .nav-logout:hover {
+            background: rgba(239,68,68,.1);
+            border-color: rgba(239,68,68,.3);
+            color: #fca5a5;
+        }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
+
+    <!-- Auth Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <!-- LOGIN FORM -->
+            <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                <h2><span>Login</span></h2>
+                <p class="auth-sub">Masuk ke Harywang Dashboard</p>
+                <div class="a-error" id="loginError"></div>
+                <div class="a-field">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Username" autocomplete="username" required>
+                </div>
+                <div class="a-field">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="a-btn">Login</button>
+                <div class="a-switch">
+                    Belum punya akun? <a onclick="switchAuth('register')">Daftar</a>
+                </div>
+                <div class="a-switch" style="margin-top:8px">
+                    <a onclick="switchAuth('forgot')">Lupa password?</a>
+                </div>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                <h2><span>Daftar</span></h2>
+                <p class="auth-sub">Buat akun baru</p>
+                <div class="a-error" id="registerError"></div>
+                <div class="a-success" id="registerSuccess"></div>
+                <div class="a-field">
+                    <label>Username</label>
+                    <input type="text" id="regUsername" placeholder="Username" autocomplete="username" required>
+                    <div class="a-hint">Huruf dan angka, 3-20 karakter</div>
+                </div>
+                <div class="a-field">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="email@example.com" autocomplete="email" required>
+                </div>
+                <div class="a-field">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Password" autocomplete="new-password" required>
+                    <div class="a-hint">Huruf besar, kecil, dan angka, minimal 8 karakter</div>
+                </div>
+                <button type="submit" class="a-btn">Daftar</button>
+                <div class="a-switch">
+                    Sudah punya akun? <a onclick="switchAuth('login')">Login</a>
+                </div>
+            </form>
+
+            <!-- FORGOT PASSWORD FORM -->
+            <form class="auth-form" id="forgotForm" onsubmit="handleForgot(event)">
+                <h2><span>Lupa Password</span></h2>
+                <p class="auth-sub">Password baru akan dikirim ke email</p>
+                <div class="a-error" id="forgotError"></div>
+                <div class="a-success" id="forgotSuccess"></div>
+                <div class="a-field">
+                    <label>Email</label>
+                    <input type="email" id="forgotEmail" placeholder="Email terdaftar" autocomplete="email" required>
+                </div>
+                <button type="submit" class="a-btn">Kirim Password Baru</button>
+                <div class="a-switch">
+                    <a onclick="switchAuth('login')">Kembali ke Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="navbar">
@@ -589,6 +819,10 @@
                 <a href="#" class="nav-link" data-page="convert" onclick="showPage('convert')">Convert</a>
                 <a href="#" class="nav-link" data-page="pdf" onclick="showPage('pdf')">PDF Tools</a>
                 <a href="#" class="nav-link" data-page="cloud" onclick="showPage('cloud')">HarywangCloud</a>
+            </div>
+            <div class="nav-user" id="navUser" style="display:none">
+                <span class="nav-username" id="navUsername"></span>
+                <button class="nav-logout" onclick="handleLogout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -760,87 +994,244 @@
     </main>
 
     <script>
-        // Page Navigation
+        // ============ AUTH ============
+
+        function switchAuth(form) {
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(form + 'Form').classList.add('active');
+            // Clear errors/successes
+            document.querySelectorAll('.a-error, .a-success').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+        }
+
+        function showAuthError(id, msg) {
+            var el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add('show');
+        }
+
+        function showAuthSuccess(id, msg) {
+            var el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add('show');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            var errEl = document.getElementById('loginError');
+            errEl.classList.remove('show');
+
+            var username = document.getElementById('loginUsername').value.trim();
+            var password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAuthError('loginError', 'Username dan password wajib diisi');
+                return;
+            }
+
+            try {
+                var res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, password: password })
+                });
+                var data = await res.json();
+
+                if (!res.ok) {
+                    showAuthError('loginError', data.error || 'Login gagal');
+                    return;
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
+                onAuthSuccess(data.username);
+            } catch (err) {
+                showAuthError('loginError', 'Gagal terhubung ke server');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            var errEl = document.getElementById('registerError');
+            var sucEl = document.getElementById('registerSuccess');
+            errEl.classList.remove('show');
+            sucEl.classList.remove('show');
+
+            var username = document.getElementById('regUsername').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
+            var password = document.getElementById('regPassword').value;
+
+            if (!username || !email || !password) {
+                showAuthError('registerError', 'Semua field wajib diisi');
+                return;
+            }
+
+            try {
+                var res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, email: email, password: password })
+                });
+                var data = await res.json();
+
+                if (!res.ok) {
+                    showAuthError('registerError', data.error || 'Registrasi gagal');
+                    return;
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
+                onAuthSuccess(data.username);
+            } catch (err) {
+                showAuthError('registerError', 'Gagal terhubung ke server');
+            }
+        }
+
+        async function handleForgot(e) {
+            e.preventDefault();
+            var errEl = document.getElementById('forgotError');
+            var sucEl = document.getElementById('forgotSuccess');
+            errEl.classList.remove('show');
+            sucEl.classList.remove('show');
+
+            var email = document.getElementById('forgotEmail').value.trim();
+            if (!email) {
+                showAuthError('forgotError', 'Email wajib diisi');
+                return;
+            }
+
+            try {
+                var res = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                var data = await res.json();
+
+                if (!res.ok) {
+                    showAuthError('forgotError', data.error || 'Gagal mengirim email');
+                    return;
+                }
+
+                showAuthSuccess('forgotSuccess', data.message || 'Password baru sudah dikirim ke email');
+            } catch (err) {
+                showAuthError('forgotError', 'Gagal terhubung ke server');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            document.getElementById('authOverlay').classList.remove('hidden');
+            document.getElementById('navUser').style.display = 'none';
+            switchAuth('login');
+            showPage('landing');
+        }
+
+        function onAuthSuccess(username) {
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('navUser').style.display = 'flex';
+            document.getElementById('navUsername').textContent = username;
+        }
+
+        async function checkAuth() {
+            var token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                var res = await fetch('/api/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    var data = await res.json();
+                    onAuthSuccess(data.username);
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                }
+            } catch (err) {
+                // Offline - use cached username if available
+                var cached = localStorage.getItem('username');
+                if (cached) onAuthSuccess(cached);
+            }
+        }
+
+        // ============ PAGE NAVIGATION ============
+
         function showPage(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(page => {
+            document.querySelectorAll('.page').forEach(function(page) {
                 page.classList.remove('active');
             });
-
-            // Show target page
             document.getElementById(pageId).classList.add('active');
 
-            // Update nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
+            document.querySelectorAll('.nav-link').forEach(function(link) {
                 link.classList.remove('active');
                 if (link.dataset.page === pageId) {
                     link.classList.add('active');
                 }
             });
 
-            // Close mobile menu
             document.getElementById('navLinks').classList.remove('show');
-
-            // Update URL hash
             window.location.hash = pageId === 'landing' ? '' : pageId;
         }
 
-        // Mobile Menu Toggle
         function toggleMobileMenu() {
             document.getElementById('navLinks').classList.toggle('show');
         }
 
-        // Check URL hash on load
-        window.addEventListener('load', () => {
-            const hash = window.location.hash.slice(1);
-            if (hash && ['convert', 'pdf', 'cloud'].includes(hash)) {
-                showPage(hash);
-            }
-        });
+        // ============ SERVER STATUS ============
 
-        // Check server status
         async function checkServerStatus() {
-            const convertStatus = document.getElementById('convertStatus');
-            const pdfStatus = document.getElementById('pdfStatus');
+            var convertStatus = document.getElementById('convertStatus');
+            var pdfStatus = document.getElementById('pdfStatus');
+            var cloudStatus = document.getElementById('cloudStatus');
 
             try {
-                const convertRes = await fetch('/convert/health', { timeout: 3000 });
-                convertStatus.classList.toggle('offline', !convertRes.ok);
-            } catch {
+                var r = await fetch('/convert/health');
+                convertStatus.classList.toggle('offline', !r.ok);
+            } catch (e) {
                 convertStatus.classList.add('offline');
             }
 
             try {
-                const pdfRes = await fetch('/pdf/api/health', { timeout: 3000 });
-                pdfStatus.classList.toggle('offline', !pdfRes.ok);
-            } catch {
+                var r = await fetch('/pdf/api/health');
+                pdfStatus.classList.toggle('offline', !r.ok);
+            } catch (e) {
                 pdfStatus.classList.add('offline');
             }
 
-            const cloudStatus = document.getElementById('cloudStatus');
             try {
-                const cloudRes = await fetch('/cloud/health', { timeout: 3000 });
-                cloudStatus.classList.toggle('offline', !cloudRes.ok);
-            } catch {
+                var r = await fetch('/cloud/health');
+                cloudStatus.classList.toggle('offline', !r.ok);
+            } catch (e) {
                 cloudStatus.classList.add('offline');
             }
         }
 
-        // Check status on load and periodically
-        checkServerStatus();
-        setInterval(checkServerStatus, 30000);
-
-        // Loading handlers
         function hideLoading(service) {
             console.log(service + ' loaded');
         }
 
-        // Handle hash changes
-        window.addEventListener('hashchange', () => {
-            const hash = window.location.hash.slice(1);
+        // ============ INIT ============
+
+        checkAuth();
+        checkServerStatus();
+        setInterval(checkServerStatus, 30000);
+
+        window.addEventListener('load', function() {
+            var hash = window.location.hash.slice(1);
+            if (hash && ['convert', 'pdf', 'cloud'].indexOf(hash) !== -1) {
+                showPage(hash);
+            }
+        });
+
+        window.addEventListener('hashchange', function() {
+            var hash = window.location.hash.slice(1);
             if (!hash || hash === 'landing') {
                 showPage('landing');
-            } else if (['convert', 'pdf', 'cloud'].includes(hash)) {
+            } else if (['convert', 'pdf', 'cloud'].indexOf(hash) !== -1) {
                 showPage(hash);
             }
         });

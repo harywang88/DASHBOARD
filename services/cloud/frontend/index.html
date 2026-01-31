@@ -605,6 +605,7 @@
         var deleteTarget = null;
         var unlockTarget = null;
         var newFolderAuthType = 'password';
+        var lockTimers = {};  // folderId → setTimeout ID for re-locking
 
         // ============ API ============
         function api(endpoint, opts) {
@@ -763,12 +764,26 @@
         }
 
         function enterFolder(id, name) {
+            // Cancel re-lock timer if re-entering quickly
+            if (lockTimers[id]) {
+                clearTimeout(lockTimers[id]);
+                delete lockTimers[id];
+            }
             folderPath.push({ id: id, name: name });
             currentFolder = id;
             loadFiles();
         }
 
         function navigateTo(index) {
+            // Start re-lock timer for folder being left
+            var leavingFolder = currentFolder;
+            if (leavingFolder && folderTokens[leavingFolder]) {
+                lockTimers[leavingFolder] = setTimeout(function() {
+                    delete folderTokens[leavingFolder];
+                    delete lockTimers[leavingFolder];
+                }, 2000);
+            }
+
             if (index < 0) {
                 currentFolder = null;
                 folderPath = [];
