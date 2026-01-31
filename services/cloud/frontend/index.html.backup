@@ -697,9 +697,61 @@
                 <label>Nama Folder</label>
                 <input type="text" id="folderNameInput" placeholder="Nama folder" maxlength="100">
             </div>
+            <label style="font-size:12px;color:#888;margin-bottom:6px;display:block;">Keamanan Folder</label>
+            <div class="radio-group">
+                <div class="radio-opt selected" id="optPwd" onclick="setAuthType('password')">Password</div>
+                <div class="radio-opt" id="optPin" onclick="setAuthType('pin')">PIN</div>
+            </div>
+            <div class="field" id="pwdField">
+                <label>Password</label>
+                <input type="password" id="folderPassword" placeholder="Masukkan password" autocomplete="off">
+                <div class="hint">Bisa pakai password apa saja</div>
+            </div>
+            <div class="field" id="pinField" style="display:none;">
+                <label>PIN</label>
+                <input type="password" id="folderPin" placeholder="Masukkan PIN" inputmode="numeric">
+                <div class="hint">Bisa pakai angka apa saja</div>
+            </div>
             <div class="modal-btns">
                 <button class="m-cancel" onclick="closeFolderModal()">Batal</button>
                 <button class="m-ok" onclick="createFolder()">Buat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UNLOCK MODAL -->
+    <div class="modal-bg" id="unlockModal">
+        <div class="modal">
+            <h3 id="unlockTitle">Buka Folder</h3>
+            <div class="m-error" id="unlockError"></div>
+            <div class="field">
+                <label id="unlockLabel">Password</label>
+                <input type="password" id="unlockInput" placeholder="Masukkan password" autocomplete="off">
+            </div>
+            <div class="modal-btns">
+                <button class="m-cancel" onclick="closeUnlockModal()">Batal</button>
+                <button class="m-ok" onclick="doUnlock()">Buka</button>
+            </div>
+            <div style="text-align:center;margin-top:12px;">
+                <a href="javascript:void(0)" onclick="showResetPassword()" style="color:#60a5fa;font-size:12px;text-decoration:underline;">Lupa Password/PIN?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET PASSWORD MODAL -->
+    <div class="modal-bg" id="resetModal">
+        <div class="modal">
+            <h3>Reset Password/PIN</h3>
+            <div class="m-error" id="resetError"></div>
+            <div class="m-success" id="resetSuccess"></div>
+            <p style="color:#888;font-size:13px;margin-bottom:16px;">Masukkan password/PIN baru untuk folder "<span id="resetFolderName"></span>"</p>
+            <div class="field">
+                <label id="resetLabel">Password/PIN Baru</label>
+                <input type="password" id="resetInput" placeholder="Masukkan password/PIN baru" autocomplete="off">
+            </div>
+            <div class="modal-btns">
+                <button class="m-cancel" onclick="closeResetModal()">Batal</button>
+                <button class="m-ok" onclick="doResetPassword()">Reset</button>
             </div>
         </div>
     </div>

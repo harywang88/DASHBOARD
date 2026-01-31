@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Panel - HarywangCloud</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255,255,255,.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.08);
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .card {
+            background: rgba(255,255,255,.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.1);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            color: #1a202c;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead tr {
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            color: #718096;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid #f7fafc;
+            transition: background .15s;
+        }
+
+        table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        table td {
+            padding: 12px;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-master {
+            background: #ffd700;
+            color: #744210;
+        }
+
+        .badge-user {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Master Panel</h1>
+            <p>Dashboard kontrol untuk administrator</p>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Users</div>
+                <div class="value" id="statUsers">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Files</div>
+                <div class="value" id="statFiles">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Folders</div>
+                <div class="value" id="statFolders">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Storage Used</div>
+                <div class="value" id="statStorage">-</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>User Management</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Registered</th>
+                        <th>Files</th>
+                        <th>Folders</th>
+                        <th>Storage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <tr><td colspan="6" style="text-align:center;color:#999;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RESET PASSWORD MODAL -->
+    <div class="modal" id="resetModal">
+        <div class="modal-content">
+            <h3>Reset Password</h3>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="resetUsername" readonly>
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="resetPassword" placeholder="Enter new password">
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-primary" onclick="closeResetModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmReset()">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE USER MODAL -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h3>Delete User</h3>
+            <p style="margin-bottom:16px;color:#718096;">Are you sure you want to delete user <strong id="deleteUsername"></strong>? All their files and folders will be permanently deleted.</p>
+            <div class="modal-btns">
+                <button class="btn btn-primary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete User</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MASTER_TOKEN = prompt('Enter master token:');
+        if (!MASTER_TOKEN) {
+            alert('Token required!');
+            window.location.href = '/';
+        }
+
+        const API_URL = '/api/master/';
+        let currentUser = null;
+
+        function getHeaders() {
+            const token = localStorage.getItem('token');
+            return {
+                'Authorization': 'Bearer ' + token,
+                'X-Master-Token': MASTER_TOKEN,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => { alertBox.innerHTML = ''; }, 5000);
+        }
+
+        async function loadStats() {
+            try {
+                const r = await fetch(API_URL + 'stats', { headers: getHeaders() });
+                if (!r.ok) throw new Error('Failed to load stats');
+                const data = await r.json();
+                
+                document.getElementById('statUsers').textContent = data.totalUsers;
+                document.getElementById('statFiles').textContent = data.totalFiles;
+                document.getElementById('statFolders').textContent = data.totalFolders;
+                document.getElementById('statStorage').textContent = formatSize(data.totalStorage) + ' / ' + formatSize(data.maxStorage);
+            } catch (e) {
+                showAlert('Failed to load statistics: ' + e.message, 'error');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const r = await fetch(API_URL + 'users', { headers: getHeaders() });
+                if (!r.ok) throw new Error('Failed to load users');
+                const data = await r.json();
+                
+                const tbody = document.getElementById('userTable');
+                if (data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No users found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.users.map(user => `
+                    <tr>
+                        <td>
+                            ${user.username}
+                            ${user.username === 'harywang' ? '<span class="badge badge-master">MASTER</span>' : '<span class="badge badge-user">USER</span>'}
+                        </td>
+                        <td>${user.registeredAt}</td>
+                        <td>${user.fileCount}</td>
+                        <td>${user.folderCount}</td>
+                        <td>${formatSize(user.storageUsed)}</td>
+                        <td>
+                            ${user.username !== 'harywang' ? `
+                                <button class="btn btn-primary btn-small" onclick="showResetModal('${user.username}')">Reset Password</button>
+                                <button class="btn btn-danger btn-small" onclick="showDeleteModal('${user.username}')">Delete</button>
+                            ` : '<span style="color:#999;font-size:12px;">Protected</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                showAlert('Failed to load users: ' + e.message, 'error');
+            }
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+        }
+
+        function showResetModal(username) {
+            currentUser = username;
+            document.getElementById('resetUsername').value = username;
+            document.getElementById('resetPassword').value = '';
+            document.getElementById('resetModal').classList.add('show');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('show');
+            currentUser = null;
+        }
+
+        async function confirmReset() {
+            const newPassword = document.getElementById('resetPassword').value.trim();
+            if (!newPassword) {
+                alert('Password cannot be empty');
+                return;
+            }
+
+            try {
+                const r = await fetch(API_URL + 'reset-password', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username: currentUser, newPassword })
+                });
+
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Failed');
+
+                showAlert(data.message, 'success');
+                closeResetModal();
+            } catch (e) {
+                showAlert('Failed to reset password: ' + e.message, 'error');
+            }
+        }
+
+        function showDeleteModal(username) {
+            currentUser = username;
+            document.getElementById('deleteUsername').textContent = username;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            currentUser = null;
+        }
+
+        async function confirmDelete() {
+            try {
+                const r = await fetch(API_URL + 'user/' + currentUser, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Failed');
+
+                showAlert(data.message, 'success');
+                closeDeleteModal();
+                loadUsers();
+                loadStats();
+            } catch (e) {
+                showAlert('Failed to delete user: ' + e.message, 'error');
+            }
+        }
+
+        // Init
+        loadStats();
+        loadUsers();
+
+        // Refresh every 30 seconds
+        setInterval(() => {
+            loadStats();
+            loadUsers();
+        }, 30000);
+    </script>
+</body>
+</html>
