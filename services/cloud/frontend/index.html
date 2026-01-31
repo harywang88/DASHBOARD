@@ -748,7 +748,7 @@
 
             // Validasi format sebelum kirim ke server
             if (unlockTarget.authType === 'pin') {
-                if (!/^\\d{6}$/.test(value)) {
+                if (!/^\d{6}$/.test(value)) {
                     errEl.textContent = 'PIN harus 6 digit angka';
                     errEl.classList.add('show');
                     return;
