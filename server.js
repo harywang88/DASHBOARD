@@ -86,8 +86,8 @@ app.post('/api/register', async (req, res) => {
         return res.status(400).json({ error: 'Username: huruf dan angka, 3-20 karakter' });
     }
 
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
-        return res.status(400).json({ error: 'Password: huruf besar, kecil, dan angka, minimal 8 karakter' });
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Password minimal 8 karakter' });
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -190,8 +190,8 @@ app.post('/api/change-password', async (req, res) => {
         return res.status(400).json({ error: 'Password lama dan baru wajib diisi' });
     }
 
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword)) {
-        return res.status(400).json({ error: 'Password baru: huruf besar, kecil, dan angka, minimal 8 karakter' });
+    if (newPassword.length < 8) {
+        return res.status(400).json({ error: 'Password baru minimal 8 karakter' });
     }
 
     const users = loadUsers();
