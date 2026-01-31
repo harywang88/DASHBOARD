@@ -728,6 +728,56 @@
             border-color: rgba(239,68,68,.3);
             color: #fca5a5;
         }
+
+        .nav-chpw {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit;
+        }
+
+        .nav-chpw:hover {
+            background: rgba(99,102,241,.1);
+            border-color: rgba(99,102,241,.3);
+            color: #a5b4fc;
+        }
+
+        /* Change Password Modal */
+        .chpw-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 3000;
+            display: none; align-items: center; justify-content: center;
+        }
+
+        .chpw-overlay.show { display: flex; }
+
+        .chpw-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .chpw-card h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .chpw-card h3 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body>
@@ -802,6 +852,32 @@
         </div>
     </div>
 
+    <!-- Change Password Modal -->
+    <div class="chpw-overlay" id="chpwOverlay">
+        <div class="chpw-card">
+            <h3><span>Ganti Password</span></h3>
+            <div class="a-error" id="chpwError"></div>
+            <div class="a-success" id="chpwSuccess"></div>
+            <div class="a-field">
+                <label>Password Lama</label>
+                <input type="password" id="chpwOld" placeholder="Password lama">
+            </div>
+            <div class="a-field">
+                <label>Password Baru</label>
+                <input type="password" id="chpwNew" placeholder="Password baru">
+                <div class="a-hint">Huruf besar, kecil, dan angka, minimal 8 karakter</div>
+            </div>
+            <div class="a-field">
+                <label>Konfirmasi Password Baru</label>
+                <input type="password" id="chpwConfirm" placeholder="Ulangi password baru">
+            </div>
+            <button class="a-btn" onclick="handleChangePassword()">Ganti Password</button>
+            <div class="a-switch" style="margin-top:16px">
+                <a onclick="closeChangePassword()">Batal</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-content">
@@ -822,6 +898,7 @@
             </div>
             <div class="nav-user" id="navUser" style="display:none">
                 <span class="nav-username" id="navUsername"></span>
+                <button class="nav-chpw" onclick="openChangePassword()">Ganti Password</button>
                 <button class="nav-logout" onclick="handleLogout()">Logout</button>
             </div>
         </div>
@@ -1128,6 +1205,68 @@
             document.getElementById('navUser').style.display = 'none';
             switchAuth('login');
             showPage('landing');
+        }
+
+        function openChangePassword() {
+            document.getElementById('chpwOverlay').classList.add('show');
+            document.getElementById('chpwOld').value = '';
+            document.getElementById('chpwNew').value = '';
+            document.getElementById('chpwConfirm').value = '';
+            document.getElementById('chpwError').classList.remove('show');
+            document.getElementById('chpwSuccess').classList.remove('show');
+        }
+
+        function closeChangePassword() {
+            document.getElementById('chpwOverlay').classList.remove('show');
+        }
+
+        async function handleChangePassword() {
+            var errEl = document.getElementById('chpwError');
+            var sucEl = document.getElementById('chpwSuccess');
+            errEl.classList.remove('show');
+            sucEl.classList.remove('show');
+
+            var oldPw = document.getElementById('chpwOld').value;
+            var newPw = document.getElementById('chpwNew').value;
+            var confirmPw = document.getElementById('chpwConfirm').value;
+
+            if (!oldPw || !newPw || !confirmPw) {
+                showAuthError('chpwError', 'Semua field wajib diisi');
+                return;
+            }
+
+            if (newPw !== confirmPw) {
+                showAuthError('chpwError', 'Password baru dan konfirmasi tidak cocok');
+                return;
+            }
+
+            var token = localStorage.getItem('token');
+            if (!token) {
+                showAuthError('chpwError', 'Sesi expired, silakan login ulang');
+                return;
+            }
+
+            try {
+                var res = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ currentPassword: oldPw, newPassword: newPw })
+                });
+                var data = await res.json();
+
+                if (!res.ok) {
+                    showAuthError('chpwError', data.error || 'Gagal ganti password');
+                    return;
+                }
+
+                showAuthSuccess('chpwSuccess', 'Password berhasil diganti!');
+                setTimeout(closeChangePassword, 1500);
+            } catch (err) {
+                showAuthError('chpwError', 'Gagal terhubung ke server');
+            }
         }
 
         function onAuthSuccess(username) {

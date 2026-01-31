@@ -171,6 +171,47 @@ app.post('/api/forgot-password', async (req, res) => {
     }
 });
 
+app.post('/api/change-password', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+    } catch {
+        return res.status(401).json({ error: 'Token expired' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: 'Password lama dan baru wajib diisi' });
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword)) {
+        return res.status(400).json({ error: 'Password baru: huruf besar, kecil, dan angka, minimal 8 karakter' });
+    }
+
+    const users = loadUsers();
+    const user = users.find(u => u.id === decoded.id);
+
+    if (!user) {
+        return res.status(404).json({ error: 'User tidak ditemukan' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+        return res.status(401).json({ error: 'Password lama salah' });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    saveUsers(users);
+
+    res.json({ success: true, message: 'Password berhasil diganti' });
+});
+
 app.get('/api/me', (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
