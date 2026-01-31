@@ -604,10 +604,15 @@
     </div>
 
     <script>
-        const MASTER_TOKEN = prompt('Enter master token:');
+        let MASTER_TOKEN = localStorage.getItem('masterToken');
         if (!MASTER_TOKEN) {
-            alert('Token required!');
-            window.location.href = '/';
+            MASTER_TOKEN = prompt('Enter master token:');
+            if (!MASTER_TOKEN) {
+                alert('Token required!');
+                window.location.href = '/';
+            } else {
+                localStorage.setItem('masterToken', MASTER_TOKEN);
+            }
         }
 
         // Store token
@@ -624,6 +629,7 @@
             if (token) {
                 headers['Authorization'] = 'Bearer ' + token;
             }
+            console.log('Sending headers:', headers);
             return headers;
         }
 
@@ -644,12 +650,22 @@
 
         async function loadStats() {
             try {
+                console.log('Loading stats from:', API_URL + 'stats');
                 const r = await fetch(API_URL + 'stats', { 
                     method: 'GET',
                     headers: getHeaders() 
                 });
-                if (!r.ok) throw new Error('Failed to load stats');
+                
+                console.log('Stats response status:', r.status);
+                
+                if (!r.ok) {
+                    const errorText = await r.text();
+                    console.error('Stats error response:', errorText);
+                    throw new Error('Server returned ' + r.status);
+                }
+                
                 const data = await r.json();
+                console.log('Stats data:', data);
                 
                 document.getElementById('statUsers').textContent = data.totalUsers;
                 document.getElementById('statFiles').textContent = data.totalFiles;
