@@ -478,6 +478,149 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* ============ FILE PREVIEW MODAL ============ */
+        .preview-modal-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,.92);
+            z-index: 250;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .preview-modal-bg.show { display: flex; }
+
+        .preview-modal {
+            background: #181b26;
+            border: 1px solid #2a2d3a;
+            border-radius: 12px;
+            width: 90vw;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #2a2d3a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .preview-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e5e5e5;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 600px;
+        }
+
+        .preview-header-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-header-btns button {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid #2a2d3a;
+            background: #1e2030;
+            color: #c0c0c0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .preview-header-btns button:hover {
+            background: #22263a;
+            border-color: #3a3d4a;
+            color: #fff;
+        }
+
+        .preview-header-btns .btn-download {
+            background: #10b981;
+            border-color: #10b981;
+            color: #fff;
+        }
+
+        .preview-header-btns .btn-download:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+
+        .preview-content {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #0f1117;
+        }
+
+        .preview-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .preview-content video,
+        .preview-content audio {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .preview-content video {
+            max-height: 70vh;
+        }
+
+        .preview-content audio {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .preview-content iframe {
+            width: 100%;
+            height: 75vh;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .preview-content pre {
+            background: #1e2030;
+            color: #e5e5e5;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            width: 100%;
+            max-height: 70vh;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .preview-unsupported {
+            text-align: center;
+            color: #737373;
+            padding: 40px;
+        }
+
+        .preview-unsupported .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
         /* ============ RESPONSIVE ============ */
 
         @media (max-width: 640px) {
@@ -625,6 +768,25 @@
         </div>
     </div>
 
+    <!-- FILE PREVIEW MODAL -->
+    <div class="preview-modal-bg" id="previewModal">
+        <div class="preview-modal">
+            <div class="preview-header">
+                <h3 id="previewTitle">Preview File</h3>
+                <div class="preview-header-btns">
+                    <button class="btn-download" onclick="downloadCurrentPreview()">&#11015; Download</button>
+                    <button onclick="closePreview()">✕ Tutup</button>
+                </div>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <div class="preview-unsupported">
+                    <div class="icon">📄</div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST -->
     <div class="toast-box" id="toastBox"></div>
 
@@ -640,6 +802,7 @@
         var unlockTarget = null;
         var newFolderAuthType = 'password';
         var lockTimers = {};  // folderId → setTimeout ID for re-locking
+        var currentPreviewFile = null;  // { id, name, mimetype }
 
         // ============ API ============
         function api(endpoint, opts) {
@@ -723,7 +886,7 @@
             });
 
             files.forEach(function(f) {
-                html += '<tr ondblclick="downloadFile(\'' + f.id + '\')">'
+                html += '<tr ondblclick="previewFile(\'' + f.id + '\',\'' + escA(f.originalName) + '\',\'' + escA(f.mimetype) + '\')">'
                     + '<td><div class="cell-name">'
                     + '<div class="icon file-icon">' + fileIcon(f.mimetype) + '</div>'
                     + '<span class="name-text">' + esc(f.originalName) + '</span>'
@@ -1117,6 +1280,108 @@
             }).catch(function() { toast('Download gagal', 'err'); });
         }
 
+        // ============ FILE PREVIEW ============
+        function previewFile(id, name, mimetype) {
+            currentPreviewFile = { id: id, name: name, mimetype: mimetype };
+            document.getElementById('previewTitle').textContent = name;
+            
+            var modal = document.getElementById('previewModal');
+            var content = document.getElementById('previewContent');
+            
+            modal.classList.add('show');
+            content.innerHTML = '<div class=\"preview-unsupported\"><div class=\"icon\">⏳</div><p>Loading...</p></div>';
+
+            var headers = {};
+            if (currentFolder && folderTokens[currentFolder]) {
+                headers['X-Folder-Token'] = folderTokens[currentFolder];
+            }
+
+            fetch('api/download/' + id, { headers: headers })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('Gagal memuat file');
+                    return r.blob();
+                })
+                .then(function(blob) {
+                    var url = URL.createObjectURL(blob);
+                    var html = '';
+
+                    // Image
+                    if (mimetype.startsWith('image/')) {
+                        html = '<img src=\"' + url + '\" alt=\"' + esc(name) + '\">';
+                    }
+                    // Video
+                    else if (mimetype.startsWith('video/')) {
+                        html = '<video controls preload=\"metadata\" src=\"' + url + '\"></video>';
+                    }
+                    // Audio
+                    else if (mimetype.startsWith('audio/')) {
+                        html = '<audio controls preload=\"metadata\" src=\"' + url + '\"></audio>';
+                    }
+                    // PDF
+                    else if (mimetype === 'application/pdf') {
+                        html = '<iframe src=\"' + url + '\"></iframe>';
+                    }
+                    // Text files
+                    else if (mimetype.startsWith('text/') || 
+                             mimetype === 'application/json' ||
+                             mimetype === 'application/javascript' ||
+                             mimetype === 'application/xml') {
+                        blob.text().then(function(text) {
+                            content.innerHTML = '<pre>' + esc(text) + '</pre>';
+                        });
+                        return;
+                    }
+                    // Unsupported
+                    else {
+                        html = '<div class=\"preview-unsupported\">'
+                            + '<div class=\"icon\">📄</div>'
+                            + '<p>Format file ini tidak bisa di-preview</p>'
+                            + '<p style=\"font-size:11px;color:#555;margin-top:8px;\">Klik Download untuk mengunduh file</p>'
+                            + '</div>';
+                    }
+
+                    content.innerHTML = html;
+                })
+                .catch(function(err) {
+                    content.innerHTML = '<div class=\"preview-unsupported\">'
+                        + '<div class=\"icon\">❌</div>'
+                        + '<p>Gagal memuat file</p>'
+                        + '<p style=\"font-size:11px;color:#555;margin-top:8px;\">' + esc(err.message) + '</p>'
+                        + '</div>';
+                });
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('show');
+            var content = document.getElementById('previewContent');
+            
+            // Clean up media elements
+            var media = content.querySelector('video, audio');
+            if (media) {
+                media.pause();
+                media.src = '';
+            }
+            
+            // Clean up object URLs
+            var img = content.querySelector('img');
+            if (img && img.src.startsWith('blob:')) {
+                URL.revokeObjectURL(img.src);
+            }
+            var iframe = content.querySelector('iframe');
+            if (iframe && iframe.src.startsWith('blob:')) {
+                URL.revokeObjectURL(iframe.src);
+            }
+            
+            content.innerHTML = '';
+            currentPreviewFile = null;
+        }
+
+        function downloadCurrentPreview() {
+            if (currentPreviewFile) {
+                downloadFile(currentPreviewFile.id);
+            }
+        }
+
         // ============ DELETE ============
         function askDelete(type, id, name) {
             deleteTarget = { type: type, id: id };
@@ -1218,6 +1483,16 @@
             box.appendChild(el);
             setTimeout(function() { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(function() { el.remove(); }, 300); }, 3000);
         }
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // Close preview modal if open
+                if (document.getElementById('previewModal').classList.contains('show')) {
+                    closePreview();
+                }
+            }
+        });
 
         // ============ INIT ============
         loadFiles();
