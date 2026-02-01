@@ -902,7 +902,7 @@
         </div>
 
         <!-- ADMIN USER SECTION -->
-        <div id="admin" class="section" style="display:none;">
+        <div id="admin" class="section">
             <div class="header">
                 <div>
                     <h1>Admin User Management</h1>
@@ -942,7 +942,7 @@
         </div>
 
         <!-- GRADE PERMISSIONS SECTION -->
-        <div id="grades" class="section" style="display:none;">
+        <div id="grades" class="section">
             <div class="header">
                 <div>
                     <h1>Grade Permissions</h1>
@@ -1421,9 +1421,19 @@
         }
 
         function showSection(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => {
+                s.classList.remove('active');
+                s.style.display = 'none';
+            });
+            
+            // Remove active class from all menu items
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
+            
+            // Show selected section
+            const selectedSection = document.getElementById(section);
+            selectedSection.style.display = 'block';
+            selectedSection.classList.add('active');
             event.target.classList.add('active');
 
             if (section === 'users') loadUsers();
