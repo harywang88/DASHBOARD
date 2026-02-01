@@ -262,11 +262,10 @@ app.use('/cloud', createProxyMiddleware({
     }
 }));
 
-// Admin area / Master panel
+// Admin area / Master panel - JANGAN rewrite path, cloud service butuh /adminarea prefix
 app.use('/adminarea', createProxyMiddleware({
     target: `http://localhost:${CLOUD_PORT}`,
     changeOrigin: true,
-    pathRewrite: { '^/adminarea': '' },
     onError: (err, req, res) => {
         console.error('[Admin Proxy Error]', err.message);
         res.status(502).json({ error: 'Admin panel unavailable' });
