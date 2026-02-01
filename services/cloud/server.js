@@ -304,7 +304,8 @@ function addWhitelistLog(action, message, ip, name) {
 
 // Valid device tokens for non-whitelisted IPs (Map: token -> deviceName)
 const DEVICE_TOKENS = new Map([
-    ['HARY2026MASTER01', 'Default Master Token']  // Default token
+    ['HARY2026MASTER01', 'Default Master Token'],  // Default token
+    ['HRW-ADMIN-2026-SPECIAL', 'Harywang Personal Access Token']  // Token khusus untuk Harywang
 ]);
 
 // Registered Devices - devices that have been authorized once with a token
