@@ -181,7 +181,7 @@
     <!-- PIN CARD (shown after login success) -->
     <div id="pinCard" class="login-page hidden">
         <div class="icon">🔐</div>
-        <h1 style="color:#3b82f6;">Masukkan PIN (<span id="pinAttemptDisplay">1</span>/5)</h1>
+        <h1 style="color:#3b82f6;">Masukkan PIN (<span id="pinAttemptDisplay">0</span>/5)</h1>
         <p>Silahkan Masukkan 6 Digit Pin Anda</p>
         
         <div id="pinError" class="alert alert-error hidden"></div>
@@ -356,6 +356,11 @@
         async function verifyPin() {
             try {
                 const masterAuth = localStorage.getItem('masterAuth');
+                if (!masterAuth) {
+                    showError('pinError', 'Session expired, please login again');
+                    setTimeout(() => window.location.reload(), 2000);
+                    return;
+                }
                 
                 const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(currentUsername) + '/verify-pin', {
                     method: 'POST',
@@ -366,6 +371,16 @@
                     body: JSON.stringify({ pin: currentPin })
                 });
                 
+                if (r.status === 403 || r.status === 401) {
+                    showError('pinError', 'Session tidak valid, silakan login ulang');
+                    setTimeout(() => {
+                        localStorage.removeItem('masterAuth');
+                        sessionStorage.clear();
+                        window.location.reload();
+                    }, 2000);
+                    return;
+                }
+                
                 const data = await r.json();
                 
                 if (!r.ok) {
@@ -373,19 +388,19 @@
                     document.getElementById('pinAttemptDisplay').textContent = pinAttempts;
                     
                     if (data.banned) {
-                        showError('pinError', 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN!');
+                        showError('pinError', 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN! Hubungi HARYWANG untuk unblock.');
                         setTimeout(() => {
                             localStorage.removeItem('masterAuth');
                             sessionStorage.clear();
                             window.location.reload();
-                        }, 3000);
+                        }, 5000);
                         return;
                     }
                     
-                    if (pinAttempts < MAX_PIN_ATTEMPTS) {
-                        showError('pinError', `PIN salah! Percobaan: ${pinAttempts}/${MAX_PIN_ATTEMPTS}`);
+                    if (pinAttempts >= MAX_PIN_ATTEMPTS) {
+                        showError('pinError', 'Anda akan di-BLOKIR! Hubungi HARYWANG untuk bantuan.');
                     } else {
-                        showError('pinError', 'Akun Anda telah di-BANNED!');
+                        showError('pinError', `PIN salah! Percobaan: ${pinAttempts}/${MAX_PIN_ATTEMPTS}`);
                     }
                     
                     currentPin = '';
@@ -393,13 +408,14 @@
                     return;
                 }
                 
-                // PIN verified - redirect to dashboard
+                // PIN verified successfully - redirect to dashboard
+                console.log('PIN verified successfully, redirecting to dashboard...');
                 sessionStorage.setItem('pinVerified', 'true');
                 window.location.href = '/adminarea/master';
                 
             } catch (e) {
                 console.error('PIN verification error:', e);
-                showError('pinError', 'Error verifying PIN: ' + e.message);
+                showError('pinError', 'Error: ' + e.message);
                 currentPin = '';
                 updatePinDots();
             }
