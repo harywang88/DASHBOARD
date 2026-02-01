@@ -2447,20 +2447,17 @@
             }
             console.log('Authentication found, continuing...');
             
-            // Check if PIN already verified in this session
-            const pinVerified = sessionStorage.getItem('pinVerified');
-            if (!pinVerified) {
-                // Show PIN verification modal
-                setTimeout(() => {
-                    const modal = document.getElementById('verifyPinModal');
-                    if (modal) {
-                        modal.style.display = 'flex';
-                    } else {
-                        console.error('PIN modal not found, skipping PIN verification');
-                        sessionStorage.setItem('pinVerified', 'true');
-                    }
-                }, 500);
-            }
+            // PIN verification temporarily disabled - auto-verify for now
+            sessionStorage.setItem('pinVerified', 'true');
+            
+            // TODO: Re-enable PIN verification after testing
+            // const pinVerified = sessionStorage.getItem('pinVerified');
+            // if (!pinVerified) {
+            //     setTimeout(() => {
+            //         const modal = document.getElementById('verifyPinModal');
+            //         if (modal) modal.style.display = 'flex';
+            //     }, 500);
+            // }
             
             return true;
         }
