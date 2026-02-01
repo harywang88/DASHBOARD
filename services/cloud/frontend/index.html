@@ -357,6 +357,7 @@
         }
 
         .modal input[type="text"],
+        .modal input[type="email"],
         .modal input[type="password"] {
             width: 100%;
             padding: 10px 12px;
@@ -1096,51 +1097,47 @@
         // ============ CREATE FOLDER ============
         function showNewFolderModal() {
             document.getElementById('folderNameInput').value = '';
-            document.getElementById('folderPassword').value = '';
-            document.getElementById('folderPin').value = '';
-            document.getElementById('folderError').classList.remove('show');
-            document.getElementById('folderError').textContent = '';
-            setAuthType('password');
-            document.getElementById('folderModal').classList.add('show');
+            var errorEl = document.getElementById('folderError');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.style.display = 'none';
+            }
+            document.getElementById('folderModal').style.display = 'flex';
             setTimeout(function() { document.getElementById('folderNameInput').focus(); }, 100);
         }
 
         function closeFolderModal() {
-            document.getElementById('folderModal').classList.remove('show');
-            // Bersihkan semua input saat modal ditutup
+            document.getElementById('folderModal').style.display = 'none';
             document.getElementById('folderNameInput').value = '';
-            document.getElementById('folderPassword').value = '';
-            document.getElementById('folderPin').value = '';
-            document.getElementById('folderError').classList.remove('show');
-            document.getElementById('folderError').textContent = '';
-        }
-
-        function setAuthType(type) {
-            newFolderAuthType = type;
-            document.getElementById('optPwd').className = 'radio-opt' + (type === 'password' ? ' selected' : '');
-            document.getElementById('optPin').className = 'radio-opt' + (type === 'pin' ? ' selected' : '');
-            document.getElementById('pwdField').style.display = type === 'password' ? 'block' : 'none';
-            document.getElementById('pinField').style.display = type === 'pin' ? 'block' : 'none';
+            var errorEl = document.getElementById('folderError');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.style.display = 'none';
+            }
         }
 
         async function createFolder() {
             var name = document.getElementById('folderNameInput').value.trim();
             var errEl = document.getElementById('folderError');
-            errEl.classList.remove('show');
+            if (errEl) {
+                errEl.style.display = 'none';
+            }
 
             if (!name) {
-                errEl.textContent = 'Nama folder wajib diisi';
-                errEl.classList.add('show');
+                if (errEl) {
+                    errEl.textContent = 'Nama folder wajib diisi';
+                    errEl.style.display = 'block';
+                }
                 return;
             }
 
-            var submitBtn = event ? event.target : document.querySelector('#folderModal .m-ok');
+            var submitBtn = document.querySelector('#folderModal .m-ok');
             if (submitBtn) submitBtn.disabled = true;
 
             try {
                 var token = localStorage.getItem('token');
                 if (!token) {
-                    window.location.href = '/';
+                    showAuthModal();
                     return;
                 }
                 
@@ -1158,8 +1155,10 @@
                 var data = await r.json();
                 if (!r.ok) {
                     if (submitBtn) submitBtn.disabled = false;
-                    errEl.textContent = data.error || 'Gagal buat folder';
-                    errEl.classList.add('show');
+                    if (errEl) {
+                        errEl.textContent = data.error || 'Gagal buat folder';
+                        errEl.style.display = 'block';
+                    }
                     return;
                 }
                 closeFolderModal();
@@ -1167,8 +1166,10 @@
                 loadFiles();
             } catch (e) {
                 if (submitBtn) submitBtn.disabled = false;
-                errEl.textContent = 'Gagal buat folder: ' + e.message;
-                errEl.classList.add('show');
+                if (errEl) {
+                    errEl.textContent = 'Gagal buat folder: ' + e.message;
+                    errEl.style.display = 'block';
+                }
             }
         }
 
@@ -1258,7 +1259,7 @@
         function downloadFile(id) {
             var token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '/';
+                showAuthModal();
                 return;
             }
             
@@ -1291,7 +1292,7 @@
 
             var token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '/';
+                showAuthModal();
                 return;
             }
 
@@ -1406,7 +1407,7 @@
             try {
                 var token = localStorage.getItem('token');
                 if (!token) {
-                    window.location.href = '/';
+                    showAuthModal();
                     return;
                 }
                 
