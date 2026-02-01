@@ -1133,6 +1133,9 @@ app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMast
     res.json({ success: true, message: `Password untuk ${username} berhasil direset` });
 });
 
+// PIN attempt tracking (in-memory, resets on server restart)
+const PIN_ATTEMPTS = new Map(); // username -> { count: number, lastAttempt: timestamp }
+
 // Verify admin PIN (requires auth)
 app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAuth, (req, res) => {
     const { username } = req.params;
@@ -1141,6 +1144,11 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAu
     const admin = ADMIN_USERS.get(username);
     if (!admin) {
         return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    // Check if already banned
+    if (admin.status === 'banned') {
+        return res.status(403).json({ error: 'Akun Anda telah di-BANNED', banned: true });
     }
     
     if (!pin || pin.length !== 6) {
@@ -1157,10 +1165,45 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAu
     }
     
     if (admin.pin !== hashedPin) {
+        // Track failed attempts
+        const attempts = PIN_ATTEMPTS.get(username) || { count: 0, lastAttempt: null };
+        attempts.count++;
+        attempts.lastAttempt = new Date().toISOString();
+        PIN_ATTEMPTS.set(username, attempts);
+        
         // Log failed attempt
-        addActivityLog('admin', username, 'VERIFY_PIN_FAILED', `Failed PIN verification for admin: ${username}`);
-        return res.status(401).json({ error: 'PIN salah' });
+        addActivityLog('admin', username, 'VERIFY_PIN_FAILED', `Failed PIN verification (attempt ${attempts.count}/5) for admin: ${username}`);
+        
+        // Check if should ban (5 failed attempts)
+        if (attempts.count >= 5) {
+            // Auto-ban user
+            admin.status = 'banned';
+            ADMIN_USERS.set(username, admin);
+            saveAdminUsers();
+            
+            // Log ban
+            addActivityLog('admin', 'SYSTEM', 'AUTO_BAN', `Admin "${username}" di-BANNED oleh SYSTEM karena 5x salah memasukkan PIN`);
+            console.log(`[SECURITY] Admin ${username} BANNED - 5 failed PIN attempts`);
+            
+            // Reset attempts counter
+            PIN_ATTEMPTS.delete(username);
+            
+            return res.status(403).json({ 
+                error: 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN', 
+                banned: true,
+                attempts: 5
+            });
+        }
+        
+        return res.status(401).json({ 
+            error: 'PIN salah', 
+            attemptsRemaining: 5 - attempts.count,
+            attempts: attempts.count
+        });
     }
+    
+    // PIN correct - reset attempts
+    PIN_ATTEMPTS.delete(username);
     
     // Log success
     addActivityLog('admin', username, 'VERIFY_PIN_SUCCESS', `Successful PIN verification for admin: ${username}`);
