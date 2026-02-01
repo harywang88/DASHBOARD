@@ -1275,8 +1275,9 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', (req, res) =>
     
     // Log success
     addActivityLog('admin', username, 'VERIFY_PIN_SUCCESS', `Successful PIN verification for admin: ${username}`);
+    console.log(`[AUTH] PIN verified successfully for ${username}`);
     
-    res.json({ success: true, message: 'PIN verified successfully' });
+    res.json({ success: true, verified: true, message: 'PIN verified successfully' });
 });
 
 // Check PIN status (has custom PIN or needs to set one)
