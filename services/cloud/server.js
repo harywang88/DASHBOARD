@@ -869,7 +869,7 @@ app.post('/api/adminarea/master/admin-login', checkPanelAccess, (req, res) => {
 
 // Get IP whitelist (requires auth)
 // Get IP whitelist (requires auth)
-app.get('/api/adminarea/master/whitelist', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/whitelist', checkMasterOrAdminAuth, (req, res) => {
     const whitelist = Array.from(IP_WHITELIST.entries()).map(([ip, name]) => ({
         ip,
         name,
@@ -880,7 +880,7 @@ app.get('/api/adminarea/master/whitelist', checkMasterAuth, (req, res) => {
 });
 
 // Add IP to whitelist (requires auth)
-app.post('/api/adminarea/master/whitelist/add', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/whitelist/add', checkMasterOrAdminAuth, (req, res) => {
     const { ip, name } = req.body;
     if (!ip) {
         return res.status(400).json({ error: 'IP required' });
@@ -900,7 +900,7 @@ app.post('/api/adminarea/master/whitelist/add', checkMasterAuth, (req, res) => {
 });
 
 // Delete IP from whitelist (requires auth)
-app.delete('/api/adminarea/master/whitelist/:ip', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/whitelist/:ip', checkMasterOrAdminAuth, (req, res) => {
     const { ip } = req.params;
     if (!ip) {
         return res.status(400).json({ error: 'IP required' });
@@ -918,12 +918,12 @@ app.delete('/api/adminarea/master/whitelist/:ip', checkMasterAuth, (req, res) =>
 });
 
 // Get whitelist activity logs (requires auth)
-app.get('/api/adminarea/master/whitelist/logs', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/whitelist/logs', checkMasterOrAdminAuth, (req, res) => {
     res.json({ logs: WHITELIST_LOGS });
 });
 
 // Get all registered devices (requires auth)
-app.get('/api/adminarea/master/devices', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/devices', checkMasterOrAdminAuth, (req, res) => {
     const devices = Array.from(REGISTERED_DEVICES.entries()).map(([fingerprint, info]) => ({
         fingerprint: fingerprint.substring(0, 16) + '...', // Show partial fingerprint
         deviceName: info.deviceName,
@@ -937,7 +937,7 @@ app.get('/api/adminarea/master/devices', checkMasterAuth, (req, res) => {
 });
 
 // Delete registered device (requires auth)
-app.delete('/api/adminarea/master/devices/:fingerprint', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/devices/:fingerprint', checkMasterOrAdminAuth, (req, res) => {
     const { fingerprint } = req.params;
     
     // Find device by partial fingerprint match
@@ -961,7 +961,7 @@ app.delete('/api/adminarea/master/devices/:fingerprint', checkMasterAuth, (req, 
 });
 
 // Get all device tokens (requires auth)
-app.get('/api/adminarea/master/tokens', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/tokens', checkMasterOrAdminAuth, (req, res) => {
     const tokens = Array.from(DEVICE_TOKENS.entries()).map(([token, deviceName]) => ({
         token,
         deviceName,
@@ -972,7 +972,7 @@ app.get('/api/adminarea/master/tokens', checkMasterAuth, (req, res) => {
 });
 
 // Add device token (requires auth)
-app.post('/api/adminarea/master/tokens/add', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/tokens/add', checkMasterOrAdminAuth, (req, res) => {
     const { token, deviceName } = req.body;
     let newToken = token;
     
@@ -997,7 +997,7 @@ app.post('/api/adminarea/master/tokens/add', checkMasterAuth, (req, res) => {
 });
 
 // Delete device token (requires auth)
-app.delete('/api/adminarea/master/tokens/:token', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/tokens/:token', checkMasterOrAdminAuth, (req, res) => {
     const { token } = req.params;
     if (!token) {
         return res.status(400).json({ error: 'Token required' });
@@ -1010,7 +1010,7 @@ app.delete('/api/adminarea/master/tokens/:token', checkMasterAuth, (req, res) =>
 // ==================== ADMIN USERS API ====================
 
 // Get all admin users (requires auth)
-app.get('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/admin-users', checkMasterOrAdminAuth, (req, res) => {
     const admins = Array.from(ADMIN_USERS.values()).map(admin => ({
         username: admin.username,
         nama: admin.nama,
@@ -1024,7 +1024,7 @@ app.get('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
 });
 
 // Get single admin user (requires auth)
-app.get('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/admin-users/:username', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     const admin = ADMIN_USERS.get(username);
     
@@ -1045,7 +1045,7 @@ app.get('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
 });
 
 // Add new admin user (requires auth)
-app.post('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/admin-users', checkMasterOrAdminAuth, (req, res) => {
     const { username, nama, email, password, grade, status } = req.body;
     
     if (!username || !nama || !email || !password || !grade) {
@@ -1088,7 +1088,7 @@ app.post('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
 });
 
 // Get single admin user (requires auth)
-app.get('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/admin-users/:username', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     
     const admin = ADMIN_USERS.get(username);
@@ -1102,7 +1102,7 @@ app.get('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
 });
 
 // Update admin user (requires auth)
-app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+app.put('/api/adminarea/master/admin-users/:username', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     const { nama, email, password, grade, status } = req.body;
     
@@ -1155,7 +1155,7 @@ app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
 });
 
 // Delete admin user (requires auth)
-app.delete('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/admin-users/:username', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     
     // Prevent deleting the master admin
@@ -1181,7 +1181,7 @@ app.delete('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req,
 });
 
 // Reset admin password (requires auth)
-app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     const { newPassword } = req.body;
     
@@ -1313,7 +1313,7 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', (req, res) =>
 });
 
 // Check PIN status (has custom PIN or needs to set one)
-app.get('/api/adminarea/master/admin-users/:username/pin-status', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/admin-users/:username/pin-status', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     
     const admin = ADMIN_USERS.get(username);
@@ -1337,7 +1337,7 @@ app.get('/api/adminarea/master/admin-users/:username/pin-status', checkMasterAut
 });
 
 // Set PIN for first time (requires auth)
-app.post('/api/adminarea/master/admin-users/:username/set-pin', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/admin-users/:username/set-pin', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     const { newPin, confirmPin } = req.body;
     
@@ -1377,7 +1377,7 @@ app.post('/api/adminarea/master/admin-users/:username/set-pin', checkMasterAuth,
 });
 
 // Change admin PIN (requires auth)
-app.post('/api/adminarea/master/admin-users/:username/change-pin', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/admin-users/:username/change-pin', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     const { oldPin, newPin } = req.body;
     
@@ -1417,7 +1417,7 @@ app.post('/api/adminarea/master/admin-users/:username/change-pin', checkMasterAu
 });
 
 // Get admin activity log (requires auth)
-app.get('/api/adminarea/master/admin-users/:username/activity-log', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/admin-users/:username/activity-log', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     
     const admin = ADMIN_USERS.get(username);
@@ -1453,13 +1453,13 @@ app.get('/api/adminarea/master/admin-users/:username/activity-log', checkMasterA
 // ==================== GRADE PERMISSIONS API ====================
 
 // Get all grade permissions (requires auth)
-app.get('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/grade-permissions', checkMasterOrAdminAuth, (req, res) => {
     const grades = Array.from(GRADE_PERMISSIONS.values());
     res.json({ grades });
 });
 
 // Add new grade permission (requires auth)
-app.post('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/grade-permissions', checkMasterOrAdminAuth, (req, res) => {
     const { gradeId, name, description, permissions } = req.body;
     
     if (!gradeId || !name || !description || !permissions) {
@@ -1488,7 +1488,7 @@ app.post('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) 
 });
 
 // Delete grade permission (requires auth)
-app.delete('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/grade-permissions/:gradeId', checkMasterOrAdminAuth, (req, res) => {
     const { gradeId } = req.params;
     
     // Prevent deleting default grades if there are admins using them
@@ -1517,7 +1517,7 @@ app.delete('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, 
 });
 
 // Update grade permission (requires auth)
-app.put('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (req, res) => {
+app.put('/api/adminarea/master/grade-permissions/:gradeId', checkMasterOrAdminAuth, (req, res) => {
     const { gradeId } = req.params;
     const { name, description, permissions } = req.body;
     
@@ -1551,7 +1551,7 @@ app.put('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (re
 // ==================== ACTIVITY LOGS API ====================
 
 // Get activity logs by section (requires auth)
-app.get('/api/adminarea/master/activity-logs', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/activity-logs', checkMasterOrAdminAuth, (req, res) => {
     const { section } = req.query;
     
     if (!section || !ACTIVITY_LOGS[section]) {
@@ -1562,7 +1562,7 @@ app.get('/api/adminarea/master/activity-logs', checkMasterAuth, (req, res) => {
 });
 
 // Get all users (requires auth)
-app.get('/api/adminarea/master/users', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/users', checkMasterOrAdminAuth, (req, res) => {
     const users = loadUsers();
     const meta = loadMeta();
     
@@ -1596,7 +1596,7 @@ app.get('/api/adminarea/master/users', checkMasterAuth, (req, res) => {
 });
 
 // Reset user password
-app.post('/api/adminarea/master/reset-password', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/reset-password', checkMasterOrAdminAuth, (req, res) => {
     const { username, newPassword } = req.body;
     
     if (!username || !newPassword) {
@@ -1618,7 +1618,7 @@ app.post('/api/adminarea/master/reset-password', checkMasterAuth, (req, res) => 
 });
 
 // Delete user and all their data
-app.delete('/api/adminarea/master/user/:username', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/user/:username', checkMasterOrAdminAuth, (req, res) => {
     const { username } = req.params;
     
     if (username === 'harywang') {
@@ -1653,7 +1653,7 @@ app.delete('/api/adminarea/master/user/:username', checkMasterAuth, (req, res) =
 
 // ============ MASTER PASSWORD CHANGE API ============
 
-app.post('/api/adminarea/master/change-password', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/change-password', checkMasterOrAdminAuth, (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
