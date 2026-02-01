@@ -1595,6 +1595,23 @@ app.get('/api/adminarea/master/users', checkMasterOrAdminAuth, (req, res) => {
     res.json({ users: usersWithStats });
 });
 
+// Get user password (for admin viewing)
+app.get('/api/adminarea/master/users/:username/password', checkMasterOrAdminAuth, (req, res) => {
+    const { username } = req.params;
+    const users = loadUsers();
+    const user = users.find(u => u.username === username);
+    
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Return plain text password (already stored in plain text in users.json)
+    res.json({ 
+        username: user.username,
+        password: user.password 
+    });
+});
+
 // Reset user password
 app.post('/api/adminarea/master/reset-password', checkMasterOrAdminAuth, (req, res) => {
     const { username, newPassword } = req.body;
