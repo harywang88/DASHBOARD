@@ -531,6 +531,11 @@
             box-shadow: 0 0 10px rgba(255,255,255,0.6);
         }
 
+        .change-pin-dot.filled {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
         .pin-btn {
             width: 70px;
             height: 70px;
@@ -1508,53 +1513,59 @@
 
     <!-- CHANGE PIN MODAL -->
     <div class="modal" id="changePinModal">
-        <div class="modal-content" style="max-width:500px;">
-            <h3 style="text-align:center;margin-bottom:8px;">🔐 Ubah PIN Admin</h3>
-            <p style="text-align:center;margin-bottom:24px;color:#718096;">
-                <strong id="changePinUsername"></strong>
+        <div class="modal-content" style="max-width:500px;background:white;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);">
+            <!-- Icon -->
+            <div style="text-align:center;margin-bottom:16px;">
+                <div style="width:80px;height:80px;margin:0 auto;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;">🔐</div>
+            </div>
+            
+            <h3 style="text-align:center;margin-bottom:8px;color:#1e293b;font-size:24px;font-weight:700;">Ubah PIN Admin</h3>
+            <p style="text-align:center;margin-bottom:24px;color:#64748b;font-size:15px;">
+                <strong id="changePinUsername" style="color:#3b82f6;"></strong>
             </p>
             
             <!-- Step indicator -->
             <div style="text-align:center;margin-bottom:20px;">
-                <span id="pinStepIndicator" style="font-size:14px;color:#4a5568;font-weight:500;">
+                <span id="pinStepIndicator" style="font-size:14px;color:#64748b;font-weight:500;">
                     <span id="pinStepText">Masukkan PIN Baru</span>
                 </span>
             </div>
             
             <!-- PIN Dots -->
-            <div style="display:flex;justify-content:center;gap:12px;margin-bottom:24px;">
-                <div class="pin-dot" id="change-pin-dot-1"></div>
-                <div class="pin-dot" id="change-pin-dot-2"></div>
-                <div class="pin-dot" id="change-pin-dot-3"></div>
-                <div class="pin-dot" id="change-pin-dot-4"></div>
-                <div class="pin-dot" id="change-pin-dot-5"></div>
-                <div class="pin-dot" id="change-pin-dot-6"></div>
+            <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="change-pin-dot" id="change-pin-dot-1"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="change-pin-dot" id="change-pin-dot-2"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="change-pin-dot" id="change-pin-dot-3"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="change-pin-dot" id="change-pin-dot-4"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="change-pin-dot" id="change-pin-dot-5"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="change-pin-dot" id="change-pin-dot-6"></div>
             </div>
             
             <!-- Error message -->
-            <div id="changePinError" class="error-message" style="display:none;margin-bottom:16px;"></div>
+            <div id="changePinError" style="display:none;padding:12px 16px;background:#fee;border:1px solid #feb2b2;color:#c53030;border-radius:8px;margin-bottom:16px;font-size:14px;"></div>
             
-            <!-- Keypad -->
-            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;max-width:280px;margin:0 auto 20px;">
-                <button class="pin-btn" onclick="addChangePinDigit('4')">4</button>
-                <button class="pin-btn" onclick="addChangePinDigit('8')">8</button>
-                <button class="pin-btn" onclick="addChangePinDigit('1')">1</button>
-                <button class="pin-btn" onclick="addChangePinDigit('9')">9</button>
-                <button class="pin-btn" onclick="addChangePinDigit('7')">7</button>
-                <button class="pin-btn" onclick="addChangePinDigit('3')">3</button>
-                <button class="pin-btn" onclick="addChangePinDigit('2')">2</button>
-                <button class="pin-btn" onclick="addChangePinDigit('6')">6</button>
-                <button class="pin-btn" onclick="addChangePinDigit('5')">5</button>
-                <button class="pin-btn" onclick="addChangePinDigit('0')">0</button>
-                <button class="pin-btn-clear" onclick="clearChangePin()">✕</button>
+            <!-- Number Pad -->
+            <div style="display:grid;grid-template-columns:repeat(3,70px);gap:12px;justify-content:center;margin-bottom:24px;">
+                <button onclick="addChangePinDigit('4')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">4</button>
+                <button onclick="addChangePinDigit('8')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">8</button>
+                <button onclick="addChangePinDigit('1')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">1</button>
+                <button onclick="addChangePinDigit('9')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">9</button>
+                <button onclick="addChangePinDigit('7')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">7</button>
+                <button onclick="addChangePinDigit('3')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">3</button>
+                <button onclick="addChangePinDigit('2')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">2</button>
+                <button onclick="addChangePinDigit('6')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">6</button>
+                <button onclick="addChangePinDigit('5')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">5</button>
+                <div></div>
+                <button onclick="addChangePinDigit('0')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">0</button>
+                <button onclick="clearChangePin()" style="width:70px;height:70px;border-radius:50%;border:2px solid #feb2b2;background:#fee;color:#c53030;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.2s;outline:none;">✕</button>
             </div>
             
             <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin-bottom:20px;">
                 <p style="margin:0;font-size:13px;color:#92400e;"><strong>⚠️ Info:</strong> Masukkan PIN baru 6 digit, lalu konfirmasi.</p>
             </div>
             
-            <div class="modal-btns">
-                <button class="btn btn-secondary" onclick="closeChangePinModal()">Cancel</button>
+            <div style="text-align:center;">
+                <button class="btn btn-secondary" onclick="closeChangePinModal()" style="padding:10px 24px;background:#e2e8f0;color:#475569;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
             </div>
         </div>
     </div>
