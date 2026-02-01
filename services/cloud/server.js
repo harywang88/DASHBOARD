@@ -1223,33 +1223,6 @@ app.put('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (re
 
 // ==================== ACTIVITY LOGS API ====================
 
-// In-memory activity logs storage
-const ACTIVITY_LOGS = {
-    admin: [],
-    grades: [],
-    users: [],
-    whitelist: [],
-    logs: []
-};
-
-// Helper function to add activity log
-function addActivityLog(section, username, action, details) {
-    const log = {
-        timestamp: new Date().toISOString(),
-        username: username || 'System',
-        action,
-        details
-    };
-    
-    if (ACTIVITY_LOGS[section]) {
-        ACTIVITY_LOGS[section].unshift(log);
-        // Keep only last 100 logs per section
-        if (ACTIVITY_LOGS[section].length > 100) {
-            ACTIVITY_LOGS[section] = ACTIVITY_LOGS[section].slice(0, 100);
-        }
-    }
-}
-
 // Get activity logs by section (requires auth)
 app.get('/api/adminarea/master/activity-logs', checkMasterAuth, (req, res) => {
     const { section } = req.query;
