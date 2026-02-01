@@ -2859,19 +2859,19 @@
                         <td style="font-size:12px;color:#718096;">${joinDate}</td>
                         <td class="editable-grade" onclick="editGrade('${admin.username}', '${admin.grade}', this)" style="cursor:pointer;">
                             <span class="grade-display">${gradeBadge}</span>
-                            <select class="grade-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;">
-                                <option value="SUPER_ADMIN" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
-                                <option value="ADMIN" ${admin.grade === 'ADMIN' ? 'selected' : ''}>Admin</option>
-                                <option value="MODERATOR" ${admin.grade === 'MODERATOR' ? 'selected' : ''}>Moderator</option>
-                                <option value="VIEWER" ${admin.grade === 'VIEWER' ? 'selected' : ''}>Viewer</option>
+                            <select class="grade-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;font-weight:600;">
+                                <option value="SUPER_ADMIN" style="background:#fef2f2;color:#dc2626;font-weight:600;" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
+                                <option value="ADMIN" style="background:#eff6ff;color:#2563eb;font-weight:600;" ${admin.grade === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                                <option value="MODERATOR" style="background:#f0fdf4;color:#16a34a;font-weight:600;" ${admin.grade === 'MODERATOR' ? 'selected' : ''}>Moderator</option>
+                                <option value="VIEWER" style="background:#f1f5f9;color:#64748b;font-weight:600;" ${admin.grade === 'VIEWER' ? 'selected' : ''}>Viewer</option>
                             </select>
                         </td>
                         <td class="editable-status" onclick="editStatus('${admin.username}', '${admin.status}', this)" style="cursor:pointer;">
                             <span class="status-display">${statusBadge}</span>
-                            <select class="status-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;">
-                                <option value="active" ${admin.status === 'active' ? 'selected' : ''}>Active</option>
-                                <option value="suspen" ${admin.status === 'suspen' ? 'selected' : ''}>Suspended</option>
-                                <option value="banned" ${admin.status === 'banned' ? 'selected' : ''}>Banned</option>
+                            <select class="status-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;font-weight:600;">
+                                <option value="active" style="background:#f0fdf4;color:#16a34a;font-weight:600;" ${admin.status === 'active' ? 'selected' : ''}>Active</option>
+                                <option value="suspen" style="background:#fef3c7;color:#d97706;font-weight:600;" ${admin.status === 'suspen' ? 'selected' : ''}>Suspended</option>
+                                <option value="banned" style="background:#fef2f2;color:#dc2626;font-weight:600;" ${admin.status === 'banned' ? 'selected' : ''}>Banned</option>
                             </select>
                         </td>
                         <td style="white-space:nowrap;">
