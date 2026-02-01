@@ -199,6 +199,140 @@
             margin-top: 4px;
         }
 
+        /* Mobile Menu Toggle */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 999;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+                width: 280px;
+            }
+
+            .sidebar.mobile-active {
+                transform: translateX(0);
+            }
+
+            .mobile-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 16px 16px;
+            }
+
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .section {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .card h2 {
+                font-size: 18px;
+            }
+
+            .two-column-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 500px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .btn-group button {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-width: 400px;
+                margin: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card .value {
+                font-size: 24px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                font-size: 14px;
+            }
+        }
+
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
@@ -474,8 +608,14 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
     <!-- SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="logo">
             <div class="icon">&#x1F451;</div>
             <span>Master Harywang</span>
@@ -610,7 +750,7 @@
             </div>
 
             <!-- Two Column Layout -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div class="two-column-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
                 
                 <!-- IP Whitelist Column -->
                 <div class="card">
@@ -859,7 +999,7 @@
             document.getElementById('resetMasterPasswordModal').style.display = 'none';
         }
 
-        function confirmResetMasterPassword() {
+        async function confirmResetMasterPassword() {
             const oldPassword = document.getElementById('oldMasterPassword').value;
             const newPassword = document.getElementById('newMasterPassword').value;
             const confirmPassword = document.getElementById('confirmMasterPassword').value;
@@ -883,23 +1023,38 @@
                 return;
             }
 
-            // Verify old password by attempting login
+            // Verify old password
             const masterAuth = localStorage.getItem('masterAuth');
-            const [username, storedPassword] = atob(masterAuth).split(':');
-            
-            if (oldPassword !== storedPassword) {
-                errorEl.textContent = 'Password lama tidak cocok';
+            if (!masterAuth) {
+                errorEl.textContent = 'Session tidak valid';
                 errorEl.style.display = 'block';
                 return;
             }
 
-            // Update stored credentials
-            localStorage.setItem('masterAuth', btoa(username + ':' + newPassword));
-            showAlert('Password master berhasil diubah!', 'success');
-            closeResetMasterPasswordModal();
-            
-            // Note: This only changes local storage. For production, you should also update on server
-            alert('⚠️ Penting: Password hanya diubah di browser ini. Untuk keamanan penuh, update juga di kode server.js');
+            try {
+                const [username, storedPassword] = atob(masterAuth).split(':');
+                
+                if (oldPassword !== storedPassword) {
+                    errorEl.textContent = 'Password lama tidak cocok';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                // Update stored credentials
+                const newAuth = btoa(username + ':' + newPassword);
+                localStorage.setItem('masterAuth', newAuth);
+                
+                showAlert('Password master berhasil diubah!', 'success');
+                closeResetMasterPasswordModal();
+                
+                // Auto-save new credentials (browser will prompt to update)
+                setTimeout(() => {
+                    showAlert('Password telah diperbarui di session ini', 'success');
+                }, 1000);
+            } catch (error) {
+                errorEl.textContent = 'Terjadi kesalahan: ' + error.message;
+                errorEl.style.display = 'block';
+            }
         }
 
         // Helper functions
@@ -923,6 +1078,19 @@
                 loadWhitelist();
                 loadTokens();
             }
+
+            // Close mobile menu after selection
+            if (window.innerWidth <= 768) {
+                toggleMobileMenu();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            sidebar.classList.toggle('mobile-active');
+            overlay.classList.toggle('active');
         }
 
         function showAlert(message, type = 'success') {
@@ -1296,8 +1464,22 @@
             showAlert('Stats refreshed', 'success');
         }
 
+        // Check auth on page load
+        function checkAuth() {
+            const masterAuth = localStorage.getItem('masterAuth');
+            if (!masterAuth) {
+                console.error('No authentication found, redirecting to login');
+                window.location.href = '/adminarea/master-login';
+                return false;
+            }
+            console.log('Authentication found, continuing...');
+            return true;
+        }
+
         // Init
-        loadStats();
+        if (checkAuth()) {
+            loadStats();
+        }
 
         // Refresh every 30 seconds
         setInterval(() => {
