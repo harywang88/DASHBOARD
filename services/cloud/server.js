@@ -140,6 +140,10 @@ const DEVICE_TOKENS = new Map([
     ['HARY2026MASTER01', 'Default Master Token']  // Default token
 ]);
 
+// Registered Devices - devices that have been authorized once with a token
+// Map: deviceFingerprint -> { deviceName, userAgent, ip, registeredAt, lastAccess }
+const REGISTERED_DEVICES = new Map();
+
 function generateDeviceToken() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let token = '';
@@ -147,6 +151,19 @@ function generateDeviceToken() {
         token += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return token;
+}
+
+function generateDeviceFingerprint(req) {
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const acceptLanguage = req.headers['accept-language'] || 'unknown';
+    const acceptEncoding = req.headers['accept-encoding'] || 'unknown';
+    
+    // Create a simple fingerprint from browser characteristics
+    const fingerprint = crypto.createHash('sha256')
+        .update(userAgent + acceptLanguage + acceptEncoding)
+        .digest('hex');
+    
+    return fingerprint;
 }
 
 // Middleware to check IP whitelist or device token
@@ -168,6 +185,20 @@ function checkPanelAccess(req, res, next) {
     if (IP_WHITELIST.has(ip)) {
         console.log('[MASTER PANEL] IP whitelisted - allowed');
         req.accessGranted = true;
+        req.accessReason = 'whitelisted_ip';
+        return next();
+    }
+
+    // Check if device is already registered
+    const deviceFingerprint = generateDeviceFingerprint(req);
+    if (REGISTERED_DEVICES.has(deviceFingerprint)) {
+        const deviceInfo = REGISTERED_DEVICES.get(deviceFingerprint);
+        deviceInfo.lastAccess = new Date().toISOString();
+        deviceInfo.ip = ip; // Update current IP
+        console.log('[MASTER PANEL] Registered device - allowed:', deviceInfo.deviceName);
+        req.accessGranted = true;
+        req.accessReason = 'registered_device';
+        req.deviceFingerprint = deviceFingerprint;
         return next();
     }
 
@@ -176,11 +207,14 @@ function checkPanelAccess(req, res, next) {
     if (deviceToken && DEVICE_TOKENS.has(deviceToken)) {
         console.log('[MASTER PANEL] Valid device token - allowed');
         req.accessGranted = true;
+        req.accessReason = 'device_token';
+        req.deviceToken = deviceToken;
+        req.deviceFingerprint = deviceFingerprint;
         return next();
     }
 
     // Not whitelisted and no valid token
-    console.log('[MASTER PANEL] BLOCKED - No whitelist/token');
+    console.log('[MASTER PANEL] BLOCKED - No whitelist/token/registered device');
     req.accessGranted = false;
     next();
 }
@@ -219,6 +253,7 @@ Array.from(IP_WHITELIST.entries()).forEach(([ip, name]) => {
     console.log(`  - ${ip} (${name})`);
 });
 console.log('Active Device Tokens:', DEVICE_TOKENS.size);
+console.log('Registered Devices:', REGISTERED_DEVICES.size);
 console.log('========================================\n');
 
 // ============ MULTER ============
@@ -527,9 +562,38 @@ app.post('/api/adminarea/master/login', checkPanelAccess, (req, res) => {
         return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // If logged in via device token, register this device
+    if (req.accessReason === 'device_token' && req.deviceFingerprint && req.deviceToken) {
+        const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || 
+                   req.headers['x-real-ip'] || 
+                   req.socket.remoteAddress || 
+                   req.connection.remoteAddress;
+        
+        const deviceName = DEVICE_TOKENS.get(req.deviceToken) || 'Unknown Device';
+        const userAgent = req.headers['user-agent'] || 'Unknown';
+        
+        REGISTERED_DEVICES.set(req.deviceFingerprint, {
+            deviceName,
+            userAgent,
+            ip: ip?.replace('::ffff:', ''),
+            registeredAt: new Date().toISOString(),
+            lastAccess: new Date().toISOString(),
+            tokenUsed: req.deviceToken
+        });
+        
+        console.log(`[MASTER PANEL] Device registered: ${deviceName} (${req.deviceFingerprint.substring(0, 8)}...)`);
+        addWhitelistLog('DEVICE_REGISTER', `Device "${deviceName}" terdaftar dari IP ${ip}`, ip, deviceName);
+    }
+
     // Generate session token
     const sessionToken = crypto.randomBytes(32).toString('hex');
-    res.json({ success: true, sessionToken, username });
+    res.json({ 
+        success: true, 
+        sessionToken, 
+        username,
+        accessReason: req.accessReason,
+        deviceRegistered: req.accessReason === 'device_token'
+    });
 });
 
 // Get IP whitelist (requires auth)
@@ -585,6 +649,44 @@ app.delete('/api/adminarea/master/whitelist/:ip', checkMasterAuth, (req, res) =>
 // Get whitelist activity logs (requires auth)
 app.get('/api/adminarea/master/whitelist/logs', checkMasterAuth, (req, res) => {
     res.json({ logs: WHITELIST_LOGS });
+});
+
+// Get all registered devices (requires auth)
+app.get('/api/adminarea/master/devices', checkMasterAuth, (req, res) => {
+    const devices = Array.from(REGISTERED_DEVICES.entries()).map(([fingerprint, info]) => ({
+        fingerprint: fingerprint.substring(0, 16) + '...', // Show partial fingerprint
+        deviceName: info.deviceName,
+        userAgent: info.userAgent,
+        ip: info.ip,
+        registeredAt: info.registeredAt,
+        lastAccess: info.lastAccess,
+        tokenUsed: info.tokenUsed
+    }));
+    res.json({ devices });
+});
+
+// Delete registered device (requires auth)
+app.delete('/api/adminarea/master/devices/:fingerprint', checkMasterAuth, (req, res) => {
+    const { fingerprint } = req.params;
+    
+    // Find device by partial fingerprint match
+    let fullFingerprint = null;
+    for (const [fp, info] of REGISTERED_DEVICES.entries()) {
+        if (fp.startsWith(fingerprint.replace('...', ''))) {
+            fullFingerprint = fp;
+            break;
+        }
+    }
+    
+    if (!fullFingerprint) {
+        return res.status(404).json({ error: 'Device not found' });
+    }
+    
+    const deviceInfo = REGISTERED_DEVICES.get(fullFingerprint);
+    REGISTERED_DEVICES.delete(fullFingerprint);
+    addWhitelistLog('DEVICE_REMOVE', `Device "${deviceInfo.deviceName}" dihapus dari registered devices`, deviceInfo.ip, deviceInfo.deviceName);
+    console.log(`[MASTER PANEL] Registered device removed: ${deviceInfo.deviceName}`);
+    res.json({ success: true, message: 'Device unregistered' });
 });
 
 // Get all device tokens (requires auth)

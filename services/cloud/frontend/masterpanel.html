@@ -823,7 +823,39 @@
             <div style="margin-top:16px;padding:16px;background:#fff3cd;border-radius:8px;color:#856404;">
                 <strong>ℹ️ Cara Kerja:</strong><br>
                 • <strong>IP Whitelist:</strong> IP yang terdaftar dapat langsung login tanpa token<br>
-                • <strong>Device Token:</strong> Jika IP Anda tidak dalam whitelist, masukkan token saat diminta untuk mendapatkan akses
+                • <strong>Device Token:</strong> Masukkan token saat pertama login dari device baru<br>
+                • <strong>Registered Devices:</strong> Setelah login dengan token, device otomatis terdaftar dan tidak perlu token lagi
+            </div>
+
+            <!-- Registered Devices -->
+            <div class="card" style="margin-top:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3>📱 Registered Devices</h3>
+                    <button class="btn btn-primary btn-small" onclick="loadRegisteredDevices()">🔄 Refresh</button>
+                </div>
+                <p style="color:#718096;font-size:13px;margin-bottom:16px;">Device yang sudah login dengan token dan tidak perlu token lagi.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>IP Address</th>
+                            <th>User Agent</th>
+                            <th>Last Access</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registeredDevicesTable">
+                        <tr>
+                            <td colspan="5" style="text-align:center;color:#718096;padding:24px;">
+                                Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top:12px;font-size:12px;color:#718096;">
+                    Total: <strong id="totalRegisteredDevices">0</strong> Device
+                </div>
             </div>
 
             <!-- Activity Log -->
@@ -1125,6 +1157,7 @@
                 loadWhitelist();
                 loadTokens();
                 loadWhitelistLogs();
+                loadRegisteredDevices();
             }
 
             // Close mobile menu after selection
@@ -1517,6 +1550,86 @@
                 loadWhitelistLogs();
             } catch (e) {
                 showAlert('Gagal menghapus IP: ' + e.message, 'error');
+            }
+        }
+
+        // Registered Devices functions
+        async function loadRegisteredDevices() {
+            try {
+                const r = await fetch(API_URL + 'devices', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load registered devices');
+                const data = await r.json();
+                
+                const tbody = document.getElementById('registeredDevicesTable');
+                document.getElementById('totalRegisteredDevices').textContent = data.devices.length;
+                
+                if (data.devices.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#718096;padding:24px;">Belum ada device terdaftar</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.devices.map(device => {
+                    const lastAccess = new Date(device.lastAccess).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    // Shorten user agent
+                    const shortUA = device.userAgent.length > 50 
+                        ? device.userAgent.substring(0, 47) + '...' 
+                        : device.userAgent;
+                    
+                    return `
+                        <tr>
+                            <td>
+                                <strong style="color:var(--text-primary);">${device.deviceName}</strong>
+                                <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Token: ${device.tokenUsed}</div>
+                            </td>
+                            <td>
+                                <code style="background:#f3f4f6;color:#4b5563;padding:4px 8px;border-radius:4px;font-size:12px;">${device.ip}</code>
+                            </td>
+                            <td style="font-size:12px;color:#718096;" title="${device.userAgent}">
+                                ${shortUA}
+                            </td>
+                            <td style="font-size:12px;color:#718096;">
+                                ${lastAccess}
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-small" onclick="deleteRegisteredDevice('${device.fingerprint}', '${device.deviceName}')">🗑️ Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load registered devices:', e);
+                showAlert('Failed to load registered devices: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteRegisteredDevice(fingerprint, deviceName) {
+            if (!confirm(`Hapus device "${deviceName}" dari registered devices?\n\nDevice ini akan memerlukan token lagi untuk login.`)) return;
+            
+            try {
+                const r = await fetch(API_URL + 'devices/' + encodeURIComponent(fingerprint), {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Failed');
+                
+                showAlert(`Device "${deviceName}" berhasil dihapus!`, 'success');
+                loadRegisteredDevices();
+                loadWhitelistLogs();
+            } catch (e) {
+                showAlert('Gagal menghapus device: ' + e.message, 'error');
             }
         }
 

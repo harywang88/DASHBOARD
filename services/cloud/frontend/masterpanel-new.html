@@ -262,11 +262,16 @@
                     localStorage.setItem('masterAuth', btoa(username + ':' + password));
                     localStorage.setItem('username', username);
                     
-                    showSuccess('loginSuccess', 'Login berhasil! Redirecting...');
+                    // Show success message with device registration info
+                    if (data.deviceRegistered) {
+                        showSuccess('loginSuccess', '✅ Login berhasil! Device Anda telah terdaftar. Login berikutnya tidak perlu token lagi.');
+                    } else {
+                        showSuccess('loginSuccess', 'Login berhasil! Redirecting...');
+                    }
                     
                     setTimeout(() => {
                         window.location.href = '/adminarea/master';
-                    }, 1000);
+                    }, data.deviceRegistered ? 2000 : 1000);
                 } else {
                     showError('loginError', data.error || 'Login gagal!');
                 }
