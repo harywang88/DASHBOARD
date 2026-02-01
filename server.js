@@ -272,6 +272,16 @@ app.use('/adminarea', createProxyMiddleware({
     }
 }));
 
+// API routes untuk master panel (harus sebelum /api auth routes)
+app.use('/api/adminarea', createProxyMiddleware({
+    target: `http://localhost:${CLOUD_PORT}`,
+    changeOrigin: true,
+    onError: (err, req, res) => {
+        console.error('[Admin API Proxy Error]', err.message);
+        res.status(502).json({ error: 'Admin API unavailable' });
+    }
+}));
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({
