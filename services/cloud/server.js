@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3003;
 const STORAGE_DIR = path.join(__dirname, 'storage');
 const META_FILE = path.join(__dirname, 'metadata.json');
 const USERS_FILE = path.join(__dirname, '..', '..', 'users.json');
-const JWT_SECRET = 'harywangcloud2026secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'hary-dashboard-fallback-secret';  // Same as main dashboard
 const MAX_STORAGE = 20 * 1024 * 1024 * 1024; // 20GB
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB per file
 

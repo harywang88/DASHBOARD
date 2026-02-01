@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harywang Dashboard - Convert & PDF Tools</title>
+    <title>Harywang Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,22 +15,19 @@
         }
 
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #ec4899;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #6366f1;
             --accent: #06b6d4;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-hover: #334155;
+            --bg-dark: #0f1117;
+            --bg-card: #1a1d2e;
+            --bg-hover: #252a3d;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
-            --border: #334155;
+            --border: #2a2f42;
             --success: #10b981;
+            --error: #ef4444;
             --warning: #f59e0b;
-            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.3);
         }
 
         body {
@@ -38,10 +35,9 @@
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Animated Background */
+        /* ============ BACKGROUND ANIMATION ============ */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -59,212 +55,338 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
             animation: bgMove 20s ease-in-out infinite;
         }
 
         @keyframes bgMove {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(1deg); }
-            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
         }
 
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
+        /* ============ LOGIN PAGE ============ */
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-radius: 10px;
+            background: var(--bg-dark);
+            padding: 4px;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .login-tab.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .form-group input::placeholder {
+            color: #4a5568;
+        }
+
+        .form-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .form-error.show {
+            display: block;
+        }
+
+        .form-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .form-success.show {
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .forgot-link {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .forgot-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============ DASHBOARD PAGE ============ */
+        #dashboardPage {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            background: rgba(15, 17, 23, 0.9);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
-            padding: 0 20px;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .navbar-content {
-            max-width: 1400px;
+        .header-content {
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
         }
 
-        .logo {
+        .header-left {
             display: flex;
             align-items: center;
             gap: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
         }
 
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: var(--gradient-1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 800;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-
-        .logo-text {
-            font-size: 22px;
-            font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 8px;
-        }
-
-        .nav-link {
-            padding: 10px 20px;
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 10px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-1);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
-
-        .nav-link:hover {
-            color: var(--text-primary);
-        }
-
-        .nav-link:hover::before {
-            opacity: 0.2;
-        }
-
-        .nav-link.active {
-            color: var(--text-primary);
-            background: var(--bg-hover);
-        }
-
-        /* Main Content */
-        .main-content {
-            padding-top: 70px;
-            min-height: 100vh;
-        }
-
-        /* Landing Page */
-        .landing {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 70px);
-            padding: 40px 20px;
-            text-align: center;
+            font-size: 18px;
         }
 
-        .hero-badge {
-            display: inline-flex;
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 14px;
-            color: var(--primary);
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease;
-        }
-
-        .hero-badge-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        .hero-title {
-            font-size: clamp(40px, 8vw, 72px);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease 0.1s backwards;
-        }
-
-        .hero-title span {
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 20px;
             color: var(--text-secondary);
-            max-width: 600px;
-            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .dashboard-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        .welcome-section {
+            text-align: center;
             margin-bottom: 48px;
-            animation: fadeInUp 0.6s ease 0.2s backwards;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .welcome-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
         }
 
-        /* Service Cards */
+        .welcome-section p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px;
-            max-width: 1200px;
-            width: 100%;
-            animation: fadeInUp 0.6s ease 0.3s backwards;
         }
 
         .service-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px 32px;
+            border-radius: 20px;
+            padding: 32px;
             text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: inherit;
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
-            cursor: pointer;
         }
 
         .service-card::before {
@@ -272,1354 +394,548 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.03) 100%);
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--card-color), transparent);
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s;
         }
 
         .service-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--primary);
-            box-shadow: var(--shadow-glow);
+            transform: translateY(-4px);
+            border-color: var(--card-color);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
 
         .service-card:hover::before {
             opacity: 1;
         }
 
-        .service-card.convert-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 60px rgba(6, 182, 212, 0.3);
-        }
-
-        .service-card.pdf-card:hover {
-            border-color: var(--secondary);
-            box-shadow: 0 0 60px rgba(236, 72, 153, 0.3);
-        }
+        .service-card.convert { --card-color: #f59e0b; }
+        .service-card.pdf { --card-color: #ef4444; }
+        .service-card.cloud { --card-color: #10b981; }
 
         .service-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .convert-card .service-icon {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.05));
-        }
-
-        .pdf-card .service-icon {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(236, 72, 153, 0.05));
-        }
-
-        .cloud-card .service-icon {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
-        }
-
-        .service-card.cloud-card:hover {
-            border-color: var(--success);
-            box-shadow: 0 0 60px rgba(16, 185, 129, 0.3);
-        }
-
-        .cloud-card:hover .service-arrow {
-            background: var(--success);
-        }
-
-        .service-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .service-desc {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        .service-features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .feature-tag {
-            padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .service-arrow {
-            position: absolute;
-            right: 32px;
-            bottom: 32px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--bg-hover);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .service-card:hover .service-arrow {
-            transform: translateX(5px);
-        }
-
-        .convert-card:hover .service-arrow {
-            background: var(--accent);
-        }
-
-        .pdf-card:hover .service-arrow {
-            background: var(--secondary);
-        }
-
-        /* Page Container */
-        .page {
-            display: none;
-            min-height: calc(100vh - 70px);
-        }
-
-        .page.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .page-header {
-            padding: 40px 20px;
-            text-align: center;
-            background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, transparent 100%);
-        }
-
-        .page-title {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 16px;
-        }
-
-        /* Iframe Container */
-        .iframe-container {
-            width: 100%;
-            height: calc(100vh - 200px);
-            padding: 0 20px 20px;
-        }
-
-        .iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+            width: 64px;
+            height: 64px;
             border-radius: 16px;
-            background: var(--bg-card);
-        }
-
-        /* Back Button */
-        .back-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: var(--bg-hover);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin-bottom: 24px;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
         }
 
-        .back-btn:hover {
-            background: var(--bg-card);
-            border-color: var(--primary);
+        .service-card.convert .service-icon {
+            background: rgba(245, 158, 11, 0.15);
         }
 
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px 20px;
+        .service-card.pdf .service-icon {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .service-card.cloud .service-icon {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .service-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
             color: var(--text-secondary);
             font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
 
-        .footer a {
-            color: var(--primary);
-            text-decoration: none;
+        .service-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--card-color);
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        /* Loading State */
-        .loading {
+        .service-link svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+
+        .service-card:hover .service-link svg {
+            transform: translateX(4px);
+        }
+
+        /* ============ TOAST ============ */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            height: 400px;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .toast.success {
+            border-color: rgba(16, 185, 129, 0.5);
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.5);
         }
 
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .nav-links {
-                position: fixed;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: var(--bg-dark);
-                padding: 20px;
-                flex-direction: column;
-                border-bottom: 1px solid var(--border);
-                transform: translateY(-100%);
+        @keyframes slideIn {
+            from {
                 opacity: 0;
-                pointer-events: none;
-                transition: all 0.3s ease;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 24px;
             }
 
-            .nav-links.show {
-                transform: translateY(0);
-                opacity: 1;
-                pointer-events: all;
+            .dashboard-content {
+                padding: 24px 16px;
+            }
+
+            .welcome-section h2 {
+                font-size: 24px;
             }
 
             .services-grid {
                 grid-template-columns: 1fr;
             }
 
-            .hero-title {
-                font-size: 36px;
+            .header-content {
+                flex-wrap: wrap;
+                gap: 12px;
             }
-
-            .iframe-container {
-                height: calc(100vh - 180px);
-                padding: 0 10px 10px;
-            }
-        }
-
-        /* Status Indicators */
-        .status-bar {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            padding: 20px;
-            flex-wrap: wrap;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.offline {
-            background: #ef4444;
-            animation: none;
-        }
-
-        /* Auth Overlay */
-        .auth-overlay {
-            position: fixed; inset: 0;
-            background: var(--bg-dark);
-            z-index: 2000;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .auth-overlay.hidden { display: none; }
-
-        .auth-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            margin: 20px;
-        }
-
-        .auth-card h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .auth-card h2 span {
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .auth-card .auth-sub {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        .auth-card .a-field { margin-bottom: 16px; }
-
-        .auth-card .a-field label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .auth-card .a-field input {
-            width: 100%;
-            padding: 12px 14px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 14px;
-            outline: none;
-            transition: border-color .2s;
-            font-family: inherit;
-        }
-
-        .auth-card .a-field input:focus { border-color: var(--primary); }
-        .auth-card .a-field input::placeholder { color: #475569; }
-
-        .auth-card .a-field .a-hint {
-            font-size: 11px;
-            color: #475569;
-            margin-top: 4px;
-        }
-
-        .auth-card .a-error {
-            background: rgba(239,68,68,.1);
-            border: 1px solid rgba(239,68,68,.2);
-            color: #fca5a5;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .auth-card .a-error.show { display: block; }
-
-        .auth-card .a-success {
-            background: rgba(16,185,129,.1);
-            border: 1px solid rgba(16,185,129,.2);
-            color: #6ee7b7;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .auth-card .a-success.show { display: block; }
-
-        .auth-card .a-btn {
-            width: 100%;
-            padding: 13px;
-            background: var(--gradient-1);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 4px;
-            transition: opacity .2s;
-            font-family: inherit;
-        }
-
-        .auth-card .a-btn:hover { opacity: .9; }
-
-        .auth-card .a-switch {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .auth-card .a-switch a {
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .auth-form { display: none; }
-        .auth-form.active { display: block; }
-
-        /* Logout button in nav */
-        .nav-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-username {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .nav-logout {
-            padding: 6px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all .2s;
-            font-family: inherit;
-        }
-
-        .nav-logout:hover {
-            background: rgba(239,68,68,.1);
-            border-color: rgba(239,68,68,.3);
-            color: #fca5a5;
-        }
-
-        .nav-chpw {
-            padding: 6px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all .2s;
-            font-family: inherit;
-        }
-
-        .nav-chpw:hover {
-            background: rgba(99,102,241,.1);
-            border-color: rgba(99,102,241,.3);
-            color: #a5b4fc;
-        }
-
-        /* Change Password Modal - Modern Design */
-        .chpw-overlay {
-            position: fixed; inset: 0;
-            background: linear-gradient(135deg, rgba(16,185,129,.15), rgba(59,130,246,.15));
-            backdrop-filter: blur(20px);
-            z-index: 3000;
-            display: none; align-items: center; justify-content: center;
-            opacity: 0;
-            transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .chpw-overlay.show { 
-            display: flex; 
-            opacity: 1;
-        }
-
-        .chpw-card {
-            position: relative;
-            background: rgba(24, 27, 38, 0.95);
-            border: 1px solid rgba(255,255,255,.1);
-            border-radius: 24px;
-            padding: 0;
-            width: 100%;
-            max-width: 420px;
-            margin: 20px;
-            box-shadow: 0 30px 90px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
-            transform: translateY(30px) scale(0.95);
-            opacity: 0;
-            transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow: hidden;
-        }
-
-        .chpw-overlay.show .chpw-card {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-        }
-
-        .chpw-header {
-            background: linear-gradient(135deg, #10b981, #3b82f6);
-            padding: 24px 24px 60px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chpw-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .chpw-icon {
-            width: 64px;
-            height: 64px;
-            background: rgba(255,255,255,.15);
-            backdrop-filter: blur(10px);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            font-size: 28px;
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 10px 30px rgba(0,0,0,.2);
-        }
-
-        .chpw-header h3 {
-            font-size: 22px;
-            margin: 0;
-            color: #fff;
-            font-weight: 700;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 10px rgba(0,0,0,.2);
-        }
-
-        .chpw-body {
-            padding: 24px;
-            margin-top: -50px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .chpw-body .a-field {
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .chpw-body .a-field label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #9ca3af;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .chpw-body .a-field input {
-            width: 100%;
-            padding: 12px 14px;
-            background: rgba(15,17,23,.6);
-            border: 2px solid rgba(255,255,255,.08);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: all .3s ease;
-            font-family: inherit;
-        }
-
-        .chpw-body .a-field input:focus {
-            border-color: #10b981;
-            background: rgba(15,17,23,.9);
-            box-shadow: 0 0 0 4px rgba(16,185,129,.1);
-        }
-
-        .chpw-body .a-hint {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .chpw-body .a-hint::before {
-            content: 'ℹ️';
-            font-size: 14px;
-        }
-
-        .chpw-body .a-error {
-            background: rgba(239,68,68,.1);
-            border: 1px solid rgba(239,68,68,.3);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #fca5a5;
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chpw-body .a-error::before {
-            content: '⚠️';
-            font-size: 16px;
-        }
-
-        .chpw-body .a-error.show { display: flex; }
-
-        .chpw-body .a-success {
-            background: rgba(16,185,129,.1);
-            border: 1px solid rgba(16,185,129,.3);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #6ee7b7;
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chpw-body .a-success::before {
-            content: '✅';
-            font-size: 16px;
-        }
-
-        .chpw-body .a-success.show { display: flex; }
-
-        .chpw-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .chpw-actions .a-btn {
-            flex: 1;
-            padding: 12px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .3s ease;
-            font-family: inherit;
-            box-shadow: 0 4px 15px rgba(16,185,129,.3);
-        }
-
-        .chpw-actions .a-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16,185,129,.4);
-        }
-
-        .chpw-actions .a-btn:active {
-            transform: translateY(0);
-        }
-
-        .chpw-cancel {
-            flex: 1;
-            padding: 12px;
-            background: rgba(255,255,255,.05);
-            border: 2px solid rgba(255,255,255,.1);
-            border-radius: 12px;
-            color: #9ca3af;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .3s ease;
-            font-family: inherit;
-        }
-
-        .chpw-cancel:hover {
-            background: rgba(255,255,255,.08);
-            border-color: rgba(255,255,255,.15);
-            color: #fff;
         }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
 
-    <!-- Auth Overlay -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <!-- LOGIN FORM -->
-            <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
-                <h2><span>Login</span></h2>
-                <p class="auth-sub">Masuk ke Harywang Dashboard</p>
-                <div class="a-error" id="loginError"></div>
-                <div class="a-field">
-                    <label>Username</label>
-                    <input type="text" id="loginUsername" placeholder="Username" autocomplete="username" required>
-                </div>
-                <div class="a-field">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
-                </div>
-                <button type="submit" class="a-btn">Login</button>
-                <div class="a-switch">
-                    Belum punya akun? <a onclick="switchAuth('register')">Daftar</a>
-                </div>
-                <div class="a-switch" style="margin-top:8px">
-                    <a onclick="switchAuth('forgot')">Lupa password?</a>
-                </div>
-            </form>
-
-            <!-- REGISTER FORM -->
-            <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
-                <h2><span>Daftar</span></h2>
-                <p class="auth-sub">Buat akun baru</p>
-                <div class="a-error" id="registerError"></div>
-                <div class="a-success" id="registerSuccess"></div>
-                <div class="a-field">
-                    <label>Username</label>
-                    <input type="text" id="regUsername" placeholder="Username" autocomplete="username" required>
-                    <div class="a-hint">Huruf dan angka, 3-20 karakter</div>
-                </div>
-                <div class="a-field">
-                    <label>Email</label>
-                    <input type="email" id="regEmail" placeholder="email@example.com" autocomplete="email" required>
-                </div>
-                <div class="a-field">
-                    <label>Password</label>
-                    <input type="password" id="regPassword" placeholder="Password" autocomplete="new-password" required>
-                    <div class="a-hint">Bebas huruf besar, kecil, dan angka, minimal 8 karakter</div>
-                </div>
-                <button type="submit" class="a-btn">Daftar</button>
-                <div class="a-switch">
-                    Sudah punya akun? <a onclick="switchAuth('login')">Login</a>
-                </div>
-            </form>
-
-            <!-- FORGOT PASSWORD FORM -->
-            <form class="auth-form" id="forgotForm" onsubmit="handleForgot(event)">
-                <h2><span>Lupa Password</span></h2>
-                <p class="auth-sub">Password baru akan dikirim ke email</p>
-                <div class="a-error" id="forgotError"></div>
-                <div class="a-success" id="forgotSuccess"></div>
-                <div class="a-field">
-                    <label>Email</label>
-                    <input type="email" id="forgotEmail" placeholder="Email terdaftar" autocomplete="email" required>
-                </div>
-                <button type="submit" class="a-btn">Kirim Password Baru</button>
-                <div class="a-switch">
-                    <a onclick="switchAuth('login')">Kembali ke Login</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Change Password Modal -->
-    <div class="chpw-overlay" id="chpwOverlay" onclick="if(event.target === this) closeChangePassword()">
-        <div class="chpw-card" onclick="event.stopPropagation()">
-            <div class="chpw-header">
-                <div class="chpw-icon">🔐</div>
-                <h3>Ganti Password</h3>
+    <!-- ============ LOGIN PAGE ============ -->
+    <div id="loginPage">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">⚡</div>
+                <h1>Harywang Dashboard</h1>
+                <p>Masuk untuk mengakses layanan</p>
             </div>
-            <div class="chpw-body">
-                <div class="a-error" id="chpwError"></div>
-                <div class="a-success" id="chpwSuccess"></div>
-                <div class="a-field">
-                    <label>Password Lama</label>
-                    <input type="password" id="chpwOld" placeholder="Masukkan password lama" autocomplete="current-password">
+
+            <div class="login-box">
+                <div class="login-tabs">
+                    <button class="login-tab active" onclick="showTab('login')">Masuk</button>
+                    <button class="login-tab" onclick="showTab('register')">Daftar</button>
                 </div>
-                <div class="a-field">
-                    <label>Password Baru</label>
-                    <input type="password" id="chpwNew" placeholder="Minimal 8 karakter" autocomplete="new-password">
-                    <div class="a-hint">Bebas huruf besar, kecil, dan angka, minimal 8 karakter</div>
-                </div>
-                <div class="a-field">
-                    <label>Konfirmasi Password</label>
-                    <input type="password" id="chpwConfirm" placeholder="Ulangi password baru" autocomplete="new-password">
-                </div>
-                <div class="chpw-actions">
-                    <button class="chpw-cancel" onclick="closeChangePassword()">Batal</button>
-                    <button class="a-btn" onclick="handleChangePassword()">Ganti Password</button>
-                </div>
+
+                <div class="form-error" id="formError"></div>
+                <div class="form-success" id="formSuccess"></div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="login-form active" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="loginUsername" placeholder="Masukkan username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Masukkan password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">Masuk</button>
+                    <div class="forgot-link">
+                        <a href="#" onclick="showTab('forgot'); return false;">Lupa password?</a>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="login-form" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="regUsername" placeholder="3-20 karakter, huruf & angka" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" placeholder="email@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" placeholder="Minimal 8 karakter" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Konfirmasi Password</label>
+                        <input type="password" id="regConfirm" placeholder="Ulangi password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="regBtn">Daftar</button>
+                </form>
+
+                <!-- Forgot Password Form -->
+                <form id="forgotForm" class="login-form" onsubmit="handleForgot(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="forgotEmail" placeholder="Email yang terdaftar" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="forgotBtn">Kirim Password Baru</button>
+                    <div class="forgot-link">
+                        <a href="#" onclick="showTab('login'); return false;">← Kembali ke login</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="#" class="logo" onclick="showPage('landing')">
-                <div class="logo-icon">H</div>
-                <span class="logo-text">Harywang</span>
-            </a>
-            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12h18M3 6h18M3 18h18"/>
-                </svg>
-            </button>
-            <div class="nav-links" id="navLinks">
-                <a href="#" class="nav-link active" data-page="landing" onclick="showPage('landing')">Home</a>
-                <a href="#" class="nav-link" data-page="convert" onclick="showPage('convert')">Convert</a>
-                <a href="#" class="nav-link" data-page="pdf" onclick="showPage('pdf')">PDF Tools</a>
-                <a href="#" class="nav-link" data-page="cloud" onclick="showPage('cloud')">HarywangCloud</a>
+    <!-- ============ DASHBOARD PAGE ============ -->
+    <div id="dashboardPage">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-logo">⚡</div>
+                    <span class="header-title">Harywang Dashboard</span>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">H</div>
+                        <span id="userName">User</span>
+                    </div>
+                    <button class="btn-logout" onclick="handleLogout()">Keluar</button>
+                </div>
             </div>
-            <div class="nav-user" id="navUser" style="display:none">
-                <span class="nav-username" id="navUsername"></span>
-                <button class="nav-chpw" onclick="openChangePassword()">Ganti Password</button>
-                <button class="nav-logout" onclick="handleLogout()">Logout</button>
-            </div>
-        </div>
-    </nav>
+        </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Landing Page -->
-        <section class="page landing active" id="landing">
-            <div class="hero-badge">
-                <span class="hero-badge-dot"></span>
-                harywang.online
+        <main class="dashboard-content">
+            <div class="welcome-section">
+                <h2>Selamat Datang, <span id="welcomeName">User</span>! 👋</h2>
+                <p>Pilih layanan yang ingin kamu gunakan</p>
             </div>
-            <h1 class="hero-title">
-                All-in-One<br><span>File Tools</span>
-            </h1>
-            <p class="hero-subtitle">
-                Konversi file dan kelola PDF dengan mudah. Cepat, aman, dan gratis untuk semua kebutuhan Anda.
-            </p>
 
             <div class="services-grid">
-                <!-- Convert Card -->
-                <div class="service-card convert-card" onclick="showPage('convert')">
-                    <div class="service-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                        </svg>
-                    </div>
-                    <h3 class="service-title">File Converter</h3>
-                    <p class="service-desc">
-                        Konversi berbagai format file: gambar, video, audio, dan dokumen dengan kualitas tinggi.
-                    </p>
-                    <div class="service-features">
-                        <span class="feature-tag">Images</span>
-                        <span class="feature-tag">Video</span>
-                        <span class="feature-tag">Audio</span>
-                        <span class="feature-tag">Documents</span>
-                    </div>
-                    <div class="service-arrow">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <!-- Convert Service -->
+                <a href="/convert" class="service-card convert">
+                    <div class="service-icon">🔄</div>
+                    <h3>Convert</h3>
+                    <p>Konversi berbagai format file dengan mudah. Mendukung gambar, dokumen, dan banyak lagi.</p>
+                    <span class="service-link">
+                        Buka Convert
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
-                    </div>
-                </div>
+                    </span>
+                </a>
 
-                <!-- PDF Card -->
-                <div class="service-card pdf-card" onclick="showPage('pdf')">
-                    <div class="service-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                    </div>
-                    <h3 class="service-title">PDF Tools</h3>
-                    <p class="service-desc">
-                        Gabung, pisah, kompres, konversi, dan edit PDF dengan mudah dan cepat.
-                    </p>
-                    <div class="service-features">
-                        <span class="feature-tag">Merge</span>
-                        <span class="feature-tag">Split</span>
-                        <span class="feature-tag">Compress</span>
-                        <span class="feature-tag">Edit</span>
-                    </div>
-                    <div class="service-arrow">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <!-- PDF-SaaS Service -->
+                <a href="/pdf" class="service-card pdf">
+                    <div class="service-icon">📄</div>
+                    <h3>PDF-SaaS</h3>
+                    <p>Kelola dokumen PDF dengan fitur lengkap. Merge, split, compress, dan konversi PDF.</p>
+                    <span class="service-link">
+                        Buka PDF-SaaS
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
-                    </div>
-                </div>
+                    </span>
+                </a>
 
-                <!-- Cloud Card -->
-                <div class="service-card cloud-card" onclick="showPage('cloud')">
-                    <div class="service-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
-                        </svg>
-                    </div>
-                    <h3 class="service-title">HarywangCloud</h3>
-                    <p class="service-desc">
-                        Penyimpanan aman hingga 20GB. Upload & download cepat untuk semua jenis file.
-                    </p>
-                    <div class="service-features">
-                        <span class="feature-tag">20GB Storage</span>
-                        <span class="feature-tag">Fast Upload</span>
-                        <span class="feature-tag">All Files</span>
-                        <span class="feature-tag">Secure</span>
-                    </div>
-                    <div class="service-arrow">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <!-- HarywangCloud Service -->
+                <a href="/cloud" class="service-card cloud">
+                    <div class="service-icon">☁️</div>
+                    <h3>HarywangCloud</h3>
+                    <p>Penyimpanan cloud pribadi dengan kapasitas besar. Upload, kelola, dan bagikan file.</p>
+                    <span class="service-link">
+                        Buka Cloud
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="status-bar">
-                <div class="status-item">
-                    <span class="status-dot" id="convertStatus"></span>
-                    <span>Convert Server</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-dot" id="pdfStatus"></span>
-                    <span>PDF Server</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-dot" id="cloudStatus"></span>
-                    <span>Cloud Server</span>
-                </div>
-            </div>
-
-            <footer class="footer">
-                <p>&copy; 2025 <a href="https://harywang.online">harywang.online</a> - All rights reserved</p>
-            </footer>
-        </section>
-
-        <!-- Convert Page -->
-        <section class="page" id="convert">
-            <div class="page-header">
-                <a href="#" class="back-btn" onclick="showPage('landing')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                    Kembali
+                    </span>
                 </a>
-                <h1 class="page-title">File Converter</h1>
-                <p class="page-subtitle">Konversi gambar, video, audio, dan dokumen</p>
             </div>
-            <div class="iframe-container">
-                <iframe src="/convert/" id="convertFrame" onload="hideLoading('convert')"></iframe>
-            </div>
-        </section>
+        </main>
+    </div>
 
-        <!-- PDF Page -->
-        <section class="page" id="pdf">
-            <div class="page-header">
-                <a href="#" class="back-btn" onclick="showPage('landing')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                    Kembali
-                </a>
-                <h1 class="page-title">PDF Tools</h1>
-                <p class="page-subtitle">Merge, Split, Compress, Convert & Edit PDF</p>
-            </div>
-            <div class="iframe-container">
-                <iframe src="/pdf/" id="pdfFrame" onload="hideLoading('pdf')"></iframe>
-            </div>
-        </section>
-
-        <!-- Cloud Page -->
-        <section class="page" id="cloud">
-            <div class="page-header">
-                <a href="#" class="back-btn" onclick="showPage('landing')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                    Kembali
-                </a>
-                <h1 class="page-title">HarywangCloud</h1>
-                <p class="page-subtitle">Penyimpanan aman hingga 20GB</p>
-            </div>
-            <div class="iframe-container">
-                <iframe src="" id="cloudFrame" onload="hideLoading('cloud')"></iframe>
-            </div>
-        </section>
-    </main>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // ============ AUTH ============
+        // ============ STATE ============
+        const API_BASE = '/api';
 
-        function switchAuth(form) {
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            document.getElementById(form + 'Form').classList.add('active');
-            // Clear errors/successes
-            document.querySelectorAll('.a-error, .a-success').forEach(el => {
-                el.classList.remove('show');
-                el.textContent = '';
-            });
+        // ============ UTILITIES ============
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `${type === 'success' ? '✓' : '✕'} ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
-        function showAuthError(id, msg) {
-            var el = document.getElementById(id);
+        function showError(msg) {
+            const el = document.getElementById('formError');
             el.textContent = msg;
             el.classList.add('show');
+            document.getElementById('formSuccess').classList.remove('show');
         }
 
-        function showAuthSuccess(id, msg) {
-            var el = document.getElementById(id);
+        function showSuccess(msg) {
+            const el = document.getElementById('formSuccess');
             el.textContent = msg;
             el.classList.add('show');
+            document.getElementById('formError').classList.remove('show');
         }
 
+        function clearMessages() {
+            document.getElementById('formError').classList.remove('show');
+            document.getElementById('formSuccess').classList.remove('show');
+        }
+
+        // ============ TAB SWITCHING ============
+        function showTab(tab) {
+            clearMessages();
+            
+            // Update tabs
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                document.querySelectorAll('.login-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else if (tab === 'register') {
+                document.querySelectorAll('.login-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            } else if (tab === 'forgot') {
+                document.getElementById('forgotForm').classList.add('active');
+            }
+        }
+
+        // ============ AUTH HANDLERS ============
         async function handleLogin(e) {
             e.preventDefault();
-            var errEl = document.getElementById('loginError');
-            errEl.classList.remove('show');
+            clearMessages();
 
-            var username = document.getElementById('loginUsername').value.trim();
-            var password = document.getElementById('loginPassword').value;
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
 
             if (!username || !password) {
-                showAuthError('loginError', 'Username dan password wajib diisi');
+                showError('Username dan password harus diisi');
                 return;
             }
 
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+
             try {
-                var res = await fetch('/api/login', {
+                const res = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username, password: password })
+                    body: JSON.stringify({ username, password })
                 });
-                var data = await res.json();
+
+                const data = await res.json();
 
                 if (!res.ok) {
-                    showAuthError('loginError', data.error || 'Login gagal');
+                    showError(data.error || 'Login gagal');
                     return;
                 }
 
+                // Save token and show dashboard
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('username', data.username);
-                onAuthSuccess(data.username);
+                showDashboard(data.username);
+                showToast('Login berhasil!');
+
             } catch (err) {
-                showAuthError('loginError', 'Gagal terhubung ke server');
+                showError('Terjadi kesalahan. Coba lagi.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Masuk';
             }
         }
 
         async function handleRegister(e) {
             e.preventDefault();
-            var errEl = document.getElementById('registerError');
-            var sucEl = document.getElementById('registerSuccess');
-            errEl.classList.remove('show');
-            sucEl.classList.remove('show');
+            clearMessages();
 
-            var username = document.getElementById('regUsername').value.trim();
-            var email = document.getElementById('regEmail').value.trim();
-            var password = document.getElementById('regPassword').value;
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const btn = document.getElementById('regBtn');
 
-            if (!username || !email || !password) {
-                showAuthError('registerError', 'Semua field wajib diisi');
+            if (!username || !email || !password || !confirm) {
+                showError('Semua field harus diisi');
                 return;
             }
 
+            if (password !== confirm) {
+                showError('Password tidak cocok');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('Password minimal 8 karakter');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+
             try {
-                var res = await fetch('/api/register', {
+                const res = await fetch(`${API_BASE}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username, email: email, password: password })
+                    body: JSON.stringify({ username, email, password })
                 });
-                var data = await res.json();
+
+                const data = await res.json();
 
                 if (!res.ok) {
-                    showAuthError('registerError', data.error || 'Registrasi gagal');
+                    showError(data.error || 'Registrasi gagal');
                     return;
                 }
 
+                // Save token and show dashboard
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('username', data.username);
-                onAuthSuccess(data.username);
+                showDashboard(data.username);
+                showToast('Registrasi berhasil! Selamat datang!');
+
             } catch (err) {
-                showAuthError('registerError', 'Gagal terhubung ke server');
+                showError('Terjadi kesalahan. Coba lagi.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Daftar';
             }
         }
 
         async function handleForgot(e) {
             e.preventDefault();
-            var errEl = document.getElementById('forgotError');
-            var sucEl = document.getElementById('forgotSuccess');
-            errEl.classList.remove('show');
-            sucEl.classList.remove('show');
+            clearMessages();
 
-            var email = document.getElementById('forgotEmail').value.trim();
+            const email = document.getElementById('forgotEmail').value.trim();
+            const btn = document.getElementById('forgotBtn');
+
             if (!email) {
-                showAuthError('forgotError', 'Email wajib diisi');
+                showError('Email harus diisi');
                 return;
             }
 
+            btn.disabled = true;
+            btn.textContent = 'Mengirim...';
+
             try {
-                var res = await fetch('/api/forgot-password', {
+                const res = await fetch(`${API_BASE}/forgot-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
+                    body: JSON.stringify({ email })
                 });
-                var data = await res.json();
+
+                const data = await res.json();
 
                 if (!res.ok) {
-                    showAuthError('forgotError', data.error || 'Gagal mengirim email');
+                    showError(data.error || 'Gagal mengirim email');
                     return;
                 }
 
-                showAuthSuccess('forgotSuccess', data.message || 'Password baru sudah dikirim ke email');
+                showSuccess(data.message || 'Jika email terdaftar, password baru akan dikirim');
+
             } catch (err) {
-                showAuthError('forgotError', 'Gagal terhubung ke server');
+                showError('Terjadi kesalahan. Coba lagi.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Kirim Password Baru';
             }
         }
 
         function handleLogout() {
             localStorage.removeItem('token');
             localStorage.removeItem('username');
-            document.getElementById('authOverlay').classList.remove('hidden');
-            document.getElementById('navUser').style.display = 'none';
-            switchAuth('login');
-            showPage('landing');
+            showLoginPage();
+            showToast('Anda telah keluar');
         }
 
-        function openChangePassword() {
-            document.getElementById('chpwOverlay').classList.add('show');
-            document.getElementById('chpwOld').value = '';
-            document.getElementById('chpwNew').value = '';
-            document.getElementById('chpwConfirm').value = '';
-            document.getElementById('chpwError').classList.remove('show');
-            document.getElementById('chpwSuccess').classList.remove('show');
-        }
-
-        function closeChangePassword() {
-            document.getElementById('chpwOverlay').classList.remove('show');
-        }
-
-        async function handleChangePassword() {
-            var errEl = document.getElementById('chpwError');
-            var sucEl = document.getElementById('chpwSuccess');
-            errEl.classList.remove('show');
-            sucEl.classList.remove('show');
-
-            var oldPw = document.getElementById('chpwOld').value;
-            var newPw = document.getElementById('chpwNew').value;
-            var confirmPw = document.getElementById('chpwConfirm').value;
-
-            if (!oldPw || !newPw || !confirmPw) {
-                showAuthError('chpwError', 'Semua field wajib diisi');
-                return;
-            }
-
-            if (newPw !== confirmPw) {
-                showAuthError('chpwError', 'Password baru dan konfirmasi tidak cocok');
-                return;
-            }
-
-            var token = localStorage.getItem('token');
-            if (!token) {
-                showAuthError('chpwError', 'Sesi expired, silakan login ulang');
-                return;
-            }
-
-            try {
-                var res = await fetch('/api/change-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ currentPassword: oldPw, newPassword: newPw })
-                });
-                var data = await res.json();
-
-                if (!res.ok) {
-                    showAuthError('chpwError', data.error || 'Gagal ganti password');
-                    return;
-                }
-
-                showAuthSuccess('chpwSuccess', 'Password berhasil diganti!');
-                setTimeout(closeChangePassword, 1500);
-            } catch (err) {
-                showAuthError('chpwError', 'Gagal terhubung ke server');
-            }
-        }
-
-        function onAuthSuccess(username) {
-            document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('navUser').style.display = 'flex';
-            document.getElementById('navUsername').textContent = username;
-        }
-
-        async function checkAuth() {
-            var token = localStorage.getItem('token');
-            var username = localStorage.getItem('username');
+        // ============ PAGE SWITCHING ============
+        function showDashboard(username) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
             
-            if (!token || !username) {
-                // No token, show login
-                document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('navUser').style.display = 'none';
+            // Update user info
+            document.getElementById('userName').textContent = username;
+            document.getElementById('welcomeName').textContent = username;
+            document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+        }
+
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboardPage').style.display = 'none';
+            
+            // Clear forms
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            clearMessages();
+        }
+
+        // ============ CHECK AUTH ON LOAD ============
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+
+            if (!token) {
+                showLoginPage();
                 return;
             }
 
+            // Verify token with server
             try {
-                var res = await fetch('/api/me', {
-                    headers: { 'Authorization': 'Bearer ' + token }
+                const res = await fetch(`${API_BASE}/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
+
                 if (res.ok) {
-                    var data = await res.json();
-                    onAuthSuccess(data.username);
+                    const data = await res.json();
+                    showDashboard(data.username || username);
                 } else {
-                    // Token invalid, clear and show login
+                    // Token invalid
                     localStorage.removeItem('token');
                     localStorage.removeItem('username');
-                    document.getElementById('authOverlay').classList.remove('hidden');
-                    document.getElementById('navUser').style.display = 'none';
+                    showLoginPage();
                 }
             } catch (err) {
                 // Network error - use cached username if available
                 if (username) {
-                    onAuthSuccess(username);
+                    showDashboard(username);
                 } else {
-                    document.getElementById('authOverlay').classList.remove('hidden');
-                    document.getElementById('navUser').style.display = 'none';
+                    showLoginPage();
                 }
             }
         }
 
-        // ============ PAGE NAVIGATION ============
-
-        function showPage(pageId) {
-            // Check if user trying to access cloud
-            if (pageId === 'cloud') {
-                var token = localStorage.getItem('token');
-                if (!token) {
-                    alert('Silakan login terlebih dahulu untuk mengakses HarywangCloud');
-                    showLoginModal();
-                    return;
-                }
-                // Load cloud iframe
-                var cloudFrame = document.getElementById('cloudFrame');
-                if (!cloudFrame.src || cloudFrame.src === 'about:blank') {
-                    cloudFrame.src = '/cloud/';
-                }
-            }
-
-            document.querySelectorAll('.page').forEach(function(page) {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-
-            document.querySelectorAll('.nav-link').forEach(function(link) {
-                link.classList.remove('active');
-                if (link.dataset.page === pageId) {
-                    link.classList.add('active');
-                }
-            });
-
-            document.getElementById('navLinks').classList.remove('show');
-            window.location.hash = pageId === 'landing' ? '' : pageId;
-        }
-
-        function toggleMobileMenu() {
-            document.getElementById('navLinks').classList.toggle('show');
-        }
-
-        // ============ SERVER STATUS ============
-
-        async function checkServerStatus() {
-            var convertStatus = document.getElementById('convertStatus');
-            var pdfStatus = document.getElementById('pdfStatus');
-            var cloudStatus = document.getElementById('cloudStatus');
-
-            try {
-                var r = await fetch('/convert/health');
-                convertStatus.classList.toggle('offline', !r.ok);
-            } catch (e) {
-                convertStatus.classList.add('offline');
-            }
-
-            try {
-                var r = await fetch('/pdf/api/health');
-                pdfStatus.classList.toggle('offline', !r.ok);
-            } catch (e) {
-                pdfStatus.classList.add('offline');
-            }
-
-            try {
-                var r = await fetch('/cloud/health');
-                cloudStatus.classList.toggle('offline', !r.ok);
-            } catch (e) {
-                cloudStatus.classList.add('offline');
-            }
-        }
-
-        function hideLoading(service) {
-            console.log(service + ' loaded');
-        }
-
-        // ============ INIT ============
-
-        // Check if user is logged in on page load
-        (function() {
-            var token = localStorage.getItem('token');
-            var username = localStorage.getItem('username');
-            if (token && username) {
-                // User has token, hide auth overlay immediately
-                document.getElementById('authOverlay').classList.add('hidden');
-                document.getElementById('navUser').style.display = 'flex';
-                document.getElementById('navUsername').textContent = username;
-            }
-        })();
-
+        // Initialize
         checkAuth();
-        checkServerStatus();
-        setInterval(checkServerStatus, 30000);
-
-        window.addEventListener('load', function() {
-            var hash = window.location.hash.slice(1);
-            if (hash && ['convert', 'pdf', 'cloud'].indexOf(hash) !== -1) {
-                showPage(hash);
-            }
-        });
-
-        window.addEventListener('hashchange', function() {
-            var hash = window.location.hash.slice(1);
-            if (!hash || hash === 'landing') {
-                showPage('landing');
-            } else if (['convert', 'pdf', 'cloud'].indexOf(hash) !== -1) {
-                showPage(hash);
-            }
-        });
     </script>
 </body>
 </html>
