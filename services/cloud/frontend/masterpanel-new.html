@@ -299,7 +299,7 @@
             }
 
             try {
-                const response = await fetch('/api/adminarea/master/admin-login', {
+                const response = await fetch('/api/adminarea/master/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
