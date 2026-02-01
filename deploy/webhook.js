@@ -57,9 +57,16 @@ function deploy() {
       timeout: 120000
     });
 
+    log('> npm install (cloud service)');
+    execSync('npm install --production', {
+      cwd: path.join(PROJECT_DIR, 'services/cloud'),
+      encoding: 'utf-8',
+      timeout: 120000
+    });
+
     // Restart semua services via PM2
-    log('> pm2 restart ecosystem.config.js');
-    const pm2Result = execSync('pm2 restart ecosystem.config.js --only dashboard,convert-service,pdf-service', {
+    log('> pm2 restart all services');
+    const pm2Result = execSync('pm2 restart ecosystem.config.js', {
       cwd: PROJECT_DIR,
       encoding: 'utf-8',
       timeout: 30000
