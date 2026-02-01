@@ -640,7 +640,8 @@
         <div class="header">
             <div>
                 <h1>Master Harywang</h1>
-            <p>Kontrol penuh untuk semua layanan Harywang Dashboard</p>
+                <p>Kontrol penuh untuk semua layanan Harywang Dashboard</p>
+            </div>
         </div>
 
         <div id="alertBox"></div>
@@ -715,6 +716,13 @@
 
         <!-- USERS SECTION -->
         <div id="users" class="section">
+            <div class="header">
+                <div>
+                    <h1>User Management</h1>
+                    <p>Kelola pengguna dan akses mereka ke Harywang Dashboard</p>
+                </div>
+            </div>
+            
             <div class="card">
                 <h2>👥 User Management</h2>
                 <table>
@@ -737,15 +745,13 @@
 
         <!-- IP WHITELIST SECTION -->
         <div id="whitelist" class="section">
-            <div style="margin-bottom:24px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                    <div>
-                        <h2>🛡️ IP Whitelist & Device Tokens</h2>
-                        <p style="color:#718096;">Kelola akses berdasarkan IP Address dan Device Token</p>
-                    </div>
-                    <div style="display:flex;gap:8px;">
-                        <button class="btn btn-primary" onclick="loadWhitelist(); loadTokens();">🔄 Refresh</button>
-                    </div>
+            <div class="header">
+                <div>
+                    <h1>IP Whitelist & Device Tokens</h1>
+                    <p>Kelola akses keamanan berdasarkan IP Address dan Device Token</p>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-primary" onclick="loadWhitelist(); loadTokens();">🔄 Refresh</button>
                 </div>
             </div>
 
@@ -820,7 +826,15 @@
         </div>
 
         <!-- LOGS SECTION -->
+        <!-- SYSTEM LOGS SECTION -->
         <div id="logs" class="section">
+            <div class="header">
+                <div>
+                    <h1>System Logs</h1>
+                    <p>Monitor aktivitas dan log sistem Harywang Dashboard</p>
+                </div>
+            </div>
+            
             <div class="card">
                 <h2>📋 System Logs</h2>
                 <p style="color:#718096;">System logs feature coming soon...</p>
