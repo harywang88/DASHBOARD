@@ -124,6 +124,57 @@
         }
 
         .hidden { display: none !important; }
+        
+        /* PIN Modal Styles */
+        .pin-card {
+            max-width: 400px;
+            width: 90%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        
+        .pin-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: transparent;
+            transition: all 0.2s;
+        }
+        
+        .pin-dot.filled {
+            background: white;
+            border-color: white;
+        }
+        
+        .pin-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pin-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .pin-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -174,8 +225,50 @@
         <button class="btn btn-primary" onclick="login()">Login</button>
     </div>
 
+    <!-- PIN VERIFICATION CARD -->
+    <div id="pinCard" class="pin-card hidden">
+        <h3 style="text-align:center;color:white;margin-bottom:8px;font-size:20px;">🔐 Masukkan PIN (<span id="pinAttemptDisplay">1</span>/5)</h3>
+        <p style="text-align:center;margin-bottom:24px;color:rgba(255,255,255,0.9);font-size:14px;">Silahkan Masukkan 6 Digit Pin Anda</p>
+        
+        <!-- PIN Dots Display -->
+        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+            <div class="pin-dot" id="pin-dot-1"></div>
+            <div class="pin-dot" id="pin-dot-2"></div>
+            <div class="pin-dot" id="pin-dot-3"></div>
+            <div class="pin-dot" id="pin-dot-4"></div>
+            <div class="pin-dot" id="pin-dot-5"></div>
+            <div class="pin-dot" id="pin-dot-6"></div>
+        </div>
+        
+        <!-- Number Pad -->
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;max-width:280px;margin:0 auto 24px;">
+            <button class="pin-btn" onclick="addPinDigit('4')">4</button>
+            <button class="pin-btn" onclick="addPinDigit('8')">8</button>
+            <button class="pin-btn" onclick="addPinDigit('1')">1</button>
+            
+            <button class="pin-btn" onclick="addPinDigit('9')">9</button>
+            <button class="pin-btn" onclick="addPinDigit('7')">7</button>
+            <button class="pin-btn" onclick="addPinDigit('3')">3</button>
+            
+            <button class="pin-btn" onclick="addPinDigit('2')">2</button>
+            <button class="pin-btn" onclick="addPinDigit('6')">6</button>
+            <button class="pin-btn" onclick="addPinDigit('5')">5</button>
+            
+            <button class="pin-btn" style="grid-column:2;" onclick="addPinDigit('0')">0</button>
+            <button class="pin-btn" onclick="clearPin()" style="background:#ef4444;border:2px solid rgba(255,255,255,0.3);">
+                <svg style="width:24px;height:24px;fill:white;" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+            </button>
+        </div>
+        
+        <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
+    </div>
+
     <script>
         const API_URL = '/api/adminarea/master/';
+        let currentPin = '';
+        let pinAttempts = 0;
+        const MAX_PIN_ATTEMPTS = 5;
+        let currentUsername = '';
         
         // Check access on load
         async function checkAccess() {
@@ -261,22 +354,101 @@
                     // Save credentials
                     localStorage.setItem('masterAuth', btoa(username + ':' + password));
                     localStorage.setItem('username', username);
+                    currentUsername = username;
                     
-                    // Show success message with device registration info
-                    if (data.deviceRegistered) {
-                        showSuccess('loginSuccess', '✅ Login berhasil! Device Anda telah terdaftar. Login berikutnya tidak perlu token lagi.');
-                    } else {
-                        showSuccess('loginSuccess', 'Login berhasil! Redirecting...');
-                    }
+                    // Hide login page, show PIN card
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('pinCard').classList.remove('hidden');
                     
-                    setTimeout(() => {
-                        window.location.href = '/adminarea/master';
-                    }, data.deviceRegistered ? 2000 : 1000);
                 } else {
                     showError('loginError', data.error || 'Login gagal!');
                 }
             } catch (e) {
                 showError('loginError', 'Error: ' + e.message);
+            }
+        }
+        
+        // PIN Functions
+        function addPinDigit(digit) {
+            if (currentPin.length < 6) {
+                currentPin += digit;
+                updatePinDots();
+                
+                // Auto-verify when 6 digits entered
+                if (currentPin.length === 6) {
+                    setTimeout(() => verifyPin(), 300);
+                }
+            }
+        }
+
+        function clearPin() {
+            currentPin = '';
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`pin-dot-${i}`);
+                if (dot) {
+                    if (i <= currentPin.length) {
+                        dot.classList.add('filled');
+                    } else {
+                        dot.classList.remove('filled');
+                    }
+                }
+            }
+        }
+        
+        async function verifyPin() {
+            try {
+                const masterAuth = localStorage.getItem('masterAuth');
+                
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(currentUsername) + '/verify-pin', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Basic ' + masterAuth,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pin: currentPin })
+                });
+                
+                const data = await r.json();
+                
+                if (!r.ok) {
+                    pinAttempts++;
+                    document.getElementById('pinAttemptDisplay').textContent = pinAttempts;
+                    
+                    if (data.banned) {
+                        showError('loginError', 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN!');
+                        setTimeout(() => {
+                            localStorage.removeItem('masterAuth');
+                            sessionStorage.clear();
+                            window.location.reload();
+                        }, 3000);
+                        return;
+                    }
+                    
+                    // Show attempts as X/5
+                    if (pinAttempts < MAX_PIN_ATTEMPTS) {
+                        alert(`PIN salah! Percobaan: ${pinAttempts}/${MAX_PIN_ATTEMPTS}`);
+                    } else {
+                        showError('loginError', 'Akun Anda telah di-BANNED!');
+                    }
+                    
+                    currentPin = '';
+                    updatePinDots();
+                    return;
+                }
+                
+                // PIN verified successfully - redirect to dashboard
+                sessionStorage.setItem('pinVerified', 'true');
+                window.location.href = '/adminarea/master';
+                
+            } catch (e) {
+                console.error('PIN verification error:', e);
+                alert('Error verifying PIN: ' + e.message);
+                currentPin = '';
+                updatePinDots();
             }
         }
 
