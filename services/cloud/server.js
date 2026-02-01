@@ -493,6 +493,73 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limits: { fileSize: MAX_FILE_SIZE } });
 
+// ============ AUTH API (MEMBER SITE) ============
+
+// Register endpoint
+app.post('/api/register', (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'Semua field harus diisi' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Password minimal 6 karakter' });
+    }
+
+    const users = loadUsers();
+    
+    // Check if username already exists
+    if (users.find(u => u.username === username)) {
+        return res.status(400).json({ error: 'Username sudah digunakan' });
+    }
+
+    // Check if email already exists
+    if (users.find(u => u.email === email)) {
+        return res.status(400).json({ error: 'Email sudah digunakan' });
+    }
+
+    // Create new user
+    const newUser = {
+        username,
+        email,
+        password, // Store plain text (not recommended for production)
+        createdAt: new Date().toISOString(),
+        storageUsed: 0
+    };
+
+    users.push(newUser);
+    saveUsers(users);
+
+    // Generate JWT token
+    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '30d' });
+
+    console.log(`[REGISTER] New user registered: ${username}`);
+    res.json({ token, username });
+});
+
+// Login endpoint
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username dan password harus diisi' });
+    }
+
+    const users = loadUsers();
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (!user) {
+        return res.status(401).json({ error: 'Username atau password salah' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '30d' });
+
+    console.log(`[LOGIN] User logged in: ${username}`);
+    res.json({ token, username });
+});
+
 // ============ FOLDER API ============
 
 app.post('/api/folder', verifyToken, (req, res) => {

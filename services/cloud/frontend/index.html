@@ -741,6 +741,58 @@
     <!-- HIDDEN FILE INPUT -->
     <input type="file" id="fileInput" style="display:none;" multiple>
 
+    <!-- LOGIN/REGISTER MODAL -->
+    <div class="modal-bg" id="authModal" style="display:none;">
+        <div class="modal" style="max-width:400px;">
+            <h3 id="authTitle">Masuk ke HarywangCloud</h3>
+            <div class="m-error" id="authError"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+                </div>
+                <div class="modal-btns" style="margin-top:20px;">
+                    <button class="m-ok" style="width:100%;" onclick="doLogin()">Masuk</button>
+                </div>
+                <p style="text-align:center;margin-top:16px;color:#888;font-size:13px;">
+                    Belum punya akun? <a href="#" onclick="showRegisterForm(); return false;" style="color:#10b981;">Daftar</a>
+                </p>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerForm" style="display:none;">
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" id="regUsername" placeholder="Username" autocomplete="username">
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="Email" autocomplete="email">
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Password" autocomplete="new-password">
+                </div>
+                <div class="field">
+                    <label>Konfirmasi Password</label>
+                    <input type="password" id="regConfirmPassword" placeholder="Konfirmasi Password" autocomplete="new-password">
+                </div>
+                <div class="modal-btns" style="margin-top:20px;">
+                    <button class="m-ok" style="width:100%;" onclick="doRegister()">Daftar</button>
+                </div>
+                <p style="text-align:center;margin-top:16px;color:#888;font-size:13px;">
+                    Sudah punya akun? <a href="#" onclick="showLoginForm(); return false;" style="color:#10b981;">Masuk</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============ STATE ============
         var currentFolder = null;
@@ -786,7 +838,7 @@
                 }
                 
                 if (!token) {
-                    window.location.href = '/';
+                    showAuthModal();
                     return;
                 }
                 
@@ -797,7 +849,7 @@
                 
                 if (r.status === 401) {
                     localStorage.removeItem('token');
-                    window.location.href = '/';
+                    showAuthModal();
                     return;
                 }
                 
@@ -1449,6 +1501,117 @@
         // ============ INIT ============
         loadFiles();
         loadStorage();
+
+        // ============ AUTH FUNCTIONS ============
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+            showLoginForm();
+        }
+
+        function hideAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authError').textContent = '';
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authTitle').textContent = 'Masuk ke HarywangCloud';
+            document.getElementById('authError').textContent = '';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('authTitle').textContent = 'Daftar HarywangCloud';
+            document.getElementById('authError').textContent = '';
+        }
+
+        async function doLogin() {
+            var username = document.getElementById('loginUsername').value.trim();
+            var password = document.getElementById('loginPassword').value;
+            var errorDiv = document.getElementById('authError');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Username dan password harus diisi';
+                return;
+            }
+
+            try {
+                var r = await fetch('api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                var data = await r.json();
+
+                if (!r.ok) {
+                    errorDiv.textContent = data.error || 'Login gagal';
+                    return;
+                }
+
+                // Save token
+                localStorage.setItem('token', data.token);
+                hideAuthModal();
+                toast('Login berhasil!', 'ok');
+                
+                // Reload files
+                loadFiles();
+                loadStorage();
+            } catch (e) {
+                errorDiv.textContent = 'Terjadi kesalahan: ' + e.message;
+            }
+        }
+
+        async function doRegister() {
+            var username = document.getElementById('regUsername').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
+            var password = document.getElementById('regPassword').value;
+            var confirmPassword = document.getElementById('regConfirmPassword').value;
+            var errorDiv = document.getElementById('authError');
+
+            if (!username || !email || !password || !confirmPassword) {
+                errorDiv.textContent = 'Semua field harus diisi';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Password tidak sama';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorDiv.textContent = 'Password minimal 6 karakter';
+                return;
+            }
+
+            try {
+                var r = await fetch('api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                var data = await r.json();
+
+                if (!r.ok) {
+                    errorDiv.textContent = data.error || 'Registrasi gagal';
+                    return;
+                }
+
+                // Save token
+                localStorage.setItem('token', data.token);
+                hideAuthModal();
+                toast('Registrasi berhasil! Selamat datang!', 'ok');
+                
+                // Reload files
+                loadFiles();
+                loadStorage();
+            } catch (e) {
+                errorDiv.textContent = 'Terjadi kesalahan: ' + e.message;
+            }
+        }
     </script>
 </body>
 </html>
