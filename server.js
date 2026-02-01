@@ -20,6 +20,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'hary-dashboard-fallback-secret';
 
 app.use(express.json());
 
+// ============ PROXY - HARUS SEBELUM AUTH API ============
+
+// API routes untuk master panel (harus sebelum /api auth routes)
+app.use('/api/adminarea', createProxyMiddleware({
+    target: `http://localhost:${CLOUD_PORT}`,
+    changeOrigin: true,
+    onError: (err, req, res) => {
+        console.error('[Admin API Proxy Error]', err.message);
+        res.status(502).json({ error: 'Admin API unavailable' });
+    }
+}));
+
 // ============ USER HELPERS ============
 
 function loadUsers() {
@@ -269,16 +281,6 @@ app.use('/adminarea', createProxyMiddleware({
     onError: (err, req, res) => {
         console.error('[Admin Proxy Error]', err.message);
         res.status(502).json({ error: 'Admin panel unavailable' });
-    }
-}));
-
-// API routes untuk master panel (harus sebelum /api auth routes)
-app.use('/api/adminarea', createProxyMiddleware({
-    target: `http://localhost:${CLOUD_PORT}`,
-    changeOrigin: true,
-    onError: (err, req, res) => {
-        console.error('[Admin API Proxy Error]', err.message);
-        res.status(502).json({ error: 'Admin API unavailable' });
     }
 }));
 
