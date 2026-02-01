@@ -2286,10 +2286,8 @@
                             <td>${gradeBadge}</td>
                             <td>${statusBadge}</td>
                             <td style="white-space:nowrap;">
-                                <button class="btn btn-warning btn-small" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;" title="Edit Admin">✏️</button>
-                                <button class="btn btn-primary btn-small" onclick="showResetAdminPasswordModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;" title="Reset Password">🔑</button>
-                                <button class="btn btn-info btn-small" onclick="showViewAdminActivityModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;" title="View Activity Log">📊</button>
-                                <button class="btn btn-danger btn-small" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" title="Delete Admin">🗑️</button>
+                                <button class="btn btn-warning" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;padding:8px 16px;" title="Edit Admin">✏️</button>
+                                <button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>
                             </td>
                         </tr>
                     `;
