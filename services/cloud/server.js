@@ -144,6 +144,81 @@ const DEVICE_TOKENS = new Map([
 // Map: deviceFingerprint -> { deviceName, userAgent, ip, registeredAt, lastAccess }
 const REGISTERED_DEVICES = new Map();
 
+// Admin Users Management - users who can access master panel
+// Map: username -> { username, nama, email, password, grade, status, joinDate }
+const ADMIN_USERS = new Map([
+    ['harywang', {
+        username: 'harywang',
+        nama: 'Hary Wang',
+        email: 'admin@harywang.online',
+        password: crypto.createHash('sha256').update('admin123').digest('hex'), // default password
+        grade: 'SUPER_ADMIN',
+        status: 'active',
+        joinDate: new Date().toISOString()
+    }]
+]);
+
+// Grade Permissions - define what each grade can access
+// Map: gradeId -> { id, name, description, permissions }
+const GRADE_PERMISSIONS = new Map([
+    ['SUPER_ADMIN', {
+        id: 'SUPER_ADMIN',
+        name: 'Super Administrator',
+        description: 'Full access to all features',
+        permissions: {
+            dashboard: { view: true, edit: true, delete: true },
+            users: { view: true, edit: true, delete: true },
+            whitelist: { view: true, edit: true, delete: true },
+            logs: { view: true, edit: true, delete: true },
+            admin: { view: true, edit: true, delete: true },
+            grades: { view: true, edit: true, delete: true },
+            settings: { view: true, edit: true, delete: true }
+        }
+    }],
+    ['ADMIN', {
+        id: 'ADMIN',
+        name: 'Administrator',
+        description: 'Can manage users and view logs',
+        permissions: {
+            dashboard: { view: true, edit: false, delete: false },
+            users: { view: true, edit: true, delete: false },
+            whitelist: { view: true, edit: true, delete: false },
+            logs: { view: true, edit: false, delete: false },
+            admin: { view: true, edit: false, delete: false },
+            grades: { view: true, edit: false, delete: false },
+            settings: { view: true, edit: false, delete: false }
+        }
+    }],
+    ['MODERATOR', {
+        id: 'MODERATOR',
+        name: 'Moderator',
+        description: 'Can view data and moderate content',
+        permissions: {
+            dashboard: { view: true, edit: false, delete: false },
+            users: { view: true, edit: false, delete: false },
+            whitelist: { view: true, edit: false, delete: false },
+            logs: { view: true, edit: false, delete: false },
+            admin: { view: false, edit: false, delete: false },
+            grades: { view: false, edit: false, delete: false },
+            settings: { view: false, edit: false, delete: false }
+        }
+    }],
+    ['VIEWER', {
+        id: 'VIEWER',
+        name: 'Viewer',
+        description: 'Read-only access to dashboard',
+        permissions: {
+            dashboard: { view: true, edit: false, delete: false },
+            users: { view: false, edit: false, delete: false },
+            whitelist: { view: false, edit: false, delete: false },
+            logs: { view: false, edit: false, delete: false },
+            admin: { view: false, edit: false, delete: false },
+            grades: { view: false, edit: false, delete: false },
+            settings: { view: false, edit: false, delete: false }
+        }
+    }]
+]);
+
 function generateDeviceToken() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let token = '';
@@ -736,6 +811,177 @@ app.delete('/api/adminarea/master/tokens/:token', checkMasterAuth, (req, res) =>
     res.json({ success: true, message: `Token ${token} removed` });
 });
 
+// ==================== ADMIN USERS API ====================
+
+// Get all admin users (requires auth)
+app.get('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
+    const admins = Array.from(ADMIN_USERS.values()).map(admin => ({
+        username: admin.username,
+        nama: admin.nama,
+        email: admin.email,
+        grade: admin.grade,
+        status: admin.status,
+        joinDate: admin.joinDate
+        // Don't send password hash to frontend
+    }));
+    res.json({ admins });
+});
+
+// Get single admin user (requires auth)
+app.get('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    const admin = ADMIN_USERS.get(username);
+    
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    res.json({ 
+        admin: {
+            username: admin.username,
+            nama: admin.nama,
+            email: admin.email,
+            grade: admin.grade,
+            status: admin.status,
+            joinDate: admin.joinDate
+        }
+    });
+});
+
+// Add new admin user (requires auth)
+app.post('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
+    const { username, nama, email, password, grade, status } = req.body;
+    
+    if (!username || !nama || !email || !password || !grade) {
+        return res.status(400).json({ error: 'Semua field harus diisi' });
+    }
+    
+    if (ADMIN_USERS.has(username)) {
+        return res.status(400).json({ error: 'Username sudah digunakan' });
+    }
+    
+    if (!GRADE_PERMISSIONS.has(grade)) {
+        return res.status(400).json({ error: 'Grade permission tidak valid' });
+    }
+    
+    // Hash password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+    
+    ADMIN_USERS.set(username, {
+        username,
+        nama,
+        email,
+        password: hashedPassword,
+        grade,
+        status: status || 'active',
+        joinDate: new Date().toISOString()
+    });
+    
+    console.log(`[MASTER PANEL] Admin user added: ${username} (${nama}) - Grade: ${grade}`);
+    res.json({ success: true, message: `Admin user ${username} berhasil ditambahkan` });
+});
+
+// Update admin user (requires auth)
+app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    const { nama, email, password, grade, status } = req.body;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    if (grade && !GRADE_PERMISSIONS.has(grade)) {
+        return res.status(400).json({ error: 'Grade permission tidak valid' });
+    }
+    
+    // Update fields
+    if (nama) admin.nama = nama;
+    if (email) admin.email = email;
+    if (grade) admin.grade = grade;
+    if (status) admin.status = status;
+    if (password && password.trim().length > 0) {
+        admin.password = crypto.createHash('sha256').update(password).digest('hex');
+    }
+    
+    ADMIN_USERS.set(username, admin);
+    
+    console.log(`[MASTER PANEL] Admin user updated: ${username}`);
+    res.json({ success: true, message: `Admin user ${username} berhasil diupdate` });
+});
+
+// Delete admin user (requires auth)
+app.delete('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    
+    // Prevent deleting the master admin
+    if (username === 'harywang') {
+        return res.status(400).json({ error: 'Tidak dapat menghapus master admin' });
+    }
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    ADMIN_USERS.delete(username);
+    console.log(`[MASTER PANEL] Admin user deleted: ${username}`);
+    res.json({ success: true, message: `Admin user ${username} berhasil dihapus` });
+});
+
+// ==================== GRADE PERMISSIONS API ====================
+
+// Get all grade permissions (requires auth)
+app.get('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) => {
+    const grades = Array.from(GRADE_PERMISSIONS.values());
+    res.json({ grades });
+});
+
+// Add new grade permission (requires auth)
+app.post('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) => {
+    const { gradeId, name, description, permissions } = req.body;
+    
+    if (!gradeId || !name || !description || !permissions) {
+        return res.status(400).json({ error: 'Semua field harus diisi' });
+    }
+    
+    if (GRADE_PERMISSIONS.has(gradeId)) {
+        return res.status(400).json({ error: 'Grade ID sudah digunakan' });
+    }
+    
+    GRADE_PERMISSIONS.set(gradeId, {
+        id: gradeId,
+        name,
+        description,
+        permissions
+    });
+    
+    console.log(`[MASTER PANEL] Grade permission added: ${gradeId} (${name})`);
+    res.json({ success: true, message: `Grade ${name} berhasil ditambahkan` });
+});
+
+// Delete grade permission (requires auth)
+app.delete('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (req, res) => {
+    const { gradeId } = req.params;
+    
+    // Prevent deleting default grades if there are admins using them
+    const adminsWithGrade = Array.from(ADMIN_USERS.values()).filter(a => a.grade === gradeId);
+    if (adminsWithGrade.length > 0) {
+        return res.status(400).json({ 
+            error: `Tidak dapat menghapus grade ini karena masih digunakan oleh ${adminsWithGrade.length} admin` 
+        });
+    }
+    
+    const grade = GRADE_PERMISSIONS.get(gradeId);
+    if (!grade) {
+        return res.status(404).json({ error: 'Grade permission not found' });
+    }
+    
+    GRADE_PERMISSIONS.delete(gradeId);
+    console.log(`[MASTER PANEL] Grade permission deleted: ${gradeId}`);
+    res.json({ success: true, message: `Grade ${grade.name} berhasil dihapus` });
+});
+
 // Get all users (requires auth)
 app.get('/api/adminarea/master/users', checkMasterAuth, (req, res) => {
     const users = loadUsers();
@@ -889,4 +1135,5 @@ app.get('/adminarea/master', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`HarywangCloud running on port ${PORT}`);
+    console.log(`[MASTER PANEL] Admin Users: ${ADMIN_USERS.size}, Grade Permissions: ${GRADE_PERMISSIONS.size}, Registered Devices: ${REGISTERED_DEVICES.size}`);
 });

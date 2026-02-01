@@ -623,6 +623,8 @@
         <div class="sidebar-menu">
             <div class="menu-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
             <div class="menu-item" onclick="showSection('users')">👥 User Management</div>
+            <div class="menu-item" onclick="showSection('admin')">👤 Admin User</div>
+            <div class="menu-item" onclick="showSection('grades')">🎓 Grade Permissions</div>
             <div class="menu-item" onclick="showSection('whitelist')">🛡️ IP Whitelist</div>
             <div class="menu-item" onclick="showSection('logs')">📋 System Logs</div>
         </div>
@@ -889,6 +891,67 @@
                 <p style="color:#718096;">System logs feature coming soon...</p>
             </div>
         </div>
+
+        <!-- ADMIN USER SECTION -->
+        <div id="admin" class="section" style="display:none;">
+            <div class="header">
+                <div>
+                    <h1>Admin User Management</h1>
+                    <p>Kelola admin user yang memiliki akses ke master panel</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3>👤 List Admin Users</h3>
+                    <button class="btn btn-primary btn-small" onclick="showAddAdminModal()">➕ Add Admin</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Username</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Join Date</th>
+                                <th>Grade Permission</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminListTable">
+                            <tr>
+                                <td colspan="8" style="text-align:center;padding:20px;color:#718096;">
+                                    Loading admin users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRADE PERMISSIONS SECTION -->
+        <div id="grades" class="section" style="display:none;">
+            <div class="header">
+                <div>
+                    <h1>Grade Permissions</h1>
+                    <p>Atur hak akses dan permission untuk setiap grade level</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3>🎓 Permission Grades</h3>
+                    <button class="btn btn-primary btn-small" onclick="showAddGradeModal()">➕ Add Grade</button>
+                </div>
+                
+                <div id="gradesListContainer">
+                    <!-- Grades akan ditampilkan sebagai cards dengan detail permission -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ADD WHITELIST IP MODAL -->
@@ -985,6 +1048,168 @@
             <div class="form-group">
                 <label>Password Lama</label>
                 <input type="password" id="oldMasterPassword" placeholder="Masukkan password lama">
+            </div>
+            <div class="form-group">
+                <label>Password Baru</label>
+                <input type="password" id="newMasterPassword" placeholder="Masukkan password baru">
+            </div>
+            <div class="form-group">
+                <label>Konfirmasi Password Baru</label>
+                <input type="password" id="confirmMasterPassword" placeholder="Konfirmasi password baru">
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeResetMasterPasswordModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmResetMasterPassword()">Update Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ADMIN USER MODAL -->
+    <div class="modal" id="addAdminModal">
+        <div class="modal-content">
+            <h3>➕ Tambah Admin User</h3>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="newAdminUsername" placeholder="Username unik untuk login">
+            </div>
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="newAdminNama" placeholder="Nama lengkap admin">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="newAdminEmail" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="newAdminPassword" placeholder="Password untuk login">
+            </div>
+            <div class="form-group">
+                <label>Grade Permission</label>
+                <select id="newAdminGrade">
+                    <option value="">-- Pilih Grade --</option>
+                    <option value="SUPER_ADMIN">Super Administrator</option>
+                    <option value="ADMIN">Administrator</option>
+                    <option value="MODERATOR">Moderator</option>
+                    <option value="VIEWER">Viewer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="newAdminStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeAddAdminModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAddAdmin()">Add Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT ADMIN USER MODAL -->
+    <div class="modal" id="editAdminModal">
+        <div class="modal-content">
+            <h3>✏️ Edit Admin User</h3>
+            <input type="hidden" id="editAdminUsername">
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="editAdminNama" placeholder="Nama lengkap admin">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="editAdminEmail" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password Baru (kosongkan jika tidak diubah)</label>
+                <input type="password" id="editAdminPassword" placeholder="Password baru (opsional)">
+            </div>
+            <div class="form-group">
+                <label>Grade Permission</label>
+                <select id="editAdminGrade">
+                    <option value="SUPER_ADMIN">Super Administrator</option>
+                    <option value="ADMIN">Administrator</option>
+                    <option value="MODERATOR">Moderator</option>
+                    <option value="VIEWER">Viewer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="editAdminStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeEditAdminModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmEditAdmin()">Update Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD GRADE PERMISSION MODAL -->
+    <div class="modal" id="addGradeModal">
+        <div class="modal-content" style="max-width:600px;">
+            <h3>➕ Tambah Grade Permission</h3>
+            <div class="form-group">
+                <label>Grade ID</label>
+                <input type="text" id="newGradeId" placeholder="Contoh: MANAGER, STAFF">
+            </div>
+            <div class="form-group">
+                <label>Grade Name</label>
+                <input type="text" id="newGradeName" placeholder="Nama grade yang ditampilkan">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="newGradeDesc" rows="2" placeholder="Deskripsi singkat tentang grade ini"></textarea>
+            </div>
+            <div class="form-group">
+                <label><strong>Permissions</strong></label>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;">
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_dashboard"> Dashboard
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_users"> Users
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_admin"> Admin User
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_grades"> Grade Permissions
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_whitelist"> IP Whitelist
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_logs"> System Logs
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="perm_settings"> Settings
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeAddGradeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAddGrade()">Add Grade</button>
+            </div>
+        </div>
+    </div>
             </div>
             <div class="form-group">
                 <label>Password Baru</label>
@@ -1159,6 +1384,8 @@
                 loadWhitelistLogs();
                 loadRegisteredDevices();
             }
+            if (section === 'admin') loadAdminUsers();
+            if (section === 'grades') loadGradePermissions();
 
             // Close mobile menu after selection
             if (window.innerWidth <= 768) {
@@ -1733,6 +1960,371 @@
             }
             console.log('Authentication found, continuing...');
             return true;
+        }
+
+        // ==================== ADMIN USER MANAGEMENT ====================
+        async function loadAdminUsers() {
+            try {
+                const r = await fetch(API_URL + 'admin-users', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load admin users');
+                const data = await r.json();
+                
+                const tbody = document.getElementById('adminListTable');
+                if (data.admins.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align:center;padding:20px;color:#718096;">
+                                Belum ada admin user. Klik tombol "Add Admin" untuk menambahkan.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = data.admins.map((admin, idx) => {
+                    const joinDate = new Date(admin.joinDate).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    const statusBadge = admin.status === 'active' 
+                        ? '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>'
+                        : '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">INACTIVE</span>';
+                    
+                    const gradeBadge = getGradeBadge(admin.grade);
+                    
+                    return `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><code style="background:#f3f4f6;color:#4b5563;padding:4px 8px;border-radius:4px;font-size:12px;">${admin.username}</code></td>
+                            <td><strong>${admin.nama}</strong></td>
+                            <td style="color:#718096;">${admin.email}</td>
+                            <td style="font-size:12px;color:#718096;">${joinDate}</td>
+                            <td>${gradeBadge}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <button class="btn btn-warning btn-small" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;">✏️ Edit</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteAdmin('${admin.username}', '${admin.nama}')">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load admin users:', e);
+                showAlert('Failed to load admin users: ' + e.message, 'error');
+            }
+        }
+
+        function getGradeBadge(gradeId) {
+            const gradeColors = {
+                'SUPER_ADMIN': '#8b5cf6',
+                'ADMIN': '#3b82f6',
+                'MODERATOR': '#f59e0b',
+                'VIEWER': '#6b7280'
+            };
+            const gradeNames = {
+                'SUPER_ADMIN': 'Super Admin',
+                'ADMIN': 'Admin',
+                'MODERATOR': 'Moderator',
+                'VIEWER': 'Viewer'
+            };
+            const color = gradeColors[gradeId] || '#6b7280';
+            const name = gradeNames[gradeId] || gradeId;
+            return `<span style="background:${color};color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">${name}</span>`;
+        }
+
+        function showAddAdminModal() {
+            document.getElementById('addAdminModal').style.display = 'flex';
+            document.getElementById('newAdminUsername').value = '';
+            document.getElementById('newAdminNama').value = '';
+            document.getElementById('newAdminEmail').value = '';
+            document.getElementById('newAdminPassword').value = '';
+            document.getElementById('newAdminGrade').value = '';
+            document.getElementById('newAdminStatus').value = 'active';
+        }
+
+        function closeAddAdminModal() {
+            document.getElementById('addAdminModal').style.display = 'none';
+        }
+
+        async function confirmAddAdmin() {
+            const username = document.getElementById('newAdminUsername').value.trim();
+            const nama = document.getElementById('newAdminNama').value.trim();
+            const email = document.getElementById('newAdminEmail').value.trim();
+            const password = document.getElementById('newAdminPassword').value;
+            const grade = document.getElementById('newAdminGrade').value;
+            const status = document.getElementById('newAdminStatus').value;
+            
+            if (!username || !nama || !email || !password || !grade) {
+                showAlert('Semua field harus diisi', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('Password minimal 6 karakter', 'error');
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username, nama, email, password, grade, status })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to add admin', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Admin user berhasil ditambahkan', 'success');
+                closeAddAdminModal();
+                loadAdminUsers();
+            } catch (e) {
+                showAlert('Failed to add admin: ' + e.message, 'error');
+            }
+        }
+
+        async function showEditAdminModal(username) {
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username), {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load admin data');
+                const data = await r.json();
+                
+                document.getElementById('editAdminUsername').value = data.admin.username;
+                document.getElementById('editAdminNama').value = data.admin.nama;
+                document.getElementById('editAdminEmail').value = data.admin.email;
+                document.getElementById('editAdminPassword').value = '';
+                document.getElementById('editAdminGrade').value = data.admin.grade;
+                document.getElementById('editAdminStatus').value = data.admin.status;
+                
+                document.getElementById('editAdminModal').style.display = 'flex';
+            } catch (e) {
+                showAlert('Failed to load admin data: ' + e.message, 'error');
+            }
+        }
+
+        function closeEditAdminModal() {
+            document.getElementById('editAdminModal').style.display = 'none';
+        }
+
+        async function confirmEditAdmin() {
+            const username = document.getElementById('editAdminUsername').value;
+            const nama = document.getElementById('editAdminNama').value.trim();
+            const email = document.getElementById('editAdminEmail').value.trim();
+            const password = document.getElementById('editAdminPassword').value;
+            const grade = document.getElementById('editAdminGrade').value;
+            const status = document.getElementById('editAdminStatus').value;
+            
+            if (!nama || !email || !grade) {
+                showAlert('Nama, email, dan grade harus diisi', 'error');
+                return;
+            }
+            
+            const updateData = { nama, email, grade, status };
+            if (password.trim().length > 0) {
+                if (password.length < 6) {
+                    showAlert('Password minimal 6 karakter', 'error');
+                    return;
+                }
+                updateData.password = password;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username), {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to update admin', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Admin user berhasil diupdate', 'success');
+                closeEditAdminModal();
+                loadAdminUsers();
+            } catch (e) {
+                showAlert('Failed to update admin: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteAdmin(username, nama) {
+            if (!confirm(`Hapus admin user "${nama}" (${username})?\n\nUser ini tidak akan bisa login lagi.`)) return;
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username), {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to delete admin', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Admin user berhasil dihapus', 'success');
+                loadAdminUsers();
+            } catch (e) {
+                showAlert('Failed to delete admin: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== GRADE PERMISSIONS MANAGEMENT ====================
+        async function loadGradePermissions() {
+            try {
+                const r = await fetch(API_URL + 'grade-permissions', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load grade permissions');
+                const data = await r.json();
+                
+                const container = document.getElementById('gradesListContainer');
+                if (data.grades.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:40px;color:#718096;">
+                            Belum ada grade permissions. Klik tombol "Add Grade" untuk menambahkan.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = data.grades.map(grade => {
+                    const permList = Object.entries(grade.permissions)
+                        .filter(([key, val]) => val.view)
+                        .map(([key]) => {
+                            const icons = {
+                                dashboard: '📊',
+                                users: '👥',
+                                admin: '👤',
+                                grades: '🎓',
+                                whitelist: '🛡️',
+                                logs: '📋',
+                                settings: '⚙️'
+                            };
+                            return `<span style="background:#e2e8f0;color:#334155;padding:4px 10px;border-radius:8px;font-size:12px;margin-right:6px;display:inline-block;margin-bottom:6px;">${icons[key] || '📌'} ${key}</span>`;
+                        }).join('');
+                    
+                    const gradeColor = {
+                        'SUPER_ADMIN': '#8b5cf6',
+                        'ADMIN': '#3b82f6',
+                        'MODERATOR': '#f59e0b',
+                        'VIEWER': '#6b7280'
+                    }[grade.id] || '#6b7280';
+                    
+                    return `
+                        <div style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px;padding:20px;margin-bottom:16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+                                <div>
+                                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                                        <span style="background:${gradeColor};color:white;padding:6px 16px;border-radius:12px;font-size:13px;font-weight:700;">${grade.id}</span>
+                                        <h4 style="margin:0;color:var(--text-primary);">${grade.name}</h4>
+                                    </div>
+                                    <p style="margin:0;color:#718096;font-size:13px;">${grade.description}</p>
+                                </div>
+                                <button class="btn btn-danger btn-small" onclick="deleteGrade('${grade.id}', '${grade.name}')" style="margin-left:12px;">🗑️</button>
+                            </div>
+                            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color);">
+                                <div style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">PERMISSIONS:</div>
+                                <div style="line-height:1.8;">
+                                    ${permList || '<span style="color:#9ca3af;font-size:12px;">No permissions granted</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load grade permissions:', e);
+                showAlert('Failed to load grade permissions: ' + e.message, 'error');
+            }
+        }
+
+        function showAddGradeModal() {
+            document.getElementById('addGradeModal').style.display = 'flex';
+            document.getElementById('newGradeId').value = '';
+            document.getElementById('newGradeName').value = '';
+            document.getElementById('newGradeDesc').value = '';
+            ['dashboard', 'users', 'admin', 'grades', 'whitelist', 'logs', 'settings'].forEach(perm => {
+                document.getElementById('perm_' + perm).checked = false;
+            });
+        }
+
+        function closeAddGradeModal() {
+            document.getElementById('addGradeModal').style.display = 'none';
+        }
+
+        async function confirmAddGrade() {
+            const gradeId = document.getElementById('newGradeId').value.trim().toUpperCase();
+            const name = document.getElementById('newGradeName').value.trim();
+            const description = document.getElementById('newGradeDesc').value.trim();
+            
+            if (!gradeId || !name || !description) {
+                showAlert('Semua field harus diisi', 'error');
+                return;
+            }
+            
+            const permissions = {};
+            ['dashboard', 'users', 'admin', 'grades', 'whitelist', 'logs', 'settings'].forEach(perm => {
+                const checked = document.getElementById('perm_' + perm).checked;
+                permissions[perm] = { view: checked, edit: checked, delete: checked };
+            });
+            
+            try {
+                const r = await fetch(API_URL + 'grade-permissions', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ gradeId, name, description, permissions })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to add grade', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Grade permission berhasil ditambahkan', 'success');
+                closeAddGradeModal();
+                loadGradePermissions();
+            } catch (e) {
+                showAlert('Failed to add grade: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteGrade(gradeId, gradeName) {
+            if (!confirm(`Hapus grade "${gradeName}" (${gradeId})?\n\nPerhatian: Admin user dengan grade ini tidak akan bisa login!`)) return;
+            
+            try {
+                const r = await fetch(API_URL + 'grade-permissions/' + encodeURIComponent(gradeId), {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to delete grade', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Grade permission berhasil dihapus', 'success');
+                loadGradePermissions();
+            } catch (e) {
+                showAlert('Failed to delete grade: ' + e.message, 'error');
+            }
         }
 
         // Init
