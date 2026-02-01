@@ -1040,12 +1040,29 @@ app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
         return res.status(400).json({ error: 'Grade permission tidak valid' });
     }
     
-    // Update fields
-    if (nama) admin.nama = nama;
-    if (email) admin.email = email;
-    if (grade) admin.grade = grade;
-    if (status) admin.status = status;
+    // Track changes for detailed logging
+    const changes = [];
+    const oldData = { nama: admin.nama, email: admin.email, grade: admin.grade, status: admin.status };
+    
+    // Update fields and track changes
+    if (nama && nama !== admin.nama) {
+        changes.push(`Nama: "${admin.nama}" → "${nama}"`);
+        admin.nama = nama;
+    }
+    if (email && email !== admin.email) {
+        changes.push(`Email: "${admin.email}" → "${email}"`);
+        admin.email = email;
+    }
+    if (grade && grade !== admin.grade) {
+        changes.push(`Grade: "${admin.grade}" → "${grade}"`);
+        admin.grade = grade;
+    }
+    if (status && status !== admin.status) {
+        changes.push(`Status: "${admin.status}" → "${status}"`);
+        admin.status = status;
+    }
     if (password && password.trim().length > 0) {
+        changes.push('Password diubah');
         admin.password = crypto.createHash('sha256').update(password).digest('hex');
     }
     
@@ -1055,8 +1072,9 @@ app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
     
     console.log(`[MASTER PANEL] Admin user updated: ${username}`);
     
-    // Log activity
-    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'UPDATE_ADMIN', `Updated admin user: ${username} (${nama || admin.nama})`);
+    // Log activity with detailed changes
+    const changeDetails = changes.length > 0 ? changes.join(', ') : 'No changes';
+    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'UPDATE_ADMIN', `Updated admin "${username}": ${changeDetails}`);
     
     res.json({ success: true, message: `Admin user ${username} berhasil diupdate` });
 });
@@ -1148,6 +1166,70 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAu
     addActivityLog('admin', username, 'VERIFY_PIN_SUCCESS', `Successful PIN verification for admin: ${username}`);
     
     res.json({ success: true, message: 'PIN verified successfully' });
+});
+
+// Check PIN status (has custom PIN or needs to set one)
+app.get('/api/adminarea/master/admin-users/:username/pin-status', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    // Default PIN hash (123456)
+    const defaultPinHash = crypto.createHash('sha256').update('123456').digest('hex');
+    
+    // Check if user has PIN and if it's custom (not default)
+    const hasPin = !!admin.pin;
+    const isDefaultPin = admin.pin === defaultPinHash;
+    const hasCustomPin = hasPin && !isDefaultPin;
+    
+    res.json({ 
+        hasPin, 
+        hasCustomPin,
+        needsSetPin: !hasCustomPin // User needs to set PIN if doesn't have custom PIN
+    });
+});
+
+// Set PIN for first time (requires auth)
+app.post('/api/adminarea/master/admin-users/:username/set-pin', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    const { newPin, confirmPin } = req.body;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    if (!newPin || newPin.length !== 6) {
+        return res.status(400).json({ error: 'PIN harus 6 digit' });
+    }
+    
+    if (!/^\d{6}$/.test(newPin)) {
+        return res.status(400).json({ error: 'PIN harus berisi angka saja' });
+    }
+    
+    if (newPin !== confirmPin) {
+        return res.status(400).json({ error: 'Konfirmasi PIN tidak cocok' });
+    }
+    
+    // Default PIN hash (123456)
+    const defaultPinHash = crypto.createHash('sha256').update('123456').digest('hex');
+    
+    // Only allow setting PIN if user has default PIN or no PIN
+    if (admin.pin && admin.pin !== defaultPinHash) {
+        return res.status(400).json({ error: 'PIN sudah diatur. Gunakan fitur Ubah PIN.' });
+    }
+    
+    // Set new PIN
+    admin.pin = crypto.createHash('sha256').update(newPin).digest('hex');
+    ADMIN_USERS.set(username, admin);
+    saveAdminUsers();
+    
+    addActivityLog('admin', username, 'SET_PIN', `PIN pertama kali diatur untuk admin: ${username}`);
+    
+    res.json({ success: true, message: 'PIN berhasil diatur!' });
 });
 
 // Change admin PIN (requires auth)

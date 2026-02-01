@@ -1422,7 +1422,7 @@
         </div>
     </div>
 
-    <!-- VERIFY PIN MODAL (after login) - DISABLED -->
+    <!-- VERIFY PIN MODAL (after login) -->
     <div class="modal" id="verifyPinModal" style="display:none;z-index:10000;background:rgba(0,0,0,0.95);">
         <div class="modal-content" style="max-width:400px;background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);color:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <h3 style="text-align:center;color:white;margin-bottom:8px;">🔐 Masukkan PIN (1/5)</h3>
@@ -1460,6 +1460,36 @@
             
             <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
             <input type="hidden" id="currentPinInput" value="">
+        </div>
+    </div>
+
+    <!-- SET PIN MODAL (first time) -->
+    <div class="modal" id="setPinModal" style="z-index:10000;background:rgba(0,0,0,0.95);">
+        <div class="modal-content" style="max-width:420px;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);padding:32px;">
+            <h3 style="text-align:center;color:white;margin-bottom:8px;">🔐 Buat PIN Baru</h3>
+            <p style="text-align:center;margin-bottom:24px;color:rgba(255,255,255,0.9);font-size:14px;">Anda belum memiliki PIN. Silahkan buat PIN 6 digit untuk keamanan akun Anda.</p>
+            
+            <div style="margin-bottom:16px;">
+                <label style="display:block;margin-bottom:6px;font-size:13px;color:rgba(255,255,255,0.9);">PIN Baru (6 digit)</label>
+                <input type="password" id="newPinInput" maxlength="6" placeholder="Masukkan 6 digit PIN" pattern="[0-9]{6}" inputmode="numeric"
+                    style="width:100%;padding:14px;border:2px solid rgba(255,255,255,0.3);border-radius:10px;background:rgba(255,255,255,0.15);color:white;font-size:18px;text-align:center;letter-spacing:8px;">
+            </div>
+            
+            <div style="margin-bottom:24px;">
+                <label style="display:block;margin-bottom:6px;font-size:13px;color:rgba(255,255,255,0.9);">Konfirmasi PIN</label>
+                <input type="password" id="confirmPinInput" maxlength="6" placeholder="Ulangi 6 digit PIN" pattern="[0-9]{6}" inputmode="numeric"
+                    style="width:100%;padding:14px;border:2px solid rgba(255,255,255,0.3);border-radius:10px;background:rgba(255,255,255,0.15);color:white;font-size:18px;text-align:center;letter-spacing:8px;">
+            </div>
+            
+            <div style="background:rgba(255,255,255,0.15);border-left:4px solid #fbbf24;padding:12px;border-radius:6px;margin-bottom:20px;">
+                <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.9);">⚠️ <strong>Penting:</strong> PIN ini akan diminta setiap kali Anda login. Harap ingat PIN Anda.</p>
+            </div>
+            
+            <button onclick="submitNewPin()" style="width:100%;padding:14px;background:white;color:#059669;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;">
+                ✅ Simpan PIN
+            </button>
+            
+            <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);margin-top:16px;">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
         </div>
     </div>
 
@@ -2447,19 +2477,46 @@
             }
             console.log('Authentication found, continuing...');
             
-            // PIN verification temporarily disabled - auto-verify for now
-            sessionStorage.setItem('pinVerified', 'true');
-            
-            // TODO: Re-enable PIN verification after testing
-            // const pinVerified = sessionStorage.getItem('pinVerified');
-            // if (!pinVerified) {
-            //     setTimeout(() => {
-            //         const modal = document.getElementById('verifyPinModal');
-            //         if (modal) modal.style.display = 'flex';
-            //     }, 500);
-            // }
+            // Check if PIN already verified in this session
+            const pinVerified = sessionStorage.getItem('pinVerified');
+            if (!pinVerified) {
+                // Check PIN status from server
+                setTimeout(() => checkPinStatus(), 500);
+            }
             
             return true;
+        }
+
+        // Check if user needs to set PIN or verify existing PIN
+        async function checkPinStatus() {
+            try {
+                const masterAuth = localStorage.getItem('masterAuth');
+                const [username] = atob(masterAuth).split(':');
+                
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/pin-status', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) {
+                    console.error('Failed to check PIN status');
+                    sessionStorage.setItem('pinVerified', 'true'); // Skip on error
+                    return;
+                }
+                
+                const data = await r.json();
+                
+                if (data.needsSetPin) {
+                    // User needs to set PIN for first time
+                    document.getElementById('setPinModal').style.display = 'flex';
+                } else {
+                    // User has custom PIN, need to verify
+                    document.getElementById('verifyPinModal').style.display = 'flex';
+                }
+            } catch (e) {
+                console.error('Error checking PIN status:', e);
+                sessionStorage.setItem('pinVerified', 'true'); // Skip on error
+            }
         }
 
         // ==================== PIN VERIFICATION ====================
@@ -2525,6 +2582,53 @@
                 showAlert('Error verifying PIN: ' + e.message, 'error');
                 currentPin = '';
                 updatePinDots();
+            }
+        }
+
+        // Submit new PIN (first time setup)
+        async function submitNewPin() {
+            const newPin = document.getElementById('newPinInput').value;
+            const confirmPin = document.getElementById('confirmPinInput').value;
+            
+            if (!newPin || newPin.length !== 6) {
+                showAlert('PIN harus 6 digit', 'error');
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(newPin)) {
+                showAlert('PIN harus berisi angka saja', 'error');
+                return;
+            }
+            
+            if (newPin !== confirmPin) {
+                showAlert('Konfirmasi PIN tidak cocok', 'error');
+                return;
+            }
+            
+            try {
+                const masterAuth = localStorage.getItem('masterAuth');
+                const [username] = atob(masterAuth).split(':');
+                
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/set-pin', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ newPin, confirmPin })
+                });
+                
+                const data = await r.json();
+                
+                if (!r.ok) {
+                    showAlert(data.error || 'Gagal menyimpan PIN', 'error');
+                    return;
+                }
+                
+                // PIN set successfully
+                sessionStorage.setItem('pinVerified', 'true');
+                document.getElementById('setPinModal').style.display = 'none';
+                showAlert('PIN berhasil dibuat! Selamat datang.', 'success');
+                
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
             }
         }
 
