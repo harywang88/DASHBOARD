@@ -1,0 +1,29 @@
+## COMMAND UNTUK SSH KE VPS DAN DEPLOY
+
+### Copy paste command ini ke terminal setelah SSH:
+
+```bash
+cd /var/www/harywang-dashboard && \
+git pull origin main && \
+npm install --production && \
+cd services/cloud && npm install --production && cd ../.. && \
+sudo cp nginx.conf /etc/nginx/sites-available/harywang.online && \
+sudo nginx -t && \
+sudo systemctl reload nginx && \
+pm2 restart ecosystem.config.js && \
+sleep 2 && \
+pm2 list && \
+echo "" && \
+echo "=== CLOUD SERVICE LOGS ===" && \
+pm2 logs harywang-cloud --lines 10 --nostream
+```
+
+### One-liner untuk cepat:
+```bash
+ssh root@144.217.13.125
+# Password: sasa1212
+# Lalu paste command di atas
+```
+
+### Test setelah deploy:
+https://harywang.online/adminarea/master-login
