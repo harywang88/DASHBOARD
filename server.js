@@ -262,6 +262,17 @@ app.use('/cloud', createProxyMiddleware({
     }
 }));
 
+// Admin area / Master panel
+app.use('/adminarea', createProxyMiddleware({
+    target: `http://localhost:${CLOUD_PORT}`,
+    changeOrigin: true,
+    pathRewrite: { '^/adminarea': '' },
+    onError: (err, req, res) => {
+        console.error('[Admin Proxy Error]', err.message);
+        res.status(502).json({ error: 'Admin panel unavailable' });
+    }
+}));
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({
