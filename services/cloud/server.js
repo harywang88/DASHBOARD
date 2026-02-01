@@ -438,7 +438,7 @@ app.get('/api/folder-path/:id', verifyToken, (req, res) => {
 // ============ MASTER PANEL API ============
 
 // Check access (IP whitelist or device token)
-app.post('/api/master/check-access', (req, res) => {
+app.post('/api/adminarea/master/check-access', (req, res) => {
     const { token } = req.body;
     
     // Get IP
@@ -465,7 +465,7 @@ app.post('/api/master/check-access', (req, res) => {
 });
 
 // Login to master panel
-app.post('/api/master/login', checkPanelAccess, (req, res) => {
+app.post('/api/adminarea/master/login', checkPanelAccess, (req, res) => {
     if (!req.accessGranted) {
         return res.status(403).json({ error: 'Access denied - IP not whitelisted' });
     }
@@ -489,16 +489,17 @@ app.post('/api/master/login', checkPanelAccess, (req, res) => {
 });
 
 // Get IP whitelist (requires auth)
-app.get('/api/master/whitelist', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/whitelist', checkMasterAuth, (req, res) => {
     const whitelist = Array.from(IP_WHITELIST).map(ip => ({
         ip,
-        active: true
+        active: true,
+        addedAt: new Date().toISOString()
     }));
     res.json({ whitelist });
 });
 
 // Add IP to whitelist (requires auth)
-app.post('/api/master/whitelist/add', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/whitelist/add', checkMasterAuth, (req, res) => {
     const { ip } = req.body;
     if (!ip) {
         return res.status(400).json({ error: 'IP required' });
@@ -507,15 +508,61 @@ app.post('/api/master/whitelist/add', checkMasterAuth, (req, res) => {
     res.json({ success: true, message: `IP ${ip} added to whitelist` });
 });
 
-// Generate new device token (requires auth)
-app.post('/api/master/generate-device-token', checkMasterAuth, (req, res) => {
-    const token = generateDeviceToken();
-    DEVICE_TOKENS.add(token);
-    res.json({ token });
+// Delete IP from whitelist (requires auth)
+app.delete('/api/adminarea/master/whitelist/:ip', checkMasterAuth, (req, res) => {
+    const { ip } = req.params;
+    if (!ip) {
+        return res.status(400).json({ error: 'IP required' });
+    }
+    // Don't allow deleting localhost
+    if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost') {
+        return res.status(400).json({ error: 'Cannot delete localhost from whitelist' });
+    }
+    IP_WHITELIST.delete(ip);
+    res.json({ success: true, message: `IP ${ip} removed from whitelist` });
+});
+
+// Get all device tokens (requires auth)
+app.get('/api/adminarea/master/tokens', checkMasterAuth, (req, res) => {
+    const tokens = Array.from(DEVICE_TOKENS).map(token => ({
+        token,
+        active: true,
+        createdAt: new Date().toISOString()
+    }));
+    res.json({ tokens });
+});
+
+// Add device token (requires auth)
+app.post('/api/adminarea/master/tokens/add', checkMasterAuth, (req, res) => {
+    const { token } = req.body;
+    let newToken = token;
+    
+    // If no token provided, generate one
+    if (!newToken) {
+        newToken = generateDeviceToken();
+    }
+    
+    // Validate token format (16 alphanumeric chars)
+    if (!/^[A-Z0-9]{16}$/.test(newToken)) {
+        return res.status(400).json({ error: 'Token harus 16 karakter alphanumeric (A-Z, 0-9)' });
+    }
+    
+    DEVICE_TOKENS.add(newToken);
+    res.json({ success: true, token: newToken, message: `Token ${newToken} added` });
+});
+
+// Delete device token (requires auth)
+app.delete('/api/adminarea/master/tokens/:token', checkMasterAuth, (req, res) => {
+    const { token } = req.params;
+    if (!token) {
+        return res.status(400).json({ error: 'Token required' });
+    }
+    DEVICE_TOKENS.delete(token);
+    res.json({ success: true, message: `Token ${token} removed` });
 });
 
 // Get all users (requires auth)
-app.get('/api/master/users', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/users', checkMasterAuth, (req, res) => {
     const users = loadUsers();
     const meta = loadMeta();
     
@@ -549,7 +596,7 @@ app.get('/api/master/users', checkMasterAuth, (req, res) => {
 });
 
 // Reset user password
-app.post('/api/master/reset-password', checkMasterAuth, (req, res) => {
+app.post('/api/adminarea/master/reset-password', checkMasterAuth, (req, res) => {
     const { username, newPassword } = req.body;
     
     if (!username || !newPassword) {
@@ -571,7 +618,7 @@ app.post('/api/master/reset-password', checkMasterAuth, (req, res) => {
 });
 
 // Delete user and all their data
-app.delete('/api/master/user/:username', checkMasterAuth, (req, res) => {
+app.delete('/api/adminarea/master/user/:username', checkMasterAuth, (req, res) => {
     const { username } = req.params;
     
     if (username === 'harywang') {
@@ -605,7 +652,7 @@ app.delete('/api/master/user/:username', checkMasterAuth, (req, res) => {
 });
 
 // Get dashboard statistics
-app.get('/api/master/stats', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/stats', checkMasterAuth, (req, res) => {
     const users = loadUsers();
     const meta = loadMeta();
     
@@ -625,8 +672,13 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Serve master panel
-app.get('/masterpanel', (req, res) => {
+// Serve master panel login page
+app.get('/adminarea/master-login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'masterpanel-new.html'));
+});
+
+// Serve master panel dashboard
+app.get('/adminarea/master', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'masterpanel.html'));
 });
 

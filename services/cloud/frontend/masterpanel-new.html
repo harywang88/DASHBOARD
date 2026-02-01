@@ -175,7 +175,7 @@
     </div>
 
     <script>
-        const API_URL = '/cloud/api/master/';
+        const API_URL = '/api/adminarea/master/';
         
         // Check access on load
         async function checkAccess() {
@@ -265,7 +265,7 @@
                     showSuccess('loginSuccess', 'Login berhasil! Redirecting...');
                     
                     setTimeout(() => {
-                        window.location.href = '/cloud/masterpanel';
+                        window.location.href = '/adminarea/master';
                     }, 1000);
                 } else {
                     showError('loginError', data.error || 'Login gagal!');

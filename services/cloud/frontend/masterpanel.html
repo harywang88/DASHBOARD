@@ -528,63 +528,82 @@
             <div style="margin-bottom:24px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <div>
-                        <h2>🛡️ IP Whitelist</h2>
+                        <h2>🛡️ IP Whitelist & Device Tokens</h2>
                         <p style="color:#718096;">Kelola akses berdasarkan IP Address dan Device Token</p>
                     </div>
                     <div style="display:flex;gap:8px;">
-                        <button class="btn btn-success" onclick="generateDeviceToken()">🔑 Generate Token</button>
-                        <button class="btn btn-primary" onclick="loadWhitelist()">🔄 Refresh</button>
-                    </div>
-                </div>
-
-                <!-- Stats Cards -->
-                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Whitelist</div>
-                        <div class="stat-value" id="totalWhitelist">1</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Aktif</div>
-                        <div class="stat-value" style="color:#10b981;" id="activeWhitelist">1</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Nonaktif</div>
-                        <div class="stat-value" style="color:#94a3b8;" id="inactiveWhitelist">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Diblokir Hari Ini</div>
-                        <div class="stat-value" style="color:#ef4444;" id="blockedToday">0</div>
+                        <button class="btn btn-primary" onclick="loadWhitelist(); loadTokens();">🔄 Refresh</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Whitelist Table -->
-            <div class="card">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Device / IP</th>
-                            <th>Device Token</th>
-                            <th>Last Access</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="whitelistTable">
-                        <tr>
-                            <td colspan="5" style="text-align:center;color:#718096;padding:24px;">
-                                Loading whitelist...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Two Column Layout -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                
+                <!-- IP Whitelist Column -->
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h3>📍 IP Whitelist</h3>
+                        <button class="btn btn-success" onclick="showAddWhitelistModal()">➕ Tambah IP</button>
+                    </div>
+                    <p style="color:#718096;font-size:13px;margin-bottom:16px;">IP yang dapat mengakses Master Panel secara langsung tanpa token.</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>IP Address</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="whitelistTable">
+                            <tr>
+                                <td colspan="3" style="text-align:center;color:#718096;padding:24px;">
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:12px;font-size:12px;color:#718096;">
+                        Total: <strong id="totalWhitelist">0</strong> IP
+                    </div>
+                </div>
+
+                <!-- Device Tokens Column -->
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h3>🔑 Device Tokens</h3>
+                        <button class="btn btn-success" onclick="showAddTokenModal()">➕ Tambah Token</button>
+                    </div>
+                    <p style="color:#718096;font-size:13px;margin-bottom:16px;">Token untuk akses dari IP yang tidak ada dalam whitelist.</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tokensTable">
+                            <tr>
+                                <td colspan="3" style="text-align:center;color:#718096;padding:24px;">
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:12px;font-size:12px;color:#718096;">
+                        Total: <strong id="totalTokens">0</strong> Token
+                    </div>
+                </div>
             </div>
 
             <!-- Info Box -->
             <div style="margin-top:16px;padding:16px;background:#fff3cd;border-radius:8px;color:#856404;">
-                <strong>ℹ️ Info Akses Anda</strong><br>
-                IP Address Anda: <strong>27.111.11.11</strong><br>
-                Status: <span style="color:#10b981;">✓ Whitelisted</span>
+                <strong>ℹ️ Cara Kerja:</strong><br>
+                • <strong>IP Whitelist:</strong> IP yang terdaftar dapat langsung login tanpa token<br>
+                • <strong>Device Token:</strong> Jika IP Anda tidak dalam whitelist, masukkan token saat diminta untuk mendapatkan akses
             </div>
         </div>
 
@@ -593,6 +612,44 @@
             <div class="card">
                 <h2>📋 System Logs</h2>
                 <p style="color:#718096;">System logs feature coming soon...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD WHITELIST IP MODAL -->
+    <div class="modal" id="addWhitelistModal">
+        <div class="modal-content">
+            <h3>➕ Tambah IP Whitelist</h3>
+            <div class="form-group">
+                <label>IP Address</label>
+                <input type="text" id="newWhitelistIP" placeholder="Contoh: 192.168.1.100">
+            </div>
+            <p style="font-size:12px;color:#718096;margin-bottom:16px;">
+                IP yang ditambahkan akan dapat mengakses Master Panel tanpa device token.
+            </p>
+            <div id="addWhitelistError" style="color:#ef4444;margin-bottom:12px;display:none;"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeAddWhitelistModal()">Batal</button>
+                <button class="btn btn-success" onclick="addWhitelistIP()">Tambah</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD TOKEN MODAL -->
+    <div class="modal" id="addTokenModal">
+        <div class="modal-content">
+            <h3>➕ Tambah Device Token</h3>
+            <div class="form-group">
+                <label>Device Token (opsional)</label>
+                <input type="text" id="newToken" placeholder="Kosongkan untuk generate otomatis" maxlength="16" style="text-transform:uppercase;">
+            </div>
+            <p style="font-size:12px;color:#718096;margin-bottom:16px;">
+                Token harus 16 karakter (A-Z, 0-9). Kosongkan untuk generate token baru secara otomatis.
+            </p>
+            <div id="addTokenError" style="color:#ef4444;margin-bottom:12px;display:none;"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeAddTokenModal()">Batal</button>
+                <button class="btn btn-success" onclick="addToken()">Tambah</button>
             </div>
         </div>
     </div>
@@ -635,14 +692,14 @@
 
     <script>
         // Define constants first
-        const API_URL = '/cloud/api/master/';
+        const API_URL = '/api/adminarea/master/';
         let currentUser = null;
         
         // Check if user is logged in
         const masterAuth = localStorage.getItem('masterAuth');
         if (!masterAuth) {
             // Not logged in - redirect to login page
-            window.location.href = '/cloud/masterpanel-new';
+            window.location.href = '/adminarea/master-login';
         }
 
         // Helper functions
@@ -662,7 +719,10 @@
             event.target.classList.add('active');
 
             if (section === 'users') loadUsers();
-            if (section === 'whitelist') loadWhitelist();
+            if (section === 'whitelist') {
+                loadWhitelist();
+                loadTokens();
+            }
         }
 
         function showAlert(message, type = 'success') {
@@ -840,33 +900,25 @@
                 const data = await r.json();
                 
                 const tbody = document.getElementById('whitelistTable');
-                const totalActive = data.whitelist.filter(w => w.active).length;
-                const totalInactive = data.whitelist.filter(w => !w.active).length;
-                
-                // Update stats
                 document.getElementById('totalWhitelist').textContent = data.whitelist.length;
-                document.getElementById('activeWhitelist').textContent = totalActive;
-                document.getElementById('inactiveWhitelist').textContent = totalInactive;
+                
+                if (data.whitelist.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#718096;padding:24px;">Tidak ada IP whitelist</td></tr>';
+                    return;
+                }
                 
                 tbody.innerHTML = data.whitelist.map(item => `
                     <tr>
                         <td>
-                            <div><strong>💻 ${item.name}</strong></div>
-                            <div style="color:#718096;font-size:12px;">IP: ${item.ip}</div>
+                            <code style="background:#1e2030;padding:4px 8px;border-radius:4px;font-size:13px;">${item.ip}</code>
                         </td>
                         <td>
-                            <code style="background:#1e2030;padding:4px 8px;border-radius:4px;font-size:12px;">${item.token}</code>
-                        </td>
-                        <td style="font-size:12px;color:#718096;">
-                            ${item.lastAccess ? new Date(item.lastAccess).toLocaleString('id-ID') : 'Never'}
+                            <span class="badge badge-master" style="background:#10b981;">● Aktif</span>
                         </td>
                         <td>
-                            <span class="badge badge-master" style="background:${item.active ? '#10b981' : '#94a3b8'};">
-                                ${item.active ? '● Aktif' : '○ Nonaktif'}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-small" onclick="copyToken('${item.token}')">Copy Token</button>
+                            ${(item.ip === '127.0.0.1' || item.ip === '::1' || item.ip === 'localhost') 
+                                ? '<span style="color:#718096;font-size:12px;">System</span>' 
+                                : `<button class="btn btn-danger btn-small" onclick="deleteWhitelistIP('${item.ip}')">🗑️ Hapus</button>`}
                         </td>
                     </tr>
                 `).join('');
@@ -875,26 +927,167 @@
             }
         }
 
+        async function loadTokens() {
+            try {
+                const r = await fetch(API_URL + 'tokens', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load tokens');
+                const data = await r.json();
+                
+                const tbody = document.getElementById('tokensTable');
+                document.getElementById('totalTokens').textContent = data.tokens.length;
+                
+                if (data.tokens.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#718096;padding:24px;">Tidak ada device token</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.tokens.map(item => `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <code style="background:#1e2030;padding:4px 8px;border-radius:4px;font-size:12px;">${item.token}</code>
+                                <button class="btn btn-secondary btn-small" onclick="copyToken('${item.token}')" title="Copy">📋</button>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-master" style="background:#10b981;">● Aktif</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-small" onclick="deleteToken('${item.token}')">🗑️ Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                showAlert('Failed to load tokens: ' + e.message, 'error');
+            }
+        }
+
         function copyToken(token) {
             navigator.clipboard.writeText(token);
             showAlert('Token copied to clipboard!', 'success');
         }
 
-        async function generateDeviceToken() {
-            try {
-                const r = await fetch(API_URL + 'generate-device-token', {
-                    method: 'POST',
-                    headers: getHeaders()
-                });
+        // Modal functions for Whitelist
+        function showAddWhitelistModal() {
+            document.getElementById('addWhitelistModal').style.display = 'flex';
+            document.getElementById('newWhitelistIP').value = '';
+            document.getElementById('addWhitelistError').style.display = 'none';
+        }
 
+        function closeAddWhitelistModal() {
+            document.getElementById('addWhitelistModal').style.display = 'none';
+        }
+
+        async function addWhitelistIP() {
+            const ip = document.getElementById('newWhitelistIP').value.trim();
+            const errorEl = document.getElementById('addWhitelistError');
+            
+            if (!ip) {
+                errorEl.textContent = 'IP Address tidak boleh kosong';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'whitelist/add', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ ip })
+                });
+                
                 const data = await r.json();
                 if (!r.ok) throw new Error(data.error || 'Failed');
-
-                showAlert('New device token: ' + data.token, 'success');
-                // Auto copy to clipboard
-                navigator.clipboard.writeText(data.token);
+                
+                showAlert(`IP ${ip} berhasil ditambahkan!`, 'success');
+                closeAddWhitelistModal();
+                loadWhitelist();
             } catch (e) {
-                showAlert('Failed to generate token: ' + e.message, 'error');
+                errorEl.textContent = e.message;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        async function deleteWhitelistIP(ip) {
+            if (!confirm(`Hapus IP ${ip} dari whitelist?`)) return;
+            
+            try {
+                const r = await fetch(API_URL + 'whitelist/' + encodeURIComponent(ip), {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Failed');
+                
+                showAlert(`IP ${ip} berhasil dihapus!`, 'success');
+                loadWhitelist();
+            } catch (e) {
+                showAlert('Gagal menghapus IP: ' + e.message, 'error');
+            }
+        }
+
+        // Modal functions for Tokens
+        function showAddTokenModal() {
+            document.getElementById('addTokenModal').style.display = 'flex';
+            document.getElementById('newToken').value = '';
+            document.getElementById('addTokenError').style.display = 'none';
+        }
+
+        function closeAddTokenModal() {
+            document.getElementById('addTokenModal').style.display = 'none';
+        }
+
+        async function addToken() {
+            let token = document.getElementById('newToken').value.trim().toUpperCase();
+            const errorEl = document.getElementById('addTokenError');
+            
+            // If token provided, validate it
+            if (token && !/^[A-Z0-9]{16}$/.test(token)) {
+                errorEl.textContent = 'Token harus 16 karakter (A-Z, 0-9)';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'tokens/add', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ token: token || null })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Failed');
+                
+                showAlert(`Token ${data.token} berhasil ditambahkan!`, 'success');
+                navigator.clipboard.writeText(data.token);
+                closeAddTokenModal();
+                loadTokens();
+            } catch (e) {
+                errorEl.textContent = e.message;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        async function deleteToken(token) {
+            if (!confirm(`Hapus token ${token}?`)) return;
+            
+            try {
+                const r = await fetch(API_URL + 'tokens/' + encodeURIComponent(token), {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Failed');
+                
+                showAlert(`Token berhasil dihapus!`, 'success');
+                loadTokens();
+            } catch (e) {
+                showAlert('Gagal menghapus token: ' + e.message, 'error');
             }
         }
 
