@@ -514,6 +514,47 @@
             color: #2d3748;
         }
 
+        /* PIN Modal Styles */
+        .pin-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .pin-dot.filled {
+            background: white;
+            border-color: white;
+            box-shadow: 0 0 10px rgba(255,255,255,0.6);
+        }
+
+        .pin-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pin-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.05);
+        }
+
+        .pin-btn:active {
+            transform: scale(0.95);
+        }
+
         .btn-success {
             background: #10b981;
             color: white;
@@ -1378,6 +1419,47 @@
             </div>
             
             <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
+        </div>
+    </div>
+
+    <!-- VERIFY PIN MODAL (after login) -->
+    <div class="modal" id="verifyPinModal" style="z-index:10000;background:rgba(0,0,0,0.95);">
+        <div class="modal-content" style="max-width:400px;background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);color:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+            <h3 style="text-align:center;color:white;margin-bottom:8px;">🔐 Masukkan PIN (1/5)</h3>
+            <p style="text-align:center;margin-bottom:24px;color:rgba(255,255,255,0.9);font-size:14px;">Silahkan Masukkan 6 Digit Pin Anda</p>
+            
+            <!-- PIN Dots Display -->
+            <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+                <div class="pin-dot" id="pin-dot-1"></div>
+                <div class="pin-dot" id="pin-dot-2"></div>
+                <div class="pin-dot" id="pin-dot-3"></div>
+                <div class="pin-dot" id="pin-dot-4"></div>
+                <div class="pin-dot" id="pin-dot-5"></div>
+                <div class="pin-dot" id="pin-dot-6"></div>
+            </div>
+            
+            <!-- Number Pad -->
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;max-width:280px;margin:0 auto 24px;">
+                <button class="pin-btn" onclick="addPinDigit('4')">4</button>
+                <button class="pin-btn" onclick="addPinDigit('8')">8</button>
+                <button class="pin-btn" onclick="addPinDigit('1')">1</button>
+                
+                <button class="pin-btn" onclick="addPinDigit('9')">9</button>
+                <button class="pin-btn" onclick="addPinDigit('7')">7</button>
+                <button class="pin-btn" onclick="addPinDigit('3')">3</button>
+                
+                <button class="pin-btn" onclick="addPinDigit('2')">2</button>
+                <button class="pin-btn" onclick="addPinDigit('6')">6</button>
+                <button class="pin-btn" onclick="addPinDigit('5')">5</button>
+                
+                <button class="pin-btn" style="grid-column:2;" onclick="addPinDigit('0')">0</button>
+                <button class="pin-btn" onclick="clearPin()" style="background:#ef4444;border:2px solid rgba(255,255,255,0.3);">
+                    <svg style="width:24px;height:24px;fill:white;" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+                </button>
+            </div>
+            
+            <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
+            <input type="hidden" id="currentPinInput" value="">
         </div>
     </div>
 
@@ -2364,7 +2446,79 @@
                 return false;
             }
             console.log('Authentication found, continuing...');
+            
+            // Check if PIN already verified in this session
+            const pinVerified = sessionStorage.getItem('pinVerified');
+            if (!pinVerified) {
+                // Show PIN verification modal
+                setTimeout(() => {
+                    document.getElementById('verifyPinModal').style.display = 'flex';
+                }, 500);
+            }
+            
             return true;
+        }
+
+        // ==================== PIN VERIFICATION ====================
+        let currentPin = '';
+
+        function addPinDigit(digit) {
+            if (currentPin.length < 6) {
+                currentPin += digit;
+                updatePinDots();
+                
+                // Auto-verify when 6 digits entered
+                if (currentPin.length === 6) {
+                    setTimeout(() => verifyPin(), 300);
+                }
+            }
+        }
+
+        function clearPin() {
+            currentPin = '';
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`pin-dot-${i}`);
+                if (i <= currentPin.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            }
+        }
+
+        async function verifyPin() {
+            try {
+                const masterAuth = localStorage.getItem('masterAuth');
+                const [username] = atob(masterAuth).split(':');
+                
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/verify-pin', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ pin: currentPin })
+                });
+                
+                const data = await r.json();
+                
+                if (!r.ok) {
+                    showAlert('PIN salah! Silakan coba lagi.', 'error');
+                    currentPin = '';
+                    updatePinDots();
+                    return;
+                }
+                
+                // PIN verified successfully
+                sessionStorage.setItem('pinVerified', 'true');
+                document.getElementById('verifyPinModal').style.display = 'none';
+                showAlert('PIN berhasil diverifikasi!', 'success');
+            } catch (e) {
+                showAlert('Error verifying PIN: ' + e.message, 'error');
+                currentPin = '';
+                updatePinDots();
+            }
         }
 
         // ==================== ADMIN USER MANAGEMENT ====================
