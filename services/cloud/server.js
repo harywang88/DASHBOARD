@@ -929,6 +929,62 @@ app.delete('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req,
     res.json({ success: true, message: `Admin user ${username} berhasil dihapus` });
 });
 
+// Reset admin password (requires auth)
+app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    const { newPassword } = req.body;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ error: 'Password minimal 6 karakter' });
+    }
+    
+    // Update password
+    admin.password = crypto.createHash('sha256').update(newPassword).digest('hex');
+    ADMIN_USERS.set(username, admin);
+    
+    console.log(`[MASTER PANEL] Password reset for admin: ${username}`);
+    res.json({ success: true, message: `Password untuk ${username} berhasil direset` });
+});
+
+// Get admin activity log (requires auth)
+app.get('/api/adminarea/master/admin-users/:username/activity-log', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    // For now, return sample logs. Later can implement real activity tracking
+    const sampleLogs = [
+        {
+            timestamp: new Date().toISOString(),
+            action: 'LOGIN',
+            message: 'User logged in successfully',
+            ip: '27.111.11.11'
+        },
+        {
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            action: 'PASSWORD_RESET',
+            message: 'Password was reset by administrator',
+            ip: '27.111.11.11'
+        },
+        {
+            timestamp: new Date(Date.now() - 7200000).toISOString(),
+            action: 'STATUS_CHANGE',
+            message: `Status changed to ${admin.status}`,
+            ip: '27.111.11.11'
+        }
+    ];
+    
+    res.json({ logs: sampleLogs });
+});
+
 // ==================== GRADE PERMISSIONS API ====================
 
 // Get all grade permissions (requires auth)

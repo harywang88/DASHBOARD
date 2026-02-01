@@ -453,6 +453,15 @@
             background: #059669;
         }
 
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+        }
+
         .btn-small {
             padding: 6px 12px;
             font-size: 12px;
@@ -1098,7 +1107,8 @@
                 <label>Status</label>
                 <select id="newAdminStatus">
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="suspen">Suspended</option>
+                    <option value="banned">Banned</option>
                 </select>
             </div>
             <div class="modal-btns">
@@ -1138,12 +1148,51 @@
                 <label>Status</label>
                 <select id="editAdminStatus">
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="suspen">Suspended</option>
+                    <option value="banned">Banned</option>
                 </select>
             </div>
             <div class="modal-btns">
                 <button class="btn btn-secondary" onclick="closeEditAdminModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="confirmEditAdmin()">Update Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET ADMIN PASSWORD MODAL -->
+    <div class="modal" id="resetAdminPasswordModal">
+        <div class="modal-content">
+            <h3>🔑 Reset Password Admin</h3>
+            <p style="margin-bottom:16px;color:#718096;">Reset password untuk user: <strong id="resetAdminUsername"></strong></p>
+            <div class="form-group">
+                <label>Password Baru</label>
+                <input type="password" id="resetAdminNewPassword" placeholder="Masukkan password baru">
+            </div>
+            <div class="form-group">
+                <label>Konfirmasi Password</label>
+                <input type="password" id="resetAdminConfirmPassword" placeholder="Konfirmasi password baru">
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeResetAdminPasswordModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmResetAdminPassword()">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW ADMIN ACTIVITY LOG MODAL -->
+    <div class="modal" id="viewAdminActivityModal">
+        <div class="modal-content" style="max-width:800px;">
+            <h3>📊 Log Activity Admin</h3>
+            <p style="margin-bottom:16px;color:#718096;">Activity log untuk user: <strong id="activityAdminUsername"></strong></p>
+            <div style="max-height:400px;overflow-y:auto;background:#f7fafc;border-radius:8px;padding:12px;">
+                <div id="adminActivityLog" style="font-size:13px;line-height:1.8;">
+                    <div style="text-align:center;color:#718096;padding:20px;">
+                        Loading activity logs...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeViewAdminActivityModal()">Close</button>
             </div>
         </div>
     </div>
@@ -1986,15 +2035,22 @@
                 }
                 
                 tbody.innerHTML = data.admins.map((admin, idx) => {
-                    const joinDate = new Date(admin.joinDate).toLocaleDateString('id-ID', {
-                        year: 'numeric',
+                    // Format join date: 12 Oct 2022
+                    const joinDate = new Date(admin.joinDate).toLocaleDateString('en-GB', {
+                        day: 'numeric',
                         month: 'short',
-                        day: 'numeric'
+                        year: 'numeric'
                     });
                     
-                    const statusBadge = admin.status === 'active' 
-                        ? '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>'
-                        : '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">INACTIVE</span>';
+                    // Status badge dengan 3 opsi
+                    let statusBadge;
+                    if (admin.status === 'active') {
+                        statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                    } else if (admin.status === 'suspen') {
+                        statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                    } else {
+                        statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                    }
                     
                     const gradeBadge = getGradeBadge(admin.grade);
                     
@@ -2007,9 +2063,10 @@
                             <td style="font-size:12px;color:#718096;">${joinDate}</td>
                             <td>${gradeBadge}</td>
                             <td>${statusBadge}</td>
-                            <td>
-                                <button class="btn btn-warning btn-small" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;">✏️ Edit</button>
-                                <button class="btn btn-danger btn-small" onclick="deleteAdmin('${admin.username}', '${admin.nama}')">🗑️</button>
+                            <td style="white-space:nowrap;">
+                                <button class="btn btn-primary btn-small" onclick="showResetAdminPasswordModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;" title="Reset Password">🔑</button>
+                                <button class="btn btn-info btn-small" onclick="showViewAdminActivityModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;" title="View Activity Log">📊</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" title="Delete Admin">🗑️</button>
                             </td>
                         </tr>
                     `;
@@ -2180,6 +2237,138 @@
                 loadAdminUsers();
             } catch (e) {
                 showAlert('Failed to delete admin: ' + e.message, 'error');
+            }
+        }
+
+        // Reset Password Admin Modal
+        function showResetAdminPasswordModal(username, nama) {
+            document.getElementById('resetAdminUsername').textContent = `${nama} (${username})`;
+            document.getElementById('resetAdminUsername').setAttribute('data-username', username);
+            document.getElementById('resetAdminNewPassword').value = '';
+            document.getElementById('resetAdminConfirmPassword').value = '';
+            document.getElementById('resetAdminPasswordModal').style.display = 'flex';
+        }
+
+        function closeResetAdminPasswordModal() {
+            document.getElementById('resetAdminPasswordModal').style.display = 'none';
+        }
+
+        async function confirmResetAdminPassword() {
+            const username = document.getElementById('resetAdminUsername').getAttribute('data-username');
+            const newPassword = document.getElementById('resetAdminNewPassword').value;
+            const confirmPassword = document.getElementById('resetAdminConfirmPassword').value;
+            
+            if (!newPassword || !confirmPassword) {
+                showAlert('Semua field harus diisi', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('Password dan konfirmasi tidak cocok', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showAlert('Password minimal 6 karakter', 'error');
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/reset-password', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ newPassword })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to reset password', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Password berhasil direset', 'success');
+                closeResetAdminPasswordModal();
+            } catch (e) {
+                showAlert('Failed to reset password: ' + e.message, 'error');
+            }
+        }
+
+        // View Admin Activity Log Modal
+        function showViewAdminActivityModal(username, nama) {
+            document.getElementById('activityAdminUsername').textContent = `${nama} (${username})`;
+            document.getElementById('viewAdminActivityModal').style.display = 'flex';
+            loadAdminActivityLog(username);
+        }
+
+        function closeViewAdminActivityModal() {
+            document.getElementById('viewAdminActivityModal').style.display = 'none';
+        }
+
+        async function loadAdminActivityLog(username) {
+            try {
+                const logDiv = document.getElementById('adminActivityLog');
+                logDiv.innerHTML = '<div style="text-align:center;color:#718096;padding:20px;">Loading activity logs...</div>';
+                
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/activity-log', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load activity log');
+                const data = await r.json();
+                
+                if (data.logs.length === 0) {
+                    logDiv.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px;">Belum ada activity log untuk user ini.</div>';
+                    return;
+                }
+                
+                logDiv.innerHTML = data.logs.map(log => {
+                    const timestamp = new Date(log.timestamp).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    
+                    let icon = '📝';
+                    let color = '#3b82f6';
+                    
+                    if (log.action === 'LOGIN') {
+                        icon = '🔓';
+                        color = '#10b981';
+                    } else if (log.action === 'LOGOUT') {
+                        icon = '🔒';
+                        color = '#6b7280';
+                    } else if (log.action === 'PASSWORD_RESET') {
+                        icon = '🔑';
+                        color = '#f59e0b';
+                    } else if (log.action === 'STATUS_CHANGE') {
+                        icon = '⚡';
+                        color = '#8b5cf6';
+                    }
+                    
+                    return `
+                        <div style="padding:8px;border-left:3px solid ${color};margin-bottom:8px;background:white;border-radius:4px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div>
+                                    <span style="font-size:16px;">${icon}</span>
+                                    <strong style="color:${color};margin-left:6px;">${log.action}</strong>
+                                </div>
+                                <span style="font-size:11px;color:#9ca3af;">${timestamp}</span>
+                            </div>
+                            <div style="margin-top:4px;font-size:12px;color:#718096;">
+                                ${log.message}
+                            </div>
+                            ${log.ip ? `<div style="margin-top:4px;font-size:11px;color:#9ca3af;">IP: ${log.ip}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load activity log:', e);
+                document.getElementById('adminActivityLog').innerHTML = 
+                    '<div style="text-align:center;color:#ef4444;padding:20px;">Failed to load activity log</div>';
             }
         }
 
