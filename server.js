@@ -26,6 +26,15 @@ app.use(express.json());
 app.use('/api/adminarea', createProxyMiddleware({
     target: `http://localhost:${CLOUD_PORT}`,
     changeOrigin: true,
+    onProxyReq: (proxyReq, req, res) => {
+        // Forward real IP address
+        const realIp = req.headers['x-forwarded-for']?.split(',')[0] || 
+                       req.headers['x-real-ip'] || 
+                       req.connection.remoteAddress || 
+                       req.socket.remoteAddress;
+        proxyReq.setHeader('X-Real-IP', realIp);
+        proxyReq.setHeader('X-Forwarded-For', realIp);
+    },
     onError: (err, req, res) => {
         console.error('[Admin API Proxy Error]', err.message);
         res.status(502).json({ error: 'Admin API unavailable' });
@@ -278,6 +287,15 @@ app.use('/cloud', createProxyMiddleware({
 app.use('/adminarea', createProxyMiddleware({
     target: `http://localhost:${CLOUD_PORT}`,
     changeOrigin: true,
+    onProxyReq: (proxyReq, req, res) => {
+        // Forward real IP address
+        const realIp = req.headers['x-forwarded-for']?.split(',')[0] || 
+                       req.headers['x-real-ip'] || 
+                       req.connection.remoteAddress || 
+                       req.socket.remoteAddress;
+        proxyReq.setHeader('X-Real-IP', realIp);
+        proxyReq.setHeader('X-Forwarded-For', realIp);
+    },
     onError: (err, req, res) => {
         console.error('[Admin Proxy Error]', err.message);
         res.status(502).json({ error: 'Admin panel unavailable' });
