@@ -2,3 +2,6 @@ node_modules/
 nul
 .env
 deploy/deploy.log
+metadata.json
+users.json
+public/index.html.old
