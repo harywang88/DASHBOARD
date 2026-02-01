@@ -878,6 +878,10 @@ app.post('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
     });
     
     console.log(`[MASTER PANEL] Admin user added: ${username} (${nama}) - Grade: ${grade}`);
+    
+    // Log activity
+    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'ADD_ADMIN', `Added admin user: ${username} (${nama}) with grade ${grade}`);
+    
     res.json({ success: true, message: `Admin user ${username} berhasil ditambahkan` });
 });
 
@@ -907,6 +911,10 @@ app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
     ADMIN_USERS.set(username, admin);
     
     console.log(`[MASTER PANEL] Admin user updated: ${username}`);
+    
+    // Log activity
+    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'UPDATE_ADMIN', `Updated admin user: ${username} (${nama || admin.nama})`);
+    
     res.json({ success: true, message: `Admin user ${username} berhasil diupdate` });
 });
 
@@ -926,6 +934,10 @@ app.delete('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req,
     
     ADMIN_USERS.delete(username);
     console.log(`[MASTER PANEL] Admin user deleted: ${username}`);
+    
+    // Log activity
+    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'DELETE_ADMIN', `Deleted admin user: ${username} (${admin.nama})`);
+    
     res.json({ success: true, message: `Admin user ${username} berhasil dihapus` });
 });
 
@@ -948,6 +960,10 @@ app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMast
     ADMIN_USERS.set(username, admin);
     
     console.log(`[MASTER PANEL] Password reset for admin: ${username}`);
+    
+    // Log activity
+    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'RESET_PASSWORD', `Reset password for admin: ${username} (${admin.nama})`);
+    
     res.json({ success: true, message: `Password untuk ${username} berhasil direset` });
 });
 
@@ -1013,6 +1029,10 @@ app.post('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) 
     });
     
     console.log(`[MASTER PANEL] Grade permission added: ${gradeId} (${name})`);
+    
+    // Log activity
+    addActivityLog('grades', req.masterCredentials?.username || 'admin', 'ADD_GRADE', `Added grade: ${gradeId} (${name})`);
+    
     res.json({ success: true, message: `Grade ${name} berhasil ditambahkan` });
 });
 
@@ -1035,7 +1055,81 @@ app.delete('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, 
     
     GRADE_PERMISSIONS.delete(gradeId);
     console.log(`[MASTER PANEL] Grade permission deleted: ${gradeId}`);
+    
+    // Log activity
+    addActivityLog('grades', req.masterCredentials?.username || 'admin', 'DELETE_GRADE', `Deleted grade: ${gradeId} (${grade.name})`);
+    
     res.json({ success: true, message: `Grade ${grade.name} berhasil dihapus` });
+});
+
+// Update grade permission (requires auth)
+app.put('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (req, res) => {
+    const { gradeId } = req.params;
+    const { name, description, permissions } = req.body;
+    
+    if (!name || !description || !permissions) {
+        return res.status(400).json({ error: 'Name, description, dan permissions harus diisi' });
+    }
+    
+    const grade = GRADE_PERMISSIONS.get(gradeId);
+    if (!grade) {
+        return res.status(404).json({ error: 'Grade permission not found' });
+    }
+    
+    // Update grade
+    GRADE_PERMISSIONS.set(gradeId, {
+        id: gradeId,
+        name,
+        description,
+        permissions
+    });
+    
+    console.log(`[MASTER PANEL] Grade permission updated: ${gradeId} (${name})`);
+    
+    // Log activity
+    addActivityLog('grades', req.masterCredentials?.username || 'admin', 'UPDATE_GRADE', `Updated grade: ${gradeId} (${name})`);
+    
+    res.json({ success: true, message: `Grade ${name} berhasil diupdate` });
+});
+
+// ==================== ACTIVITY LOGS API ====================
+
+// In-memory activity logs storage
+const ACTIVITY_LOGS = {
+    admin: [],
+    grades: [],
+    users: [],
+    whitelist: [],
+    logs: []
+};
+
+// Helper function to add activity log
+function addActivityLog(section, username, action, details) {
+    const log = {
+        timestamp: new Date().toISOString(),
+        username: username || 'System',
+        action,
+        details
+    };
+    
+    if (ACTIVITY_LOGS[section]) {
+        ACTIVITY_LOGS[section].unshift(log);
+        // Keep only last 100 logs per section
+        if (ACTIVITY_LOGS[section].length > 100) {
+            ACTIVITY_LOGS[section] = ACTIVITY_LOGS[section].slice(0, 100);
+        }
+    }
+}
+
+// Get activity logs by section (requires auth)
+app.get('/api/adminarea/master/activity-logs', checkMasterAuth, (req, res) => {
+    const { section } = req.query;
+    
+    if (!section || !ACTIVITY_LOGS[section]) {
+        return res.status(400).json({ error: 'Invalid section' });
+    }
+    
+    res.json({ logs: ACTIVITY_LOGS[section] || [] });
 });
 
 // Get all users (requires auth)

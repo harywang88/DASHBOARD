@@ -444,6 +444,16 @@
             transform: translateY(-1px);
         }
 
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+
         .btn-success {
             background: #10b981;
             color: white;
@@ -939,6 +949,21 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Activity Log for Admin User -->
+            <div class="card" style="margin-top:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3>📜 Activity Log</h3>
+                    <button class="btn btn-secondary btn-small" onclick="loadAdminActivityLogs()">🔄 Refresh</button>
+                </div>
+                <div style="max-height:400px;overflow-y:auto;background:#f7fafc;border-radius:8px;padding:12px;">
+                    <div id="adminSectionActivityLog" style="font-size:13px;line-height:1.8;">
+                        <div style="text-align:center;color:#718096;padding:20px;">
+                            Loading activity logs...
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- GRADE PERMISSIONS SECTION -->
@@ -958,6 +983,21 @@
                 
                 <div id="gradesListContainer">
                     <!-- Grades akan ditampilkan sebagai cards dengan detail permission -->
+                </div>
+            </div>
+
+            <!-- Activity Log for Grade Permissions -->
+            <div class="card" style="margin-top:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3>📜 Activity Log</h3>
+                    <button class="btn btn-secondary btn-small" onclick="loadGradeActivityLogs()">🔄 Refresh</button>
+                </div>
+                <div style="max-height:400px;overflow-y:auto;background:#f7fafc;border-radius:8px;padding:12px;">
+                    <div id="gradeSectionActivityLog" style="font-size:13px;line-height:1.8;">
+                        <div style="text-align:center;color:#718096;padding:20px;">
+                            Loading activity logs...
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1259,6 +1299,69 @@
             </div>
         </div>
     </div>
+
+    <!-- EDIT GRADE PERMISSION MODAL -->
+    <div class="modal" id="editGradeModal">
+        <div class="modal-content" style="max-width:600px;">
+            <h3>✏️ Edit Grade Permission</h3>
+            <div class="form-group">
+                <label>Grade ID</label>
+                <input type="text" id="editGradeId" readonly style="background:#f3f4f6;color:#6b7280;">
+            </div>
+            <div class="form-group">
+                <label>Grade Name</label>
+                <input type="text" id="editGradeName" placeholder="Nama grade yang ditampilkan">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editGradeDesc" rows="2" placeholder="Deskripsi singkat tentang grade ini"></textarea>
+            </div>
+            <div class="form-group">
+                <label><strong>Permissions</strong></label>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;">
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_dashboard"> Dashboard
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_users"> Users
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_admin"> Admin User
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_grades"> Grade Permissions
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_whitelist"> IP Whitelist
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_logs"> System Logs
+                        </label>
+                    </div>
+                    <div>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" id="edit_perm_settings"> Settings
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeEditGradeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmEditGrade()">Update Grade</button>
+            </div>
+        </div>
+    </div>
             </div>
             <div class="form-group">
                 <label>Password Baru</label>
@@ -1443,8 +1546,14 @@
                 loadWhitelistLogs();
                 loadRegisteredDevices();
             }
-            if (section === 'admin') loadAdminUsers();
-            if (section === 'grades') loadGradePermissions();
+            if (section === 'admin') {
+                loadAdminUsers();
+                loadAdminActivityLogs();
+            }
+            if (section === 'grades') {
+                loadGradePermissions();
+                loadGradeActivityLogs();
+            }
 
             // Close mobile menu after selection
             if (window.innerWidth <= 768) {
@@ -2436,7 +2545,10 @@
                                     </div>
                                     <p style="margin:0;color:#718096;font-size:13px;">${grade.description}</p>
                                 </div>
-                                <button class="btn btn-danger btn-small" onclick="deleteGrade('${grade.id}', '${grade.name}')" style="margin-left:12px;">🗑️</button>
+                                <div style="display:flex;gap:8px;margin-left:12px;">
+                                    <button class="btn btn-warning btn-small" onclick="showEditGradeModal('${grade.id}')" title="Edit Grade">✏️</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteGrade('${grade.id}', '${grade.name}')" title="Delete Grade">🗑️</button>
+                                </div>
                             </div>
                             <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color);">
                                 <div style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">PERMISSIONS:</div>
@@ -2523,6 +2635,180 @@
                 loadGradePermissions();
             } catch (e) {
                 showAlert('Failed to delete grade: ' + e.message, 'error');
+            }
+        }
+
+        // Edit Grade Functions
+        async function showEditGradeModal(gradeId) {
+            try {
+                const r = await fetch(API_URL + 'grade-permissions', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load grade data');
+                const data = await r.json();
+                const grade = data.grades.find(g => g.id === gradeId);
+                
+                if (!grade) throw new Error('Grade not found');
+                
+                document.getElementById('editGradeId').value = grade.id;
+                document.getElementById('editGradeName').value = grade.name;
+                document.getElementById('editGradeDesc').value = grade.description;
+                
+                // Set permissions checkboxes
+                ['dashboard', 'users', 'admin', 'grades', 'whitelist', 'logs', 'settings'].forEach(perm => {
+                    const checkbox = document.getElementById('edit_perm_' + perm);
+                    if (checkbox) {
+                        checkbox.checked = grade.permissions[perm]?.view || false;
+                    }
+                });
+                
+                document.getElementById('editGradeModal').style.display = 'flex';
+            } catch (e) {
+                showAlert('Failed to load grade data: ' + e.message, 'error');
+            }
+        }
+
+        function closeEditGradeModal() {
+            document.getElementById('editGradeModal').style.display = 'none';
+        }
+
+        async function confirmEditGrade() {
+            const gradeId = document.getElementById('editGradeId').value;
+            const name = document.getElementById('editGradeName').value.trim();
+            const description = document.getElementById('editGradeDesc').value.trim();
+            
+            if (!name || !description) {
+                showAlert('Name dan Description harus diisi', 'error');
+                return;
+            }
+            
+            const permissions = {};
+            ['dashboard', 'users', 'admin', 'grades', 'whitelist', 'logs', 'settings'].forEach(perm => {
+                const checked = document.getElementById('edit_perm_' + perm).checked;
+                permissions[perm] = { view: checked, edit: checked, delete: checked };
+            });
+            
+            try {
+                const r = await fetch(API_URL + 'grade-permissions/' + encodeURIComponent(gradeId), {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ name, description, permissions })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to update grade', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'Grade permission berhasil diupdate', 'success');
+                closeEditGradeModal();
+                loadGradePermissions();
+            } catch (e) {
+                showAlert('Failed to update grade: ' + e.message, 'error');
+            }
+        }
+
+        // Activity Log Functions
+        async function loadAdminActivityLogs() {
+            try {
+                const r = await fetch(API_URL + 'activity-logs?section=admin', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load activity logs');
+                const data = await r.json();
+                
+                const container = document.getElementById('adminSectionActivityLog');
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;color:#718096;padding:20px;">Belum ada activity log</div>';
+                    return;
+                }
+                
+                container.innerHTML = data.logs.map(log => {
+                    const date = new Date(log.timestamp).toLocaleString('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    let actionColor = '#3b82f6';
+                    if (log.action.includes('DELETE')) actionColor = '#ef4444';
+                    else if (log.action.includes('ADD') || log.action.includes('CREATE')) actionColor = '#10b981';
+                    else if (log.action.includes('EDIT') || log.action.includes('UPDATE')) actionColor = '#f59e0b';
+                    
+                    return `
+                        <div style="border-bottom:1px solid #e2e8f0;padding:8px 0;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div style="flex:1;">
+                                    <span style="background:${actionColor};color:white;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;margin-right:8px;">${log.action}</span>
+                                    <span style="color:#334155;font-weight:500;">${log.username}</span>
+                                    <span style="color:#64748b;"> - ${log.details}</span>
+                                </div>
+                                <span style="color:#94a3b8;font-size:11px;white-space:nowrap;">${date}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load activity logs:', e);
+                document.getElementById('adminSectionActivityLog').innerHTML = 
+                    '<div style="text-align:center;color:#ef4444;padding:20px;">Failed to load logs</div>';
+            }
+        }
+
+        async function loadGradeActivityLogs() {
+            try {
+                const r = await fetch(API_URL + 'activity-logs?section=grades', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load activity logs');
+                const data = await r.json();
+                
+                const container = document.getElementById('gradeSectionActivityLog');
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;color:#718096;padding:20px;">Belum ada activity log</div>';
+                    return;
+                }
+                
+                container.innerHTML = data.logs.map(log => {
+                    const date = new Date(log.timestamp).toLocaleString('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    let actionColor = '#3b82f6';
+                    if (log.action.includes('DELETE')) actionColor = '#ef4444';
+                    else if (log.action.includes('ADD') || log.action.includes('CREATE')) actionColor = '#10b981';
+                    else if (log.action.includes('EDIT') || log.action.includes('UPDATE')) actionColor = '#f59e0b';
+                    
+                    return `
+                        <div style="border-bottom:1px solid #e2e8f0;padding:8px 0;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div style="flex:1;">
+                                    <span style="background:${actionColor};color:white;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;margin-right:8px;">${log.action}</span>
+                                    <span style="color:#334155;font-weight:500;">${log.username}</span>
+                                    <span style="color:#64748b;"> - ${log.details}</span>
+                                </div>
+                                <span style="color:#94a3b8;font-size:11px;white-space:nowrap;">${date}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load activity logs:', e);
+                document.getElementById('gradeSectionActivityLog').innerHTML = 
+                    '<div style="text-align:center;color:#ef4444;padding:20px;">Failed to load logs</div>';
             }
         }
 
