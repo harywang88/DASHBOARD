@@ -538,6 +538,46 @@
             margin-right: 4px;
         }
 
+        /* PIN Modal Styles */
+        .pin-circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: transparent;
+            transition: all 0.3s;
+        }
+        
+        .pin-circle.filled {
+            background: white;
+            border-color: white;
+        }
+        
+        .pin-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            color: #2563eb;
+            border: none;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pin-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+        }
+        
+        .pin-btn:active {
+            transform: scale(0.95);
+        }
+
         .alert {
             padding: 12px 16px;
             border-radius: 8px;
@@ -1299,6 +1339,76 @@
             <div class="modal-btns">
                 <button class="btn btn-secondary" onclick="closeResetAdminPasswordModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="confirmResetAdminPassword()">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN VERIFICATION MODAL -->
+    <div class="modal" id="pinVerificationModal" style="background:rgba(0,0,0,0.85);">
+        <div class="modal-content" style="max-width:400px;border-radius:24px;background:#2563eb;color:white;padding:40px 32px;">
+            <h3 style="color:white;text-align:center;margin-bottom:8px;font-size:20px;">Masukkan Pin (<span id="pinStep">1</span>/5)</h3>
+            <p style="text-align:center;color:rgba(255,255,255,0.9);font-size:14px;margin-bottom:32px;">Silahkan Masukkan 6 Digit Pin Anda</p>
+            
+            <!-- PIN Circles -->
+            <div style="display:flex;justify-content:center;gap:16px;margin-bottom:40px;">
+                <div class="pin-circle" data-index="0"></div>
+                <div class="pin-circle" data-index="1"></div>
+                <div class="pin-circle" data-index="2"></div>
+                <div class="pin-circle" data-index="3"></div>
+                <div class="pin-circle" data-index="4"></div>
+                <div class="pin-circle" data-index="5"></div>
+            </div>
+            
+            <!-- Number Pad -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:280px;margin:0 auto 32px;">
+                <button class="pin-btn" onclick="addPin('4')">4</button>
+                <button class="pin-btn" onclick="addPin('8')">8</button>
+                <button class="pin-btn" onclick="addPin('1')">1</button>
+                <button class="pin-btn" onclick="addPin('9')">9</button>
+                <button class="pin-btn" onclick="addPin('7')">7</button>
+                <button class="pin-btn" onclick="addPin('3')">3</button>
+                <button class="pin-btn" onclick="addPin('2')">2</button>
+                <button class="pin-btn" onclick="addPin('6')">6</button>
+                <button class="pin-btn" onclick="addPin('5')">5</button>
+                <div></div>
+                <button class="pin-btn" onclick="addPin('0')">0</button>
+                <button class="pin-btn" onclick="deletePin()" style="background:rgba(255,255,255,0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"/></svg>
+                </button>
+            </div>
+            
+            <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
+        </div>
+    </div>
+
+    <!-- CHANGE PIN MODAL -->
+    <div class="modal" id="changePinModal">
+        <div class="modal-content" style="max-width:450px;">
+            <h3>🔐 Ubah PIN Admin</h3>
+            <p style="margin-bottom:16px;color:#718096;">Ubah PIN untuk user: <strong id="changePinUsername"></strong></p>
+            
+            <div class="form-group">
+                <label>PIN Lama (6 digit)</label>
+                <input type="password" id="changePinOld" maxlength="6" placeholder="Masukkan PIN lama" pattern="[0-9]{6}">
+            </div>
+            
+            <div class="form-group">
+                <label>PIN Baru (6 digit)</label>
+                <input type="password" id="changePinNew" maxlength="6" placeholder="Masukkan PIN baru" pattern="[0-9]{6}">
+            </div>
+            
+            <div class="form-group">
+                <label>Konfirmasi PIN Baru</label>
+                <input type="password" id="changePinConfirm" maxlength="6" placeholder="Konfirmasi PIN baru" pattern="[0-9]{6}">
+            </div>
+            
+            <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin-bottom:20px;">
+                <p style="margin:0;font-size:13px;color:#92400e;"><strong>⚠️ Perhatian:</strong> PIN harus berisi 6 digit angka. Harap simpan PIN dengan aman.</p>
+            </div>
+            
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeChangePinModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmChangePin()">Ubah PIN</button>
             </div>
         </div>
     </div>
@@ -2299,17 +2409,18 @@
                     year: 'numeric'
                 });
                 
-                // Status badge dengan 3 opsi
+                // Status badge dengan 3 opsi - Arrow INSIDE badge
                 let statusBadge;
                 if (admin.status === 'active') {
-                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE ▼</span>';
                 } else if (admin.status === 'suspen') {
-                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED ▼</span>';
                 } else {
-                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED ▼</span>';
                 }
                 
-                const gradeBadge = getGradeBadge(admin.grade);
+                // Grade badge with arrow INSIDE
+                const gradeBadge = getGradeBadgeWithArrow(admin.grade);
                 
                 const isSuperAdmin = admin.grade === 'SUPER_ADMIN';
                 const deleteButton = isSuperAdmin ? '' : `<button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>`;
@@ -2328,7 +2439,7 @@
                         </td>
                         <td style="font-size:12px;color:#718096;">${joinDate}</td>
                         <td class="editable-grade" onclick="editGrade('${admin.username}', '${admin.grade}', this)" style="cursor:pointer;">
-                            <span class="grade-display">${gradeBadge} ▼</span>
+                            <span class="grade-display">${gradeBadge}</span>
                             <select class="grade-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;">
                                 <option value="SUPER_ADMIN" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
                                 <option value="ADMIN" ${admin.grade === 'ADMIN' ? 'selected' : ''}>Admin</option>
@@ -2337,7 +2448,7 @@
                             </select>
                         </td>
                         <td class="editable-status" onclick="editStatus('${admin.username}', '${admin.status}', this)" style="cursor:pointer;">
-                            <span class="status-display">${statusBadge} ▼</span>
+                            <span class="status-display">${statusBadge}</span>
                             <select class="status-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;">
                                 <option value="active" ${admin.status === 'active' ? 'selected' : ''}>Active</option>
                                 <option value="suspen" ${admin.status === 'suspen' ? 'selected' : ''}>Suspended</option>
@@ -2347,6 +2458,7 @@
                         <td style="white-space:nowrap;">
                             <button class="btn btn-primary" onclick="updateAdminInline('${admin.username}')" style="margin-right:4px;padding:8px 16px;" title="Update">Update</button>
                             <button class="btn btn-warning" onclick="showResetAdminPasswordModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;padding:8px 16px;" title="Ubah Password">🔑</button>
+                            <button class="btn btn-info" onclick="showChangePinModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;padding:8px 16px;" title="Ubah PIN">📌</button>
                             ${deleteButton}
                         </td>
                     </tr>
@@ -2429,13 +2541,13 @@
             
             select.onchange = () => {
                 const newGrade = select.value;
-                display.innerHTML = getGradeBadge(newGrade);
+                display.innerHTML = getGradeBadgeWithArrow(newGrade);
                 display.style.display = 'inline';
                 select.style.display = 'none';
             };
             select.onblur = () => {
                 const newGrade = select.value;
-                display.innerHTML = getGradeBadge(newGrade);
+                display.innerHTML = getGradeBadgeWithArrow(newGrade);
                 display.style.display = 'inline';
                 select.style.display = 'none';
             };
@@ -2452,11 +2564,11 @@
                 const newStatus = select.value;
                 let statusBadge;
                 if (newStatus === 'active') {
-                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE ▼</span>';
                 } else if (newStatus === 'suspen') {
-                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED ▼</span>';
                 } else {
-                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED ▼</span>';
                 }
                 display.innerHTML = statusBadge;
                 display.style.display = 'inline';
@@ -2466,11 +2578,11 @@
                 const newStatus = select.value;
                 let statusBadge;
                 if (newStatus === 'active') {
-                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE ▼</span>';
                 } else if (newStatus === 'suspen') {
-                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED ▼</span>';
                 } else {
-                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED ▼</span>';
                 }
                 display.innerHTML = statusBadge;
                 display.style.display = 'inline';
@@ -2539,6 +2651,25 @@
             const color = gradeColors[gradeId] || '#6b7280';
             const name = gradeNames[gradeId] || gradeId;
             return `<span style="background:${color};color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">${name}</span>`;
+        }
+
+        // Grade badge with arrow INSIDE
+        function getGradeBadgeWithArrow(gradeId) {
+            const gradeColors = {
+                'SUPER_ADMIN': '#8b5cf6',
+                'ADMIN': '#3b82f6',
+                'MODERATOR': '#f59e0b',
+                'VIEWER': '#6b7280'
+            };
+            const gradeNames = {
+                'SUPER_ADMIN': 'SUPER ADMIN',
+                'ADMIN': 'ADMIN',
+                'MODERATOR': 'MODERATOR',
+                'VIEWER': 'VIEWER'
+            };
+            const color = gradeColors[gradeId] || '#6b7280';
+            const name = gradeNames[gradeId] || gradeId;
+            return `<span style="background:${color};color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">${name} ▼</span>`;
         }
 
         function showAddAdminModal() {
@@ -2743,6 +2874,146 @@
                 closeResetAdminPasswordModal();
             } catch (e) {
                 showAlert('Failed to reset password: ' + e.message, 'error');
+            }
+        }
+
+        // ============ PIN VERIFICATION MODAL ============
+        let currentPin = '';
+        let pinUsername = '';
+        
+        function showPinVerification(username) {
+            pinUsername = username;
+            currentPin = '';
+            updatePinDisplay();
+            document.getElementById('pinVerificationModal').style.display = 'flex';
+        }
+        
+        function addPin(digit) {
+            if (currentPin.length < 6) {
+                currentPin += digit;
+                updatePinDisplay();
+                
+                // Auto verify when 6 digits entered
+                if (currentPin.length === 6) {
+                    setTimeout(() => verifyPin(), 300);
+                }
+            }
+        }
+        
+        function deletePin() {
+            if (currentPin.length > 0) {
+                currentPin = currentPin.slice(0, -1);
+                updatePinDisplay();
+            }
+        }
+        
+        function updatePinDisplay() {
+            const circles = document.querySelectorAll('.pin-circle');
+            circles.forEach((circle, index) => {
+                if (index < currentPin.length) {
+                    circle.classList.add('filled');
+                } else {
+                    circle.classList.remove('filled');
+                }
+            });
+            
+            // Update step counter
+            document.getElementById('pinStep').textContent = Math.min(currentPin.length + 1, 6);
+        }
+        
+        async function verifyPin() {
+            if (currentPin.length !== 6) {
+                showAlert('PIN harus 6 digit', 'error');
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(pinUsername) + '/verify-pin', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ pin: currentPin })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'PIN salah', 'error');
+                    // Reset PIN input
+                    currentPin = '';
+                    updatePinDisplay();
+                    return;
+                }
+                
+                // PIN verified successfully
+                showAlert('PIN verified! Selamat datang.', 'success');
+                document.getElementById('pinVerificationModal').style.display = 'none';
+                
+                // Continue with normal dashboard access
+                // User is already logged in, PIN is just additional verification
+                
+            } catch (e) {
+                showAlert('Failed to verify PIN: ' + e.message, 'error');
+                currentPin = '';
+                updatePinDisplay();
+            }
+        }
+
+        // ============ CHANGE PIN MODAL ============
+        function showChangePinModal(username, nama) {
+            document.getElementById('changePinUsername').textContent = `${nama} (${username})`;
+            document.getElementById('changePinUsername').setAttribute('data-username', username);
+            document.getElementById('changePinOld').value = '';
+            document.getElementById('changePinNew').value = '';
+            document.getElementById('changePinConfirm').value = '';
+            document.getElementById('changePinModal').style.display = 'flex';
+        }
+        
+        function closeChangePinModal() {
+            document.getElementById('changePinModal').style.display = 'none';
+        }
+        
+        async function confirmChangePin() {
+            const username = document.getElementById('changePinUsername').getAttribute('data-username');
+            const oldPin = document.getElementById('changePinOld').value;
+            const newPin = document.getElementById('changePinNew').value;
+            const confirmPin = document.getElementById('changePinConfirm').value;
+            
+            if (!oldPin || !newPin || !confirmPin) {
+                showAlert('Semua field harus diisi', 'error');
+                return;
+            }
+            
+            if (newPin !== confirmPin) {
+                showAlert('PIN baru dan konfirmasi tidak cocok', 'error');
+                return;
+            }
+            
+            if (newPin.length !== 6) {
+                showAlert('PIN harus 6 digit', 'error');
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(newPin)) {
+                showAlert('PIN harus berisi angka saja', 'error');
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/change-pin', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ oldPin, newPin })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to change PIN', 'error');
+                    return;
+                }
+                
+                showAlert(data.message || 'PIN berhasil diubah', 'success');
+                closeChangePinModal();
+            } catch (e) {
+                showAlert('Failed to change PIN: ' + e.message, 'error');
             }
         }
 

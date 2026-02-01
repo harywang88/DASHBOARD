@@ -135,6 +135,7 @@ function loadAdminUsers() {
             nama: 'Hary Wang',
             email: 'admin@harywang.online',
             password: crypto.createHash('sha256').update('admin123').digest('hex'),
+            pin: crypto.createHash('sha256').update('123456').digest('hex'), // Default PIN: 123456
             grade: 'SUPER_ADMIN',
             status: 'active',
             joinDate: new Date().toISOString()
@@ -966,11 +967,15 @@ app.post('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
     // Hash password
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
     
+    // Default PIN: 123456 for new admins
+    const defaultPin = crypto.createHash('sha256').update('123456').digest('hex');
+    
     ADMIN_USERS.set(username, {
         username,
         nama,
         email,
         password: hashedPassword,
+        pin: defaultPin,
         grade,
         status: status || 'active',
         joinDate: new Date().toISOString()
@@ -1087,6 +1092,80 @@ app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMast
     addActivityLog('admin', req.masterCredentials?.username || 'admin', 'RESET_PASSWORD', `Reset password for admin: ${username} (${admin.nama})`);
     
     res.json({ success: true, message: `Password untuk ${username} berhasil direset` });
+});
+
+// Verify admin PIN (requires auth)
+app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    const { pin } = req.body;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    if (!pin || pin.length !== 6) {
+        return res.status(400).json({ error: 'PIN harus 6 digit' });
+    }
+    
+    // Hash PIN and compare
+    const hashedPin = crypto.createHash('sha256').update(pin).digest('hex');
+    
+    // Check if admin has PIN set
+    if (!admin.pin) {
+        return res.status(400).json({ error: 'PIN belum diatur untuk user ini' });
+    }
+    
+    if (admin.pin !== hashedPin) {
+        // Log failed attempt
+        addActivityLog('admin', username, 'VERIFY_PIN_FAILED', `Failed PIN verification for admin: ${username}`);
+        return res.status(401).json({ error: 'PIN salah' });
+    }
+    
+    // Log success
+    addActivityLog('admin', username, 'VERIFY_PIN_SUCCESS', `Successful PIN verification for admin: ${username}`);
+    
+    res.json({ success: true, message: 'PIN verified successfully' });
+});
+
+// Change admin PIN (requires auth)
+app.post('/api/adminarea/master/admin-users/:username/change-pin', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    const { oldPin, newPin } = req.body;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    if (!newPin || newPin.length !== 6) {
+        return res.status(400).json({ error: 'PIN harus 6 digit' });
+    }
+    
+    if (!/^\d{6}$/.test(newPin)) {
+        return res.status(400).json({ error: 'PIN harus berisi angka saja' });
+    }
+    
+    // If admin has existing PIN, verify old PIN
+    if (admin.pin && oldPin) {
+        const hashedOldPin = crypto.createHash('sha256').update(oldPin).digest('hex');
+        if (admin.pin !== hashedOldPin) {
+            return res.status(401).json({ error: 'PIN lama salah' });
+        }
+    }
+    
+    // Update PIN
+    admin.pin = crypto.createHash('sha256').update(newPin).digest('hex');
+    ADMIN_USERS.set(username, admin);
+    
+    saveAdminUsers(); // Auto-save to file
+    
+    console.log(`[MASTER PANEL] PIN changed for admin: ${username}`);
+    
+    // Log activity
+    addActivityLog('admin', req.masterCredentials?.username || 'admin', 'CHANGE_PIN', `Changed PIN for admin: ${username} (${admin.nama})`);
+    
+    res.json({ success: true, message: `PIN untuk ${username} berhasil diubah` });
 });
 
 // Get admin activity log (requires auth)
