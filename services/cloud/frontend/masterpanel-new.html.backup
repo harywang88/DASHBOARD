@@ -125,9 +125,19 @@
 
         .hidden { display: none !important; }
         
-        .pin-dot-card.filled {
+        /* PIN dot styles for login page */
+        .pin-dot-login.filled {
             background: #3b82f6 !important;
             border-color: #3b82f6 !important;
+        }
+        
+        .pin-btn:hover {
+            background: #f8fafc !important;
+            transform: scale(1.05);
+        }
+        
+        .pin-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -178,7 +188,7 @@
         <button class="btn btn-primary" onclick="login()">Login</button>
     </div>
 
-    <!-- PIN CARD (shown after login success) -->
+    <!-- PIN CARD (appears after successful login) -->
     <div id="pinCard" class="login-page hidden">
         <div class="icon">🔐</div>
         <h1 style="color:#3b82f6;">Masukkan PIN (<span id="pinAttemptDisplay">1</span>/5)</h1>
@@ -188,31 +198,104 @@
         
         <!-- PIN Dots -->
         <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
-            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-card" id="pin-dot-1"></div>
-            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-card" id="pin-dot-2"></div>
-            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-card" id="pin-dot-3"></div>
-            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-card" id="pin-dot-4"></div>
-            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-card" id="pin-dot-5"></div>
-            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-card" id="pin-dot-6"></div>
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;" class="pin-dot-card" id="pin-dot-1"></div>
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;" class="pin-dot-card" id="pin-dot-2"></div>
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;" class="pin-dot-card" id="pin-dot-3"></div>
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;" class="pin-dot-card" id="pin-dot-4"></div>
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;" class="pin-dot-card" id="pin-dot-5"></div>
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;" class="pin-dot-card" id="pin-dot-6"></div>
         </div>
         
         <!-- Number Pad -->
         <div style="display:grid;grid-template-columns:repeat(3,70px);gap:12px;justify-content:center;margin-bottom:20px;">
-            <button onclick="addPinDigit('4')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">4</button>
-            <button onclick="addPinDigit('8')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">8</button>
-            <button onclick="addPinDigit('1')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">1</button>
-            <button onclick="addPinDigit('9')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">9</button>
-            <button onclick="addPinDigit('7')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">7</button>
-            <button onclick="addPinDigit('3')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">3</button>
-            <button onclick="addPinDigit('2')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">2</button>
-            <button onclick="addPinDigit('6')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">6</button>
-            <button onclick="addPinDigit('5')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">5</button>
+            <button onclick="addPinDigit('4')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">4</button>
+            <button onclick="addPinDigit('8')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">8</button>
+            <button onclick="addPinDigit('1')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">1</button>
+            <button onclick="addPinDigit('9')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">9</button>
+            <button onclick="addPinDigit('7')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">7</button>
+            <button onclick="addPinDigit('3')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">3</button>
+            <button onclick="addPinDigit('2')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">2</button>
+            <button onclick="addPinDigit('6')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">6</button>
+            <button onclick="addPinDigit('5')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">5</button>
             <div></div>
-            <button onclick="addPinDigit('0')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">0</button>
-            <button onclick="clearPin()" style="width:70px;height:70px;border-radius:50%;border:2px solid #feb2b2;background:#fee;color:#c53030;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.2s;">✕</button>
+            <button onclick="addPinDigit('0')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;cursor:pointer;">0</button>
+            <button onclick="clearPin()" style="width:70px;height:70px;border-radius:50%;border:2px solid #feb2b2;background:#fee;color:#c53030;font-size:20px;cursor:pointer;">✕</button>
         </div>
         
         <p style="font-size:12px;color:#94a3b8;">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
+    </div>
+
+    <script>
+            <h3 style="text-align:center;color:#3b82f6;margin-bottom:8px;font-size:20px;">🔐 Masukkan PIN (<span id="pinAttemptDisplay">1</span>/5)</h3>
+            <p style="text-align:center;margin-bottom:24px;color:#64748b;font-size:14px;">Silahkan Masukkan 6 Digit Pin Anda</p>
+            
+            <!-- PIN Dots Display -->
+            <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-login" id="pin-dot-1"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-login" id="pin-dot-2"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-login" id="pin-dot-3"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-login" id="pin-dot-4"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-login" id="pin-dot-5"></div>
+                <div style="width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;background:transparent;transition:all 0.2s;" class="pin-dot-login" id="pin-dot-6"></div>
+            </div>
+            
+            <!-- Number Pad -->
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;max-width:280px;margin:0 auto 24px;">
+                <button class="pin-btn" onclick="addPinDigit('4')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">4</button>
+                <button class="pin-btn" onclick="addPinDigit('8')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">8</button>
+                <button class="pin-btn" onclick="addPinDigit('1')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">1</button>
+                
+                <button class="pin-btn" onclick="addPinDigit('9')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">9</button>
+                <button class="pin-btn" onclick="addPinDigit('7')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">7</button>
+                <button class="pin-btn" onclick="addPinDigit('3')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">3</button>
+                
+                <button class="pin-btn" onclick="addPinDigit('2')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">2</button>
+                <button class="pin-btn" onclick="addPinDigit('6')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">6</button>
+                <button class="pin-btn" onclick="addPinDigit('5')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">5</button>
+                
+                <button class="pin-btn" onclick="addPinDigit('0')" style="width:70px;height:70px;border-radius:50%;border:2px solid #e2e8f0;background:white;color:#3b82f6;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;grid-column:2;">0</button>
+                <button class="pin-btn" onclick="clearPin()" style="width:70px;height:70px;border-radius:50%;border:2px solid #feb2b2;background:#fee;color:#c53030;font-size:24px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                    <svg style="width:24px;height:24px;fill:#c53030;" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+                </button>
+            </div>
+            
+            <p style="text-align:center;font-size:12px;color:#94a3b8;">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
+        </div>
+    </div>
+        <h3 style="text-align:center;color:white;margin-bottom:8px;font-size:20px;">🔐 Masukkan PIN (<span id="pinAttemptDisplay">1</span>/5)</h3>
+        <p style="text-align:center;margin-bottom:24px;color:rgba(255,255,255,0.9);font-size:14px;">Silahkan Masukkan 6 Digit Pin Anda</p>
+        
+        <!-- PIN Dots Display -->
+        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+            <div class="pin-dot" id="pin-dot-1"></div>
+            <div class="pin-dot" id="pin-dot-2"></div>
+            <div class="pin-dot" id="pin-dot-3"></div>
+            <div class="pin-dot" id="pin-dot-4"></div>
+            <div class="pin-dot" id="pin-dot-5"></div>
+            <div class="pin-dot" id="pin-dot-6"></div>
+        </div>
+        
+        <!-- Number Pad -->
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;max-width:280px;margin:0 auto 24px;">
+            <button class="pin-btn" onclick="addPinDigit('4')">4</button>
+            <button class="pin-btn" onclick="addPinDigit('8')">8</button>
+            <button class="pin-btn" onclick="addPinDigit('1')">1</button>
+            
+            <button class="pin-btn" onclick="addPinDigit('9')">9</button>
+            <button class="pin-btn" onclick="addPinDigit('7')">7</button>
+            <button class="pin-btn" onclick="addPinDigit('3')">3</button>
+            
+            <button class="pin-btn" onclick="addPinDigit('2')">2</button>
+            <button class="pin-btn" onclick="addPinDigit('6')">6</button>
+            <button class="pin-btn" onclick="addPinDigit('5')">5</button>
+            
+            <button class="pin-btn" style="grid-column:2;" onclick="addPinDigit('0')">0</button>
+            <button class="pin-btn" onclick="clearPin()" style="background:#ef4444;border:2px solid rgba(255,255,255,0.3);">
+                <svg style="width:24px;height:24px;fill:white;" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+            </button>
+        </div>
+        
+        <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);">Proses verifikasi dilakukan oleh <strong>HARYWANG</strong></p>
     </div>
 
     <script>
@@ -235,8 +318,10 @@
                 const data = await response.json();
 
                 if (data.accessGranted) {
+                    // Access granted - show login page
                     showLogin();
                 } else {
+                    // Access denied - show token input
                     document.getElementById('userIP').textContent = data.ip || 'Unknown';
                     showAccessDenied();
                 }
@@ -249,19 +334,11 @@
         function showAccessDenied() {
             document.getElementById('accessDeniedPage').classList.remove('hidden');
             document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('pinCard').classList.add('hidden');
         }
 
         function showLogin() {
             document.getElementById('accessDeniedPage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('pinCard').classList.add('hidden');
-        }
-        
-        function showPinCard() {
-            document.getElementById('accessDeniedPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('pinCard').classList.remove('hidden');
         }
 
         async function verifyToken() {
@@ -272,6 +349,7 @@
                 return;
             }
 
+            // Save token and recheck
             localStorage.setItem('deviceToken', token);
             
             const response = await fetch(API_URL + 'check-access', {
@@ -308,12 +386,14 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    // Save credentials
                     localStorage.setItem('masterAuth', btoa(username + ':' + password));
                     localStorage.setItem('username', username);
                     currentUsername = username;
                     
-                    // Show PIN card
-                    showPinCard();
+                    // Hide login form, show PIN verification (stay in loginPage)
+                    document.getElementById('loginForm').classList.add('hidden');
+                    document.getElementById('pinVerification').classList.remove('hidden');
                     
                 } else {
                     showError('loginError', data.error || 'Login gagal!');
@@ -329,6 +409,7 @@
                 currentPin += digit;
                 updatePinDots();
                 
+                // Auto-verify when 6 digits entered
                 if (currentPin.length === 6) {
                     setTimeout(() => verifyPin(), 300);
                 }
@@ -373,7 +454,7 @@
                     document.getElementById('pinAttemptDisplay').textContent = pinAttempts;
                     
                     if (data.banned) {
-                        showError('pinError', 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN!');
+                        showError('loginError', 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN!');
                         setTimeout(() => {
                             localStorage.removeItem('masterAuth');
                             sessionStorage.clear();
@@ -382,10 +463,11 @@
                         return;
                     }
                     
+                    // Show attempts as X/5
                     if (pinAttempts < MAX_PIN_ATTEMPTS) {
-                        showError('pinError', `PIN salah! Percobaan: ${pinAttempts}/${MAX_PIN_ATTEMPTS}`);
+                        alert(`PIN salah! Percobaan: ${pinAttempts}/${MAX_PIN_ATTEMPTS}`);
                     } else {
-                        showError('pinError', 'Akun Anda telah di-BANNED!');
+                        showError('loginError', 'Akun Anda telah di-BANNED!');
                     }
                     
                     currentPin = '';
@@ -393,13 +475,13 @@
                     return;
                 }
                 
-                // PIN verified - redirect to dashboard
+                // PIN verified successfully - redirect to dashboard
                 sessionStorage.setItem('pinVerified', 'true');
                 window.location.href = '/adminarea/master';
                 
             } catch (e) {
                 console.error('PIN verification error:', e);
-                showError('pinError', 'Error verifying PIN: ' + e.message);
+                alert('Error verifying PIN: ' + e.message);
                 currentPin = '';
                 updatePinDots();
             }
@@ -410,6 +492,12 @@
             el.textContent = message;
             el.classList.remove('hidden');
             setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        function showSuccess(id, message) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.classList.remove('hidden');
         }
 
         // Init
