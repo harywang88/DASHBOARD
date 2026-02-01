@@ -793,6 +793,7 @@
                 <span id="darkModeIcon">🌙</span> <span id="darkModeText">Mode Malam</span>
             </div>
             <div class="menu-item" onclick="showResetMasterPasswordModal()">🔑 Ubah Password</div>
+            <div class="menu-item" onclick="showMyChangePinModal()">🔐 Ganti PIN</div>
             <div class="menu-item" onclick="logout()" style="color:#f56565;">🚪 Logout</div>
         </div>
     </div>
@@ -2491,8 +2492,12 @@
             // Check if PIN already verified in this session
             const pinVerified = sessionStorage.getItem('pinVerified');
             if (!pinVerified) {
-                // Check PIN status from server
-                setTimeout(() => checkPinStatus(), 500);
+                // HIDE main content until PIN verified
+                document.querySelector('.sidebar').style.display = 'none';
+                document.querySelector('.main-content').style.display = 'none';
+                // Check PIN status from server immediately
+                checkPinStatus();
+                return false; // Don't load stats yet
             }
             
             return true;
@@ -2580,7 +2585,6 @@
                 
                 if (!r.ok) {
                     pinAttempts++;
-                    const remaining = MAX_PIN_ATTEMPTS - pinAttempts;
                     
                     if (data.banned) {
                         // User is banned
@@ -2593,8 +2597,9 @@
                         return;
                     }
                     
-                    if (remaining > 0) {
-                        showAlert(`PIN salah! Sisa percobaan: ${remaining}`, 'error');
+                    // Show attempts as X/5
+                    if (pinAttempts < MAX_PIN_ATTEMPTS) {
+                        showAlert(`PIN salah! Percobaan: ${pinAttempts}/${MAX_PIN_ATTEMPTS}`, 'error');
                     } else {
                         showAlert('Akun Anda telah di-BANNED!', 'error');
                     }
@@ -2608,7 +2613,13 @@
                 pinAttempts = 0;
                 sessionStorage.setItem('pinVerified', 'true');
                 document.getElementById('verifyPinModal').style.display = 'none';
-                showAlert('PIN berhasil diverifikasi!', 'success');
+                
+                // Show main content and load data
+                document.querySelector('.sidebar').style.display = 'flex';
+                document.querySelector('.main-content').style.display = 'block';
+                loadStats();
+                
+                showAlert('PIN berhasil diverifikasi! Selamat datang.', 'success');
                 
             } catch (e) {
                 console.error('PIN verification error:', e);
@@ -2707,6 +2718,12 @@
                 // PIN set successfully
                 sessionStorage.setItem('pinVerified', 'true');
                 document.getElementById('setPinModal').style.display = 'none';
+                
+                // Show main content and load data
+                document.querySelector('.sidebar').style.display = 'flex';
+                document.querySelector('.main-content').style.display = 'block';
+                loadStats();
+                
                 showAlert('PIN berhasil dibuat! Selamat datang.', 'success');
                 
                 // Reset state
@@ -3236,6 +3253,15 @@
         }
 
         // ============ CHANGE PIN MODAL ============
+        // For sidebar menu - change MY OWN PIN
+        function showMyChangePinModal() {
+            const masterAuth = localStorage.getItem('masterAuth');
+            if (!masterAuth) return;
+            const [username] = atob(masterAuth).split(':');
+            showChangePinModal(username, 'Anda');
+        }
+        
+        // For admin table - change other user's PIN
         function showChangePinModal(username, nama) {
             document.getElementById('changePinUsername').textContent = `${nama} (${username})`;
             document.getElementById('changePinUsername').setAttribute('data-username', username);
