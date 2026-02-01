@@ -128,7 +128,6 @@ function generateDeviceToken() {
     }
     return token;
 }
-}
 
 // Middleware to check IP whitelist or device token
 function checkPanelAccess(req, res, next) {
