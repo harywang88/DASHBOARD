@@ -739,7 +739,7 @@ app.post('/api/adminarea/master/check-access', (req, res) => {
     res.json({ accessGranted: false, ip });
 });
 
-// Login to master panel
+// Login to master panel (master admin)
 app.post('/api/adminarea/master/login', checkPanelAccess, (req, res) => {
     if (!req.accessGranted) {
         return res.status(403).json({ error: 'Access denied - IP not whitelisted' });
@@ -789,6 +789,49 @@ app.post('/api/adminarea/master/login', checkPanelAccess, (req, res) => {
         username,
         accessReason: req.accessReason,
         deviceRegistered: req.accessReason === 'device_token'
+    });
+});
+
+// Login as admin user (untuk PIN verification flow)
+app.post('/api/adminarea/master/admin-login', checkPanelAccess, (req, res) => {
+    if (!req.accessGranted) {
+        return res.status(403).json({ error: 'Access denied - IP not whitelisted' });
+    }
+
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+    }
+
+    // Check if admin user exists
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check if admin is banned
+    if (admin.status === 'banned') {
+        return res.status(403).json({ 
+            error: 'Akun diblokir. Hubungi Harywang untuk unlock.',
+            banned: true
+        });
+    }
+
+    // Verify password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+    if (hashedPassword !== admin.password) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Success - return basic info, PIN verification will happen next
+    console.log(`[ADMIN LOGIN] Admin user ${username} logged in successfully`);
+    
+    res.json({ 
+        success: true,
+        username: admin.username,
+        fullName: admin.fullName,
+        requiresPin: true
     });
 });
 
@@ -1136,19 +1179,44 @@ app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMast
 // PIN attempt tracking (in-memory, resets on server restart)
 const PIN_ATTEMPTS = new Map(); // username -> { count: number, lastAttempt: timestamp }
 
-// Verify admin PIN (requires auth)
-app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAuth, (req, res) => {
+// Verify admin PIN (requires valid admin credentials in Authorization header)
+app.post('/api/adminarea/master/admin-users/:username/verify-pin', (req, res) => {
     const { username } = req.params;
     const { pin } = req.body;
     
+    // Extract and validate credentials from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Decode Basic Auth
+    const base64Credentials = authHeader.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+    const [authUsername, authPassword] = credentials.split(':');
+
+    // Verify the authenticated user matches the username in the URL
+    if (authUsername !== username) {
+        return res.status(403).json({ error: 'Cannot verify PIN for different user' });
+    }
+
     const admin = ADMIN_USERS.get(username);
     if (!admin) {
         return res.status(404).json({ error: 'Admin user not found' });
     }
+
+    // Verify password matches
+    const hashedPassword = crypto.createHash('sha256').update(authPassword).digest('hex');
+    if (hashedPassword !== admin.password) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
     
     // Check if already banned
     if (admin.status === 'banned') {
-        return res.status(403).json({ error: 'Akun Anda telah di-BANNED', banned: true });
+        return res.status(403).json({ 
+            error: 'Akun Anda telah di-BANNED. Hubungi Harywang untuk unlock.',
+            banned: true 
+        });
     }
     
     if (!pin || pin.length !== 6) {
@@ -1189,7 +1257,7 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAu
             PIN_ATTEMPTS.delete(username);
             
             return res.status(403).json({ 
-                error: 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN', 
+                error: 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN. Hubungi Harywang untuk unlock.', 
                 banned: true,
                 attempts: 5
             });

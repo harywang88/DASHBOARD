@@ -299,7 +299,7 @@
             }
 
             try {
-                const response = await fetch(API_URL + 'login', {
+                const response = await fetch('/api/adminarea/master/admin-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
@@ -315,8 +315,10 @@
                     // Show PIN card
                     showPinCard();
                     
+                } else if (data.banned) {
+                    showError('loginError', data.error || 'Akun Anda telah di-BANNED. Hubungi Harywang untuk unlock.');
                 } else {
-                    showError('loginError', data.error || 'Login gagal!');
+                    showError('loginError', data.error || 'Login gagal! Username atau password salah.');
                 }
             } catch (e) {
                 showError('loginError', 'Error: ' + e.message);
