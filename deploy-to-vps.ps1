@@ -73,7 +73,7 @@ try {
     Write-Host "  - Convert      : https://harywang.online/convert" -ForegroundColor Cyan
     Write-Host "  - PDF-SaaS     : https://harywang.online/pdf" -ForegroundColor Cyan
     Write-Host "  - Cloud        : https://harywang.online/cloud" -ForegroundColor Cyan
-    Write-Host "  - Master Panel : https://harywang.online/cloud/adminarea/master-login" -ForegroundColor Cyan
+    Write-Host "  - Master Panel : https://harywang.online/adminarea/master-login" -ForegroundColor Cyan
     Write-Host ""
 }
 catch {

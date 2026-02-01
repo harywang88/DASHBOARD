@@ -70,6 +70,28 @@ pdfProcess.on('error', (err) => {
     log('PDF', `Failed to start: ${err.message}`, colors.red);
 });
 
+// Start Cloud Service (HarywangCloud)
+const cloudProcess = spawn(nodeCmd, ['server.js'], {
+    cwd: path.join(__dirname, 'services', 'cloud'),
+    env: { ...process.env, PORT: '3003' },
+    stdio: ['pipe', 'pipe', 'pipe']
+});
+
+cloudProcess.stdout.on('data', (data) => {
+    const lines = data.toString().trim().split('\n');
+    lines.forEach(line => {
+        if (line.trim()) log('CLOUD', line, colors.yellow);
+    });
+});
+
+cloudProcess.stderr.on('data', (data) => {
+    log('CLOUD', data.toString().trim(), colors.red);
+});
+
+cloudProcess.on('error', (err) => {
+    log('CLOUD', `Failed to start: ${err.message}`, colors.red);
+});
+
 // Dashboard port - hardcoded to avoid system env conflicts
 const DASHBOARD_PORT = 80;
 let dashboardProcessRef = null;
@@ -109,6 +131,7 @@ ${colors.green}=========================================
    Dashboard:  http://localhost:${DASHBOARD_PORT}
    Convert:    http://localhost:3001
    PDF:        http://localhost:3002
+   Cloud:      http://localhost:3003
 
    Domain:     https://harywang.online
 =========================================${colors.reset}
@@ -120,6 +143,7 @@ process.on('SIGINT', () => {
     console.log('\n\nShutting down services...');
     convertProcess.kill();
     pdfProcess.kill();
+    cloudProcess.kill();
     if (dashboardProcessRef) dashboardProcessRef.kill();
     process.exit(0);
 });
@@ -128,6 +152,7 @@ process.on('SIGTERM', () => {
     console.log('\n\nShutting down services...');
     convertProcess.kill();
     pdfProcess.kill();
+    cloudProcess.kill();
     if (dashboardProcessRef) dashboardProcessRef.kill();
     process.exit(0);
 });
