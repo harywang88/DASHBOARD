@@ -985,6 +985,30 @@
                     <h3>👤 List Admin Users</h3>
                     <button class="btn btn-primary btn-small" onclick="showAddAdminModal()">➕ Add Admin</button>
                 </div>
+
+                <!-- Filter Dropdowns -->
+                <div style="display:flex;gap:16px;margin-bottom:20px;padding:16px;background:#f7fafc;border-radius:8px;">
+                    <div style="flex:1;">
+                        <label for="grade-permission-select" style="display:block;font-size:13px;font-weight:600;color:#4a5568;margin-bottom:8px;">Grade Permission</label>
+                        <select id="grade-permission-select" aria-label="Pilih Permission-select" onchange="filterAdminUsers()" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;cursor:pointer;">
+                            <option value="">All Grades</option>
+                            <option value="SUPER_ADMIN">Super Admin</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="MODERATOR">Moderator</option>
+                            <option value="VIEWER">Viewer</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label for="status-select" style="display:block;font-size:13px;font-weight:600;color:#4a5568;margin-bottom:8px;">Status</label>
+                        <select id="status-select" aria-label="status-select" onchange="filterAdminUsers()" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;cursor:pointer;">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="suspen">Suspended</option>
+                            <option value="banned">Banned</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <table>
                         <thead>
@@ -2234,6 +2258,8 @@
         }
 
         // ==================== ADMIN USER MANAGEMENT ====================
+        let allAdminUsers = []; // Store all admin users for filtering
+
         async function loadAdminUsers() {
             try {
                 const r = await fetch(API_URL + 'admin-users', {
@@ -2244,58 +2270,82 @@
                 if (!r.ok) throw new Error('Failed to load admin users');
                 const data = await r.json();
                 
-                const tbody = document.getElementById('adminListTable');
-                if (data.admins.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="8" style="text-align:center;padding:20px;color:#718096;">
-                                Belum ada admin user. Klik tombol "Add Admin" untuk menambahkan.
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-                
-                tbody.innerHTML = data.admins.map((admin, idx) => {
-                    // Format join date: 12 Oct 2022
-                    const joinDate = new Date(admin.joinDate).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    });
-                    
-                    // Status badge dengan 3 opsi
-                    let statusBadge;
-                    if (admin.status === 'active') {
-                        statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
-                    } else if (admin.status === 'suspen') {
-                        statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
-                    } else {
-                        statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
-                    }
-                    
-                    const gradeBadge = getGradeBadge(admin.grade);
-                    
-                    return `
-                        <tr>
-                            <td>${idx + 1}</td>
-                            <td><code style="background:#f3f4f6;color:#4b5563;padding:4px 8px;border-radius:4px;font-size:12px;">${admin.username}</code></td>
-                            <td><strong>${admin.nama}</strong></td>
-                            <td style="color:#718096;">${admin.email}</td>
-                            <td style="font-size:12px;color:#718096;">${joinDate}</td>
-                            <td>${gradeBadge}</td>
-                            <td>${statusBadge}</td>
-                            <td style="white-space:nowrap;">
-                                <button class="btn btn-warning" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;padding:8px 16px;" title="Edit Admin">✏️</button>
-                                <button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                allAdminUsers = data.admins; // Store for filtering
+                displayAdminUsers(allAdminUsers);
             } catch (e) {
                 console.error('Failed to load admin users:', e);
                 showAlert('Failed to load admin users: ' + e.message, 'error');
             }
+        }
+
+        function displayAdminUsers(admins) {
+            const tbody = document.getElementById('adminListTable');
+            if (admins.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:20px;color:#718096;">
+                            Belum ada admin user. Klik tombol "Add Admin" untuk menambahkan.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = admins.map((admin, idx) => {
+                // Format join date: 12 Oct 2022
+                const joinDate = new Date(admin.joinDate).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                // Status badge dengan 3 opsi
+                let statusBadge;
+                if (admin.status === 'active') {
+                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                } else if (admin.status === 'suspen') {
+                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                } else {
+                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                }
+                
+                const gradeBadge = getGradeBadge(admin.grade);
+                
+                return `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><code style="background:#f3f4f6;color:#4b5563;padding:4px 8px;border-radius:4px;font-size:12px;">${admin.username}</code></td>
+                        <td><strong>${admin.nama}</strong></td>
+                        <td style="color:#718096;">${admin.email}</td>
+                        <td style="font-size:12px;color:#718096;">${joinDate}</td>
+                        <td>${gradeBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td style="white-space:nowrap;">
+                            <button class="btn btn-warning" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;padding:8px 16px;" title="Edit Admin">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterAdminUsers() {
+            const gradeFilter = document.getElementById('grade-permission-select').value;
+            const statusFilter = document.getElementById('status-select').value;
+            
+            let filtered = allAdminUsers;
+            
+            // Filter by grade
+            if (gradeFilter) {
+                filtered = filtered.filter(admin => admin.grade === gradeFilter);
+            }
+            
+            // Filter by status
+            if (statusFilter) {
+                filtered = filtered.filter(admin => admin.status === statusFilter);
+            }
+            
+            displayAdminUsers(filtered);
         }
 
         function getGradeBadge(gradeId) {
