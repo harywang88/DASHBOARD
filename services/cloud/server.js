@@ -107,6 +107,151 @@ function saveMasterCredentials(credentials) {
 // Load credentials at startup
 const MASTER_PANEL_CREDENTIALS = loadMasterCredentials();
 
+// ==================== DATA PERSISTENCE ====================
+const DATA_DIR = path.join(__dirname, 'data');
+const ADMIN_USERS_FILE = path.join(DATA_DIR, 'admin-users.json');
+const ACTIVITY_LOGS_FILE = path.join(DATA_DIR, 'activity-logs.json');
+const GRADE_PERMISSIONS_FILE = path.join(DATA_DIR, 'grade-permissions.json');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Load data from JSON files
+function loadAdminUsers() {
+    try {
+        if (fs.existsSync(ADMIN_USERS_FILE)) {
+            const data = JSON.parse(fs.readFileSync(ADMIN_USERS_FILE, 'utf8'));
+            return new Map(Object.entries(data));
+        }
+    } catch (e) {
+        console.error('[DATA] Failed to load admin users:', e.message);
+    }
+    // Return default admin if file doesn't exist
+    return new Map([
+        ['harywang', {
+            username: 'harywang',
+            nama: 'Hary Wang',
+            email: 'admin@harywang.online',
+            password: crypto.createHash('sha256').update('admin123').digest('hex'),
+            grade: 'SUPER_ADMIN',
+            status: 'active',
+            joinDate: new Date().toISOString()
+        }]
+    ]);
+}
+
+function saveAdminUsers() {
+    try {
+        const data = Object.fromEntries(ADMIN_USERS);
+        fs.writeFileSync(ADMIN_USERS_FILE, JSON.stringify(data, null, 2), 'utf8');
+        console.log('[DATA] Admin users saved to file');
+    } catch (e) {
+        console.error('[DATA] Failed to save admin users:', e.message);
+    }
+}
+
+function loadActivityLogs() {
+    try {
+        if (fs.existsSync(ACTIVITY_LOGS_FILE)) {
+            return JSON.parse(fs.readFileSync(ACTIVITY_LOGS_FILE, 'utf8'));
+        }
+    } catch (e) {
+        console.error('[DATA] Failed to load activity logs:', e.message);
+    }
+    return { admin: [], grades: [], users: [], whitelist: [], logs: [] };
+}
+
+function saveActivityLogs() {
+    try {
+        fs.writeFileSync(ACTIVITY_LOGS_FILE, JSON.stringify(ACTIVITY_LOGS, null, 2), 'utf8');
+        console.log('[DATA] Activity logs saved to file');
+    } catch (e) {
+        console.error('[DATA] Failed to save activity logs:', e.message);
+    }
+}
+
+function loadGradePermissions() {
+    try {
+        if (fs.existsSync(GRADE_PERMISSIONS_FILE)) {
+            const data = JSON.parse(fs.readFileSync(GRADE_PERMISSIONS_FILE, 'utf8'));
+            return new Map(Object.entries(data));
+        }
+    } catch (e) {
+        console.error('[DATA] Failed to load grade permissions:', e.message);
+    }
+    // Return default grades
+    return new Map([
+        ['SUPER_ADMIN', {
+            id: 'SUPER_ADMIN',
+            name: 'Super Administrator',
+            description: 'Full access to all features',
+            permissions: {
+                dashboard: { view: true, edit: true, delete: true },
+                users: { view: true, edit: true, delete: true },
+                whitelist: { view: true, edit: true, delete: true },
+                logs: { view: true, edit: true, delete: true },
+                admin: { view: true, edit: true, delete: true },
+                grades: { view: true, edit: true, delete: true },
+                settings: { view: true, edit: true, delete: true }
+            }
+        }],
+        ['ADMIN', {
+            id: 'ADMIN',
+            name: 'Administrator',
+            description: 'Can manage users and view logs',
+            permissions: {
+                dashboard: { view: true, edit: false, delete: false },
+                users: { view: true, edit: true, delete: false },
+                whitelist: { view: true, edit: true, delete: false },
+                logs: { view: true, edit: false, delete: false },
+                admin: { view: true, edit: false, delete: false },
+                grades: { view: true, edit: false, delete: false },
+                settings: { view: true, edit: false, delete: false }
+            }
+        }],
+        ['MODERATOR', {
+            id: 'MODERATOR',
+            name: 'Moderator',
+            description: 'Can view data and moderate content',
+            permissions: {
+                dashboard: { view: true, edit: false, delete: false },
+                users: { view: true, edit: false, delete: false },
+                whitelist: { view: true, edit: false, delete: false },
+                logs: { view: true, edit: false, delete: false },
+                admin: { view: false, edit: false, delete: false },
+                grades: { view: false, edit: false, delete: false },
+                settings: { view: false, edit: false, delete: false }
+            }
+        }],
+        ['VIEWER', {
+            id: 'VIEWER',
+            name: 'Viewer',
+            description: 'Read-only access to dashboard',
+            permissions: {
+                dashboard: { view: true, edit: false, delete: false },
+                users: { view: false, edit: false, delete: false },
+                whitelist: { view: false, edit: false, delete: false },
+                logs: { view: false, edit: false, delete: false },
+                admin: { view: false, edit: false, delete: false },
+                grades: { view: false, edit: false, delete: false },
+                settings: { view: false, edit: false, delete: false }
+            }
+        }]
+    ]);
+}
+
+function saveGradePermissions() {
+    try {
+        const data = Object.fromEntries(GRADE_PERMISSIONS);
+        fs.writeFileSync(GRADE_PERMISSIONS_FILE, JSON.stringify(data, null, 2), 'utf8');
+        console.log('[DATA] Grade permissions saved to file');
+    } catch (e) {
+        console.error('[DATA] Failed to save grade permissions:', e.message);
+    }
+}
+
 // IP Whitelist - IPs that can access master panel directly (Map: ip -> name)
 const IP_WHITELIST = new Map([
     ['27.111.11.11', 'Default IP'],
@@ -144,80 +289,34 @@ const DEVICE_TOKENS = new Map([
 // Map: deviceFingerprint -> { deviceName, userAgent, ip, registeredAt, lastAccess }
 const REGISTERED_DEVICES = new Map();
 
-// Admin Users Management - users who can access master panel
-// Map: username -> { username, nama, email, password, grade, status, joinDate }
-const ADMIN_USERS = new Map([
-    ['harywang', {
-        username: 'harywang',
-        nama: 'Hary Wang',
-        email: 'admin@harywang.online',
-        password: crypto.createHash('sha256').update('admin123').digest('hex'), // default password
-        grade: 'SUPER_ADMIN',
-        status: 'active',
-        joinDate: new Date().toISOString()
-    }]
-]);
+// Admin Users Management - Load from file with persistence
+const ADMIN_USERS = loadAdminUsers();
 
-// Grade Permissions - define what each grade can access
-// Map: gradeId -> { id, name, description, permissions }
-const GRADE_PERMISSIONS = new Map([
-    ['SUPER_ADMIN', {
-        id: 'SUPER_ADMIN',
-        name: 'Super Administrator',
-        description: 'Full access to all features',
-        permissions: {
-            dashboard: { view: true, edit: true, delete: true },
-            users: { view: true, edit: true, delete: true },
-            whitelist: { view: true, edit: true, delete: true },
-            logs: { view: true, edit: true, delete: true },
-            admin: { view: true, edit: true, delete: true },
-            grades: { view: true, edit: true, delete: true },
-            settings: { view: true, edit: true, delete: true }
+// Grade Permissions - Load from file with persistence
+const GRADE_PERMISSIONS = loadGradePermissions();
+
+// In-memory activity logs storage - Load from file with persistence
+const ACTIVITY_LOGS = loadActivityLogs();
+
+// Helper function to add activity log with auto-save
+function addActivityLog(section, username, action, details) {
+    const log = {
+        timestamp: new Date().toISOString(),
+        username: username || 'System',
+        action,
+        details
+    };
+    
+    if (ACTIVITY_LOGS[section]) {
+        ACTIVITY_LOGS[section].unshift(log);
+        // Keep only last 100 logs per section
+        if (ACTIVITY_LOGS[section].length > 100) {
+            ACTIVITY_LOGS[section] = ACTIVITY_LOGS[section].slice(0, 100);
         }
-    }],
-    ['ADMIN', {
-        id: 'ADMIN',
-        name: 'Administrator',
-        description: 'Can manage users and view logs',
-        permissions: {
-            dashboard: { view: true, edit: false, delete: false },
-            users: { view: true, edit: true, delete: false },
-            whitelist: { view: true, edit: true, delete: false },
-            logs: { view: true, edit: false, delete: false },
-            admin: { view: true, edit: false, delete: false },
-            grades: { view: true, edit: false, delete: false },
-            settings: { view: true, edit: false, delete: false }
-        }
-    }],
-    ['MODERATOR', {
-        id: 'MODERATOR',
-        name: 'Moderator',
-        description: 'Can view data and moderate content',
-        permissions: {
-            dashboard: { view: true, edit: false, delete: false },
-            users: { view: true, edit: false, delete: false },
-            whitelist: { view: true, edit: false, delete: false },
-            logs: { view: true, edit: false, delete: false },
-            admin: { view: false, edit: false, delete: false },
-            grades: { view: false, edit: false, delete: false },
-            settings: { view: false, edit: false, delete: false }
-        }
-    }],
-    ['VIEWER', {
-        id: 'VIEWER',
-        name: 'Viewer',
-        description: 'Read-only access to dashboard',
-        permissions: {
-            dashboard: { view: true, edit: false, delete: false },
-            users: { view: false, edit: false, delete: false },
-            whitelist: { view: false, edit: false, delete: false },
-            logs: { view: false, edit: false, delete: false },
-            admin: { view: false, edit: false, delete: false },
-            grades: { view: false, edit: false, delete: false },
-            settings: { view: false, edit: false, delete: false }
-        }
-    }]
-]);
+        // Auto-save to file
+        saveActivityLogs();
+    }
+}
 
 function generateDeviceToken() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -877,12 +976,28 @@ app.post('/api/adminarea/master/admin-users', checkMasterAuth, (req, res) => {
         joinDate: new Date().toISOString()
     });
     
+    saveAdminUsers(); // Auto-save to file
+    
     console.log(`[MASTER PANEL] Admin user added: ${username} (${nama}) - Grade: ${grade}`);
     
     // Log activity
     addActivityLog('admin', req.masterCredentials?.username || 'admin', 'ADD_ADMIN', `Added admin user: ${username} (${nama}) with grade ${grade}`);
     
     res.json({ success: true, message: `Admin user ${username} berhasil ditambahkan` });
+});
+
+// Get single admin user (requires auth)
+app.get('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, res) => {
+    const { username } = req.params;
+    
+    const admin = ADMIN_USERS.get(username);
+    if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    // Don't send password
+    const { password, ...adminData } = admin;
+    res.json({ admin: adminData });
 });
 
 // Update admin user (requires auth)
@@ -910,6 +1025,8 @@ app.put('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req, re
     
     ADMIN_USERS.set(username, admin);
     
+    saveAdminUsers(); // Auto-save to file
+    
     console.log(`[MASTER PANEL] Admin user updated: ${username}`);
     
     // Log activity
@@ -933,6 +1050,9 @@ app.delete('/api/adminarea/master/admin-users/:username', checkMasterAuth, (req,
     }
     
     ADMIN_USERS.delete(username);
+    
+    saveAdminUsers(); // Auto-save to file
+    
     console.log(`[MASTER PANEL] Admin user deleted: ${username}`);
     
     // Log activity
@@ -958,6 +1078,8 @@ app.post('/api/adminarea/master/admin-users/:username/reset-password', checkMast
     // Update password
     admin.password = crypto.createHash('sha256').update(newPassword).digest('hex');
     ADMIN_USERS.set(username, admin);
+    
+    saveAdminUsers(); // Auto-save to file
     
     console.log(`[MASTER PANEL] Password reset for admin: ${username}`);
     
@@ -1028,6 +1150,8 @@ app.post('/api/adminarea/master/grade-permissions', checkMasterAuth, (req, res) 
         permissions
     });
     
+    saveGradePermissions(); // Auto-save to file
+    
     console.log(`[MASTER PANEL] Grade permission added: ${gradeId} (${name})`);
     
     // Log activity
@@ -1054,6 +1178,9 @@ app.delete('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, 
     }
     
     GRADE_PERMISSIONS.delete(gradeId);
+    
+    saveGradePermissions(); // Auto-save to file
+    
     console.log(`[MASTER PANEL] Grade permission deleted: ${gradeId}`);
     
     // Log activity
@@ -1083,6 +1210,8 @@ app.put('/api/adminarea/master/grade-permissions/:gradeId', checkMasterAuth, (re
         description,
         permissions
     });
+    
+    saveGradePermissions(); // Auto-save to file
     
     console.log(`[MASTER PANEL] Grade permission updated: ${gradeId} (${name})`);
     
