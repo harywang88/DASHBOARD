@@ -454,6 +454,66 @@
             transform: translateY(-1px);
         }
 
+        /* Modern Permission Checkbox Styles */
+        .permission-checkbox-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .permission-checkbox-label:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        .permission-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .permission-checkbox:checked + .permission-checkbox-text {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .permission-checkbox:checked ~ .permission-checkbox-label {
+            background: #eef2ff;
+            border-color: #667eea;
+        }
+
+        .permission-checkbox-label:has(.permission-checkbox:checked) {
+            background: #eef2ff;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .permission-checkbox-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .permission-icon {
+            font-size: 18px;
+        }
+
+        .permission-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
         .btn-success {
             background: #10b981;
             color: white;
@@ -1239,142 +1299,185 @@
 
     <!-- ADD GRADE PERMISSION MODAL -->
     <div class="modal" id="addGradeModal">
-        <div class="modal-content" style="max-width:600px;">
-            <h3>➕ Tambah Grade Permission</h3>
-            <div class="form-group">
-                <label>Grade ID</label>
-                <input type="text" id="newGradeId" placeholder="Contoh: MANAGER, STAFF">
-            </div>
-            <div class="form-group">
-                <label>Grade Name</label>
-                <input type="text" id="newGradeName" placeholder="Nama grade yang ditampilkan">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="newGradeDesc" rows="2" placeholder="Deskripsi singkat tentang grade ini"></textarea>
-            </div>
-            <div class="form-group">
-                <label><strong>Permissions</strong></label>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;">
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_dashboard"> Dashboard
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_users"> Users
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_admin"> Admin User
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_grades"> Grade Permissions
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_whitelist"> IP Whitelist
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_logs"> System Logs
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="perm_settings"> Settings
-                        </label>
-                    </div>
+        <div class="modal-content" style="max-width:650px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;border-bottom:2px solid #e2e8f0;padding-bottom:16px;">
+                <div style="background:linear-gradient(135deg, #10b981 0%, #059669 100%);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">➕</div>
+                <div>
+                    <h3 style="margin:0;font-size:20px;color:#1a202c;">Add New Grade Permission</h3>
+                    <p style="margin:0;font-size:13px;color:#718096;">Create a new access level for admin users</p>
                 </div>
             </div>
-            <div class="modal-btns">
-                <button class="btn btn-secondary" onclick="closeAddGradeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="confirmAddGrade()">Add Grade</button>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">Grade ID</label>
+                    <input type="text" id="newGradeId" placeholder="e.g., MANAGER, STAFF" style="border:2px solid #e2e8f0;padding:10px 14px;border-radius:8px;width:100%;transition:all 0.2s;font-size:14px;text-transform:uppercase;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">Grade Name</label>
+                    <input type="text" id="newGradeName" placeholder="e.g., Manager" style="border:2px solid #e2e8f0;padding:10px 14px;border-radius:8px;width:100%;transition:all 0.2s;font-size:14px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">Description</label>
+                <input type="text" id="newGradeDesc" placeholder="Brief description of this grade level" style="border:2px solid #e2e8f0;padding:10px 14px;border-radius:8px;width:100%;transition:all 0.2s;font-size:14px;">
+            </div>
+
+            <div style="background:#ffffff;border:2px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                    <span style="font-size:14px;font-weight:700;color:#2d3748;text-transform:uppercase;letter-spacing:0.5px;">🔐 Access Permissions</span>
+                    <span style="background:#edf2f7;color:#4a5568;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;">Select modules to grant access</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_dashboard" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">📊</span>
+                            <span class="permission-name">Dashboard</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_users" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">👥</span>
+                            <span class="permission-name">Users</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_admin" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">👤</span>
+                            <span class="permission-name">Admin User</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_grades" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">🎓</span>
+                            <span class="permission-name">Grade Permissions</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_whitelist" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">🛡️</span>
+                            <span class="permission-name">IP Whitelist</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_logs" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">📋</span>
+                            <span class="permission-name">System Logs</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="perm_settings" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">⚙️</span>
+                            <span class="permission-name">Settings</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:16px;border-top:2px solid #e2e8f0;">
+                <button class="btn btn-secondary" onclick="closeAddGradeModal()" style="padding:10px 24px;font-weight:600;">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAddGrade()" style="padding:10px 24px;font-weight:600;background:linear-gradient(135deg, #10b981 0%, #059669 100%);border:none;">➕ Add Grade</button>
             </div>
         </div>
     </div>
 
     <!-- EDIT GRADE PERMISSION MODAL -->
     <div class="modal" id="editGradeModal">
-        <div class="modal-content" style="max-width:600px;">
-            <h3>✏️ Edit Grade Permission</h3>
-            <div class="form-group">
-                <label>Grade ID</label>
-                <input type="text" id="editGradeId" readonly style="background:#f3f4f6;color:#6b7280;">
-            </div>
-            <div class="form-group">
-                <label>Grade Name</label>
-                <input type="text" id="editGradeName" placeholder="Nama grade yang ditampilkan">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="editGradeDesc" rows="2" placeholder="Deskripsi singkat tentang grade ini"></textarea>
-            </div>
-            <div class="form-group">
-                <label><strong>Permissions</strong></label>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;">
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_dashboard"> Dashboard
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_users"> Users
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_admin"> Admin User
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_grades"> Grade Permissions
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_whitelist"> IP Whitelist
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_logs"> System Logs
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display:flex;align-items:center;gap:6px;">
-                            <input type="checkbox" id="edit_perm_settings"> Settings
-                        </label>
-                    </div>
+        <div class="modal-content" style="max-width:650px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;border-bottom:2px solid #e2e8f0;padding-bottom:16px;">
+                <div style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">✏️</div>
+                <div>
+                    <h3 style="margin:0;font-size:20px;color:#1a202c;">Edit Grade Permission</h3>
+                    <p style="margin:0;font-size:13px;color:#718096;">Update grade details and access permissions</p>
                 </div>
             </div>
-            <div class="modal-btns">
-                <button class="btn btn-secondary" onclick="closeEditGradeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="confirmEditGrade()">Update Grade</button>
+
+            <div style="background:#f7fafc;border-radius:10px;padding:16px;margin-bottom:20px;border-left:4px solid #667eea;">
+                <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">Grade ID</label>
+                <input type="text" id="editGradeId" readonly style="background:#fff;border:2px solid #e2e8f0;color:#2d3748;font-weight:600;padding:10px 14px;border-radius:8px;width:100%;cursor:not-allowed;font-size:14px;">
+                <p style="margin:6px 0 0 0;font-size:11px;color:#718096;">⚠️ Grade ID cannot be changed</p>
             </div>
-        </div>
-    </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">Grade Name</label>
+                    <input type="text" id="editGradeName" placeholder="e.g., Super Administrator" style="border:2px solid #e2e8f0;padding:10px 14px;border-radius:8px;width:100%;transition:all 0.2s;font-size:14px;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">Description</label>
+                    <input type="text" id="editGradeDesc" placeholder="Brief description" style="border:2px solid #e2e8f0;padding:10px 14px;border-radius:8px;width:100%;transition:all 0.2s;font-size:14px;">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Password Baru</label>
-                <input type="password" id="newMasterPassword" placeholder="Masukkan password baru">
+
+            <div style="background:#ffffff;border:2px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                    <span style="font-size:14px;font-weight:700;color:#2d3748;text-transform:uppercase;letter-spacing:0.5px;">🔐 Access Permissions</span>
+                    <span style="background:#edf2f7;color:#4a5568;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;">Select modules to grant access</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_dashboard" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">📊</span>
+                            <span class="permission-name">Dashboard</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_users" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">👥</span>
+                            <span class="permission-name">Users</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_admin" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">👤</span>
+                            <span class="permission-name">Admin User</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_grades" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">🎓</span>
+                            <span class="permission-name">Grade Permissions</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_whitelist" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">🛡️</span>
+                            <span class="permission-name">IP Whitelist</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_logs" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">📋</span>
+                            <span class="permission-name">System Logs</span>
+                        </span>
+                    </label>
+                    <label class="permission-checkbox-label">
+                        <input type="checkbox" id="edit_perm_settings" class="permission-checkbox">
+                        <span class="permission-checkbox-text">
+                            <span class="permission-icon">⚙️</span>
+                            <span class="permission-name">Settings</span>
+                        </span>
+                    </label>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Konfirmasi Password Baru</label>
-                <input type="password" id="confirmMasterPassword" placeholder="Konfirmasi password baru">
-            </div>
-            <div id="resetMasterError" style="color:#ef4444;margin-bottom:12px;display:none;"></div>
-            <div style="display:flex;gap:8px;justify-content:flex-end;">
-                <button class="btn btn-secondary" onclick="closeResetMasterPasswordModal()">Batal</button>
-                <button class="btn btn-primary" onclick="confirmResetMasterPassword()">Ubah Password</button>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:16px;border-top:2px solid #e2e8f0;">
+                <button class="btn btn-secondary" onclick="closeEditGradeModal()" style="padding:10px 24px;font-weight:600;">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmEditGrade()" style="padding:10px 24px;font-weight:600;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);border:none;">💾 Update Grade</button>
             </div>
         </div>
     </div>
