@@ -1508,32 +1508,53 @@
 
     <!-- CHANGE PIN MODAL -->
     <div class="modal" id="changePinModal">
-        <div class="modal-content" style="max-width:450px;">
-            <h3>🔐 Ubah PIN Admin</h3>
-            <p style="margin-bottom:16px;color:#718096;">Ubah PIN untuk user: <strong id="changePinUsername"></strong></p>
+        <div class="modal-content" style="max-width:500px;">
+            <h3 style="text-align:center;margin-bottom:8px;">🔐 Ubah PIN Admin</h3>
+            <p style="text-align:center;margin-bottom:24px;color:#718096;">
+                <strong id="changePinUsername"></strong>
+            </p>
             
-            <div class="form-group">
-                <label>PIN Lama (6 digit)</label>
-                <input type="password" id="changePinOld" maxlength="6" placeholder="Masukkan PIN lama" pattern="[0-9]{6}">
+            <!-- Step indicator -->
+            <div style="text-align:center;margin-bottom:20px;">
+                <span id="pinStepIndicator" style="font-size:14px;color:#4a5568;font-weight:500;">
+                    <span id="pinStepText">Masukkan PIN Baru</span>
+                </span>
             </div>
             
-            <div class="form-group">
-                <label>PIN Baru (6 digit)</label>
-                <input type="password" id="changePinNew" maxlength="6" placeholder="Masukkan PIN baru" pattern="[0-9]{6}">
+            <!-- PIN Dots -->
+            <div style="display:flex;justify-content:center;gap:12px;margin-bottom:24px;">
+                <div class="pin-dot" id="change-pin-dot-1"></div>
+                <div class="pin-dot" id="change-pin-dot-2"></div>
+                <div class="pin-dot" id="change-pin-dot-3"></div>
+                <div class="pin-dot" id="change-pin-dot-4"></div>
+                <div class="pin-dot" id="change-pin-dot-5"></div>
+                <div class="pin-dot" id="change-pin-dot-6"></div>
             </div>
             
-            <div class="form-group">
-                <label>Konfirmasi PIN Baru</label>
-                <input type="password" id="changePinConfirm" maxlength="6" placeholder="Konfirmasi PIN baru" pattern="[0-9]{6}">
+            <!-- Error message -->
+            <div id="changePinError" class="error-message" style="display:none;margin-bottom:16px;"></div>
+            
+            <!-- Keypad -->
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;max-width:280px;margin:0 auto 20px;">
+                <button class="pin-btn" onclick="addChangePinDigit('4')">4</button>
+                <button class="pin-btn" onclick="addChangePinDigit('8')">8</button>
+                <button class="pin-btn" onclick="addChangePinDigit('1')">1</button>
+                <button class="pin-btn" onclick="addChangePinDigit('9')">9</button>
+                <button class="pin-btn" onclick="addChangePinDigit('7')">7</button>
+                <button class="pin-btn" onclick="addChangePinDigit('3')">3</button>
+                <button class="pin-btn" onclick="addChangePinDigit('2')">2</button>
+                <button class="pin-btn" onclick="addChangePinDigit('6')">6</button>
+                <button class="pin-btn" onclick="addChangePinDigit('5')">5</button>
+                <button class="pin-btn" onclick="addChangePinDigit('0')">0</button>
+                <button class="pin-btn-clear" onclick="clearChangePin()">✕</button>
             </div>
             
             <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin-bottom:20px;">
-                <p style="margin:0;font-size:13px;color:#92400e;"><strong>⚠️ Perhatian:</strong> PIN harus berisi 6 digit angka. Harap simpan PIN dengan aman.</p>
+                <p style="margin:0;font-size:13px;color:#92400e;"><strong>⚠️ Info:</strong> Masukkan PIN baru 6 digit, lalu konfirmasi.</p>
             </div>
             
             <div class="modal-btns">
                 <button class="btn btn-secondary" onclick="closeChangePinModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="confirmChangePin()">Ubah PIN</button>
             </div>
         </div>
     </div>
@@ -3265,6 +3286,14 @@
         }
 
         // ============ CHANGE PIN MODAL ============
+        let changePinState = {
+            step: 1, // 1 = new PIN, 2 = confirm PIN
+            newPin: '',
+            confirmPin: '',
+            currentInput: '',
+            username: ''
+        };
+
         // For sidebar menu - change MY OWN PIN
         function showMyChangePinModal() {
             const masterAuth = localStorage.getItem('masterAuth');
@@ -3275,61 +3304,155 @@
         
         // For admin table - change other user's PIN
         function showChangePinModal(username, nama) {
+            // Reset state
+            changePinState = {
+                step: 1,
+                newPin: '',
+                confirmPin: '',
+                currentInput: '',
+                username: username
+            };
+            
             document.getElementById('changePinUsername').textContent = `${nama} (${username})`;
-            document.getElementById('changePinUsername').setAttribute('data-username', username);
-            document.getElementById('changePinOld').value = '';
-            document.getElementById('changePinNew').value = '';
-            document.getElementById('changePinConfirm').value = '';
+            document.getElementById('pinStepText').textContent = 'Masukkan PIN Baru';
+            updateChangePinDots();
+            
+            const errorDiv = document.getElementById('changePinError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+            
             document.getElementById('changePinModal').style.display = 'flex';
         }
         
         function closeChangePinModal() {
             document.getElementById('changePinModal').style.display = 'none';
+            changePinState = {
+                step: 1,
+                newPin: '',
+                confirmPin: '',
+                currentInput: '',
+                username: ''
+            };
         }
         
-        async function confirmChangePin() {
-            const username = document.getElementById('changePinUsername').getAttribute('data-username');
-            const oldPin = document.getElementById('changePinOld').value;
-            const newPin = document.getElementById('changePinNew').value;
-            const confirmPin = document.getElementById('changePinConfirm').value;
-            
-            if (!oldPin || !newPin || !confirmPin) {
-                showAlert('Semua field harus diisi', 'error');
-                return;
+        function addChangePinDigit(digit) {
+            if (changePinState.currentInput.length < 6) {
+                changePinState.currentInput += digit;
+                updateChangePinDots();
+                
+                if (changePinState.currentInput.length === 6) {
+                    setTimeout(() => processChangePinStep(), 300);
+                }
             }
-            
-            if (newPin !== confirmPin) {
-                showAlert('PIN baru dan konfirmasi tidak cocok', 'error');
-                return;
+        }
+        
+        function clearChangePin() {
+            changePinState.currentInput = '';
+            updateChangePinDots();
+        }
+        
+        function updateChangePinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`change-pin-dot-${i}`);
+                if (dot) {
+                    if (i <= changePinState.currentInput.length) {
+                        dot.classList.add('filled');
+                    } else {
+                        dot.classList.remove('filled');
+                    }
+                }
             }
-            
-            if (newPin.length !== 6) {
-                showAlert('PIN harus 6 digit', 'error');
-                return;
+        }
+        
+        function showChangePinError(message) {
+            const errorDiv = document.getElementById('changePinError');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
             }
-            
-            if (!/^\d{6}$/.test(newPin)) {
-                showAlert('PIN harus berisi angka saja', 'error');
-                return;
+        }
+        
+        function hideChangePinError() {
+            const errorDiv = document.getElementById('changePinError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
             }
-            
+        }
+        
+        async function processChangePinStep() {
+            if (changePinState.step === 1) {
+                // Save new PIN and move to confirm step
+                changePinState.newPin = changePinState.currentInput;
+                changePinState.currentInput = '';
+                changePinState.step = 2;
+                
+                document.getElementById('pinStepText').textContent = 'Konfirmasi PIN Baru';
+                updateChangePinDots();
+                hideChangePinError();
+                
+            } else if (changePinState.step === 2) {
+                // Verify confirmation matches
+                changePinState.confirmPin = changePinState.currentInput;
+                
+                if (changePinState.newPin !== changePinState.confirmPin) {
+                    showChangePinError('PIN tidak cocok! Ulangi lagi.');
+                    // Reset to step 1
+                    setTimeout(() => {
+                        changePinState.step = 1;
+                        changePinState.newPin = '';
+                        changePinState.confirmPin = '';
+                        changePinState.currentInput = '';
+                        document.getElementById('pinStepText').textContent = 'Masukkan PIN Baru';
+                        updateChangePinDots();
+                        hideChangePinError();
+                    }, 2000);
+                    return;
+                }
+                
+                // PINs match - submit to server
+                await submitNewPin();
+            }
+        }
+        
+        async function submitNewPin() {
             try {
-                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username) + '/change-pin', {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(changePinState.username) + '/change-pin', {
                     method: 'POST',
                     headers: getHeaders(),
-                    body: JSON.stringify({ oldPin, newPin })
+                    body: JSON.stringify({ newPin: changePinState.newPin })
                 });
                 
                 const data = await r.json();
                 if (!r.ok) {
-                    showAlert(data.error || 'Failed to change PIN', 'error');
+                    showChangePinError(data.error || 'Gagal mengubah PIN');
+                    setTimeout(() => {
+                        changePinState.step = 1;
+                        changePinState.newPin = '';
+                        changePinState.confirmPin = '';
+                        changePinState.currentInput = '';
+                        document.getElementById('pinStepText').textContent = 'Masukkan PIN Baru';
+                        updateChangePinDots();
+                        hideChangePinError();
+                    }, 2000);
                     return;
                 }
                 
-                showAlert(data.message || 'PIN berhasil diubah', 'success');
+                showAlert(data.message || 'PIN berhasil diubah!', 'success');
                 closeChangePinModal();
+                
             } catch (e) {
-                showAlert('Failed to change PIN: ' + e.message, 'error');
+                showChangePinError('Error: ' + e.message);
+                setTimeout(() => {
+                    changePinState.step = 1;
+                    changePinState.newPin = '';
+                    changePinState.confirmPin = '';
+                    changePinState.currentInput = '';
+                    document.getElementById('pinStepText').textContent = 'Masukkan PIN Baru';
+                    updateChangePinDots();
+                    hideChangePinError();
+                }, 2000);
             }
         }
 
