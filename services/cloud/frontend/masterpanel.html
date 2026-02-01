@@ -2312,16 +2312,35 @@
                 const gradeBadge = getGradeBadge(admin.grade);
                 
                 return `
-                    <tr>
+                    <tr data-username="${admin.username}">
                         <td>${idx + 1}</td>
                         <td><code style="background:#f3f4f6;color:#4b5563;padding:4px 8px;border-radius:4px;font-size:12px;">${admin.username}</code></td>
-                        <td><strong>${admin.nama}</strong></td>
+                        <td class="editable-nama" ondblclick="editNama('${admin.username}', this)">
+                            <strong class="nama-display">${admin.nama}</strong>
+                            <input type="text" class="nama-input" value="${admin.nama}" style="display:none;width:100%;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-weight:600;">
+                        </td>
                         <td style="color:#718096;">${admin.email}</td>
                         <td style="font-size:12px;color:#718096;">${joinDate}</td>
-                        <td>${gradeBadge}</td>
-                        <td>${statusBadge}</td>
+                        <td class="editable-grade" onclick="editGrade('${admin.username}', '${admin.grade}', this)">
+                            <span class="grade-display">${gradeBadge}</span>
+                            <select class="grade-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;">
+                                <option value="SUPER_ADMIN" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
+                                <option value="ADMIN" ${admin.grade === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                                <option value="MODERATOR" ${admin.grade === 'MODERATOR' ? 'selected' : ''}>Moderator</option>
+                                <option value="VIEWER" ${admin.grade === 'VIEWER' ? 'selected' : ''}>Viewer</option>
+                            </select>
+                        </td>
+                        <td class="editable-status" onclick="editStatus('${admin.username}', '${admin.status}', this)">
+                            <span class="status-display">${statusBadge}</span>
+                            <select class="status-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;">
+                                <option value="active" ${admin.status === 'active' ? 'selected' : ''}>Active</option>
+                                <option value="suspen" ${admin.status === 'suspen' ? 'selected' : ''}>Suspended</option>
+                                <option value="banned" ${admin.status === 'banned' ? 'selected' : ''}>Banned</option>
+                            </select>
+                        </td>
                         <td style="white-space:nowrap;">
-                            <button class="btn btn-warning" onclick="showEditAdminModal('${admin.username}')" style="margin-right:4px;padding:8px 16px;" title="Edit Admin">✏️</button>
+                            <button class="btn btn-primary" onclick="updateAdminInline('${admin.username}')" style="margin-right:4px;padding:8px 16px;" title="Update">💾</button>
+                            <button class="btn btn-warning" onclick="showResetAdminPasswordModal('${admin.username}', '${admin.nama}')" style="margin-right:4px;padding:8px 16px;" title="Ubah Password">🔑</button>
                             <button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>
                         </td>
                     </tr>
@@ -2346,6 +2365,121 @@
             }
             
             displayAdminUsers(filtered);
+        }
+
+        // Inline Edit Functions
+        function editNama(username, cell) {
+            const display = cell.querySelector('.nama-display');
+            const input = cell.querySelector('.nama-input');
+            display.style.display = 'none';
+            input.style.display = 'block';
+            input.focus();
+            input.select();
+            
+            // Save on Enter or blur
+            input.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                    display.textContent = input.value;
+                    display.style.display = 'inline';
+                    input.style.display = 'none';
+                }
+            };
+            input.onblur = () => {
+                display.textContent = input.value;
+                display.style.display = 'inline';
+                input.style.display = 'none';
+            };
+        }
+
+        function editGrade(username, currentGrade, cell) {
+            const display = cell.querySelector('.grade-display');
+            const select = cell.querySelector('.grade-select');
+            display.style.display = 'none';
+            select.style.display = 'block';
+            select.focus();
+            
+            select.onchange = () => {
+                const newGrade = select.value;
+                display.innerHTML = getGradeBadge(newGrade);
+                display.style.display = 'inline';
+                select.style.display = 'none';
+            };
+            select.onblur = () => {
+                const newGrade = select.value;
+                display.innerHTML = getGradeBadge(newGrade);
+                display.style.display = 'inline';
+                select.style.display = 'none';
+            };
+        }
+
+        function editStatus(username, currentStatus, cell) {
+            const display = cell.querySelector('.status-display');
+            const select = cell.querySelector('.status-select');
+            display.style.display = 'none';
+            select.style.display = 'block';
+            select.focus();
+            
+            select.onchange = () => {
+                const newStatus = select.value;
+                let statusBadge;
+                if (newStatus === 'active') {
+                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                } else if (newStatus === 'suspen') {
+                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                } else {
+                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                }
+                display.innerHTML = statusBadge;
+                display.style.display = 'inline';
+                select.style.display = 'none';
+            };
+            select.onblur = () => {
+                const newStatus = select.value;
+                let statusBadge;
+                if (newStatus === 'active') {
+                    statusBadge = '<span style="background:#10b981;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">ACTIVE</span>';
+                } else if (newStatus === 'suspen') {
+                    statusBadge = '<span style="background:#f59e0b;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">SUSPENDED</span>';
+                } else {
+                    statusBadge = '<span style="background:#ef4444;color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;">BANNED</span>';
+                }
+                display.innerHTML = statusBadge;
+                display.style.display = 'inline';
+                select.style.display = 'none';
+            };
+        }
+
+        async function updateAdminInline(username) {
+            const row = document.querySelector(`tr[data-username="${username}"]`);
+            if (!row) return;
+            
+            const nama = row.querySelector('.nama-input').value.trim();
+            const grade = row.querySelector('.grade-select').value;
+            const status = row.querySelector('.status-select').value;
+            
+            if (!nama) {
+                showAlert('Nama tidak boleh kosong', 'error');
+                return;
+            }
+            
+            try {
+                const r = await fetch(API_URL + 'admin-users/' + encodeURIComponent(username), {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ nama, grade, status })
+                });
+                
+                const data = await r.json();
+                if (!r.ok) {
+                    showAlert(data.error || 'Failed to update admin', 'error');
+                    return;
+                }
+                
+                showAlert('Admin berhasil diupdate!', 'success');
+                loadAdminUsers(); // Reload table
+            } catch (e) {
+                showAlert('Failed to update admin: ' + e.message, 'error');
+            }
         }
 
         function getGradeBadge(gradeId) {
