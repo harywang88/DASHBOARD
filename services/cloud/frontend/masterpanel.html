@@ -46,7 +46,7 @@
             backdrop-filter: blur(10px);
             padding: 24px;
             overflow-y: auto;
-            display: flex;
+            display: none; /* Hidden by default until PIN verified */
             flex-direction: column;
         }
 
@@ -108,6 +108,7 @@
         .main-content {
             margin-left: 260px;
             padding: 24px;
+            display: none; /* Hidden by default until PIN verified */
         }
 
         .header {
@@ -2479,28 +2480,33 @@
             showAlert('Stats refreshed', 'success');
         }
 
-        // Check auth on page load
+        // Check auth on page load - STEP 1: Check if user is logged in
         function checkAuth() {
             const masterAuth = localStorage.getItem('masterAuth');
             if (!masterAuth) {
-                console.error('No authentication found, redirecting to login');
+                console.log('No authentication found, redirecting to login');
                 window.location.href = '/adminarea/master-login';
                 return false;
             }
-            console.log('Authentication found, continuing...');
+            console.log('Authentication found, checking PIN...');
             
             // Check if PIN already verified in this session
             const pinVerified = sessionStorage.getItem('pinVerified');
-            if (!pinVerified) {
-                // HIDE main content until PIN verified
-                document.querySelector('.sidebar').style.display = 'none';
-                document.querySelector('.main-content').style.display = 'none';
-                // Check PIN status from server immediately
-                checkPinStatus();
-                return false; // Don't load stats yet
+            if (pinVerified === 'true') {
+                // Already verified, show dashboard
+                showDashboard();
+                return true;
             }
             
-            return true;
+            // Not verified yet, check PIN status
+            checkPinStatus();
+            return false; // Don't load stats yet
+        }
+        
+        // Show dashboard after PIN verified
+        function showDashboard() {
+            document.querySelector('.sidebar').style.display = 'flex';
+            document.querySelector('.main-content').style.display = 'block';
         }
 
         // Check if user needs to set PIN or verify existing PIN
@@ -2515,8 +2521,11 @@
                 });
                 
                 if (!r.ok) {
-                    console.error('Failed to check PIN status');
-                    sessionStorage.setItem('pinVerified', 'true'); // Skip on error
+                    console.error('Failed to check PIN status, response:', r.status);
+                    // On error, skip PIN (but log it)
+                    sessionStorage.setItem('pinVerified', 'true');
+                    showDashboard();
+                    loadStats();
                     return;
                 }
                 
@@ -2531,7 +2540,10 @@
                 }
             } catch (e) {
                 console.error('Error checking PIN status:', e);
-                sessionStorage.setItem('pinVerified', 'true'); // Skip on error
+                // On error, skip PIN and show dashboard
+                sessionStorage.setItem('pinVerified', 'true');
+                showDashboard();
+                loadStats();
             }
         }
 
