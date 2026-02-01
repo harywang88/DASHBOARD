@@ -391,12 +391,7 @@
                     pinAttempts++;
                     document.getElementById('pinAttemptDisplay').textContent = pinAttempts;
                     
-                    if (pinAttempts >= MAX_PIN_ATTEMPTS) {
-                        showError('pinError', 'Anda akan di-BLOKIR! Hubungi HARYWANG untuk bantuan.');
-                    } else {
-                        showError('pinError', 'PIN salah!');
-                    }
-                    
+                    // Clear PIN and dots only, no error message
                     currentPin = '';
                     updatePinDots();
                     return;
