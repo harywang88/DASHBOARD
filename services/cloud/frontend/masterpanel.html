@@ -1023,34 +1023,37 @@
                 return;
             }
 
-            // Verify old password
-            const masterAuth = localStorage.getItem('masterAuth');
-            if (!masterAuth) {
-                errorEl.textContent = 'Session tidak valid';
-                errorEl.style.display = 'block';
-                return;
-            }
-
             try {
-                const [username, storedPassword] = atob(masterAuth).split(':');
-                
-                if (oldPassword !== storedPassword) {
-                    errorEl.textContent = 'Password lama tidak cocok';
+                // Call API to change password on server
+                const response = await fetch(API_URL + 'change-password', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ 
+                        oldPassword: oldPassword, 
+                        newPassword: newPassword 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorEl.textContent = data.error || 'Gagal mengubah password';
                     errorEl.style.display = 'block';
                     return;
                 }
 
-                // Update stored credentials
+                // Update localStorage with new credentials
+                const masterAuth = localStorage.getItem('masterAuth');
+                const [username] = atob(masterAuth).split(':');
                 const newAuth = btoa(username + ':' + newPassword);
                 localStorage.setItem('masterAuth', newAuth);
                 
                 showAlert('Password master berhasil diubah!', 'success');
                 closeResetMasterPasswordModal();
                 
-                // Auto-save new credentials (browser will prompt to update)
                 setTimeout(() => {
-                    showAlert('Password telah diperbarui di session ini', 'success');
-                }, 1000);
+                    showAlert('Silakan gunakan password baru untuk login berikutnya', 'success');
+                }, 1500);
             } catch (error) {
                 errorEl.textContent = 'Terjadi kesalahan: ' + error.message;
                 errorEl.style.display = 'block';

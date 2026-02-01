@@ -79,11 +79,33 @@ function verifyToken(req, res, next) {
 
 // ============ MASTER PANEL CONFIG ============
 
-// Master panel credentials (hardcoded for security)
-const MASTER_PANEL_CREDENTIALS = {
-    username: 'harywang',
-    password: crypto.createHash('sha256').update('Harywang2026!').digest('hex') // SHA-256 hash
-};
+// Master panel credentials config file
+const CREDENTIALS_FILE = path.join(__dirname, 'master-credentials.json');
+
+// Load or create credentials
+function loadMasterCredentials() {
+    if (fs.existsSync(CREDENTIALS_FILE)) {
+        try {
+            return JSON.parse(fs.readFileSync(CREDENTIALS_FILE, 'utf-8'));
+        } catch (error) {
+            console.error('Error loading credentials:', error);
+        }
+    }
+    // Default credentials
+    const defaultCreds = {
+        username: 'harywang',
+        password: crypto.createHash('sha256').update('Harywang2026!').digest('hex')
+    };
+    saveMasterCredentials(defaultCreds);
+    return defaultCreds;
+}
+
+function saveMasterCredentials(credentials) {
+    fs.writeFileSync(CREDENTIALS_FILE, JSON.stringify(credentials, null, 2));
+}
+
+// Load credentials at startup
+const MASTER_PANEL_CREDENTIALS = loadMasterCredentials();
 
 // IP Whitelist - IPs that can access master panel directly
 const IP_WHITELIST = new Set([
@@ -649,6 +671,36 @@ app.delete('/api/adminarea/master/user/:username', checkMasterAuth, (req, res) =
     saveMeta(meta);
 
     res.json({ success: true, message: `User ${username} dan semua datanya berhasil dihapus` });
+});
+
+// ============ MASTER PASSWORD CHANGE API ============
+
+app.post('/api/adminarea/master/change-password', checkMasterAuth, (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ error: 'Old password dan new password harus diisi' });
+    }
+
+    if (newPassword.length < 8) {
+        return res.status(400).json({ error: 'Password baru minimal 8 karakter' });
+    }
+
+    // Verify old password
+    const oldHashedPassword = crypto.createHash('sha256').update(oldPassword).digest('hex');
+    if (oldHashedPassword !== MASTER_PANEL_CREDENTIALS.password) {
+        return res.status(401).json({ error: 'Password lama tidak cocok' });
+    }
+
+    // Update password
+    const newHashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+    MASTER_PANEL_CREDENTIALS.password = newHashedPassword;
+    
+    // Save to file
+    saveMasterCredentials(MASTER_PANEL_CREDENTIALS);
+
+    console.log('[MASTER PANEL] Password changed successfully');
+    res.json({ success: true, message: 'Password berhasil diubah' });
 });
 
 // Get dashboard statistics
