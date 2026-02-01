@@ -123,7 +123,28 @@ function loadAdminUsers() {
     try {
         if (fs.existsSync(ADMIN_USERS_FILE)) {
             const data = JSON.parse(fs.readFileSync(ADMIN_USERS_FILE, 'utf8'));
-            return new Map(Object.entries(data));
+            const adminMap = new Map(Object.entries(data));
+            
+            // Auto-migration: Add default PIN to old users who don't have one
+            let needsSave = false;
+            const defaultPin = crypto.createHash('sha256').update('123456').digest('hex');
+            
+            for (const [username, admin] of adminMap.entries()) {
+                if (!admin.pin) {
+                    console.log(`[MIGRATION] Adding default PIN to user: ${username}`);
+                    admin.pin = defaultPin;
+                    needsSave = true;
+                }
+            }
+            
+            // Save if any users were migrated
+            if (needsSave) {
+                const migratedData = Object.fromEntries(adminMap);
+                fs.writeFileSync(ADMIN_USERS_FILE, JSON.stringify(migratedData, null, 2), 'utf8');
+                console.log('[MIGRATION] Admin users migrated with default PINs');
+            }
+            
+            return adminMap;
         }
     } catch (e) {
         console.error('[DATA] Failed to load admin users:', e.message);
@@ -1111,9 +1132,10 @@ app.post('/api/adminarea/master/admin-users/:username/verify-pin', checkMasterAu
     // Hash PIN and compare
     const hashedPin = crypto.createHash('sha256').update(pin).digest('hex');
     
-    // Check if admin has PIN set
+    // Check if admin has PIN set - if not, allow access (backward compatibility)
     if (!admin.pin) {
-        return res.status(400).json({ error: 'PIN belum diatur untuk user ini' });
+        console.log(`[AUTH] Admin ${username} has no PIN set, allowing access`);
+        return res.json({ message: 'PIN verification skipped (no PIN set)', verified: true });
     }
     
     if (admin.pin !== hashedPin) {

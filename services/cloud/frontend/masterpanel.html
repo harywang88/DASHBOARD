@@ -2452,7 +2452,13 @@
             if (!pinVerified) {
                 // Show PIN verification modal
                 setTimeout(() => {
-                    document.getElementById('verifyPinModal').style.display = 'flex';
+                    const modal = document.getElementById('verifyPinModal');
+                    if (modal) {
+                        modal.style.display = 'flex';
+                    } else {
+                        console.error('PIN modal not found, skipping PIN verification');
+                        sessionStorage.setItem('pinVerified', 'true');
+                    }
                 }, 500);
             }
             
@@ -2510,11 +2516,15 @@
                     return;
                 }
                 
-                // PIN verified successfully
+                // PIN verified successfully (or skipped for users without PIN)
                 sessionStorage.setItem('pinVerified', 'true');
                 document.getElementById('verifyPinModal').style.display = 'none';
-                showAlert('PIN berhasil diverifikasi!', 'success');
+                
+                if (data.verified) {
+                    showAlert('PIN berhasil diverifikasi!', 'success');
+                }
             } catch (e) {
+                console.error('PIN verification error:', e);
                 showAlert('Error verifying PIN: ' + e.message, 'error');
                 currentPin = '';
                 updatePinDots();
