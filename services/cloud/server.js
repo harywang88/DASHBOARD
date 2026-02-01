@@ -439,6 +439,38 @@ function checkMasterAuth(req, res, next) {
     next();
 }
 
+// Middleware that accepts both master credentials OR admin user credentials
+function checkMasterOrAdminAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const credentials = Buffer.from(authHeader.substring(6), 'base64').toString();
+    const [username, password] = credentials.split(':');
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    // Check if master panel credentials
+    if (username === MASTER_PANEL_CREDENTIALS.username && 
+        hashedPassword === MASTER_PANEL_CREDENTIALS.password) {
+        req.user = { username, type: 'master' };
+        return next();
+    }
+
+    // Check if admin user credentials
+    const admin = ADMIN_USERS.get(username);
+    if (admin && hashedPassword === admin.password) {
+        if (admin.status === 'banned') {
+            return res.status(403).json({ error: 'Account banned' });
+        }
+        req.user = { username, type: 'admin', grade: admin.grade };
+        return next();
+    }
+
+    return res.status(401).json({ error: 'Invalid credentials' });
+}
+
 // Log master panel config on startup
 console.log('\n========================================');
 console.log('MASTER PANEL CONFIGURATION:');
@@ -1650,7 +1682,7 @@ app.post('/api/adminarea/master/change-password', checkMasterAuth, (req, res) =>
 });
 
 // Get dashboard statistics
-app.get('/api/adminarea/master/stats', checkMasterAuth, (req, res) => {
+app.get('/api/adminarea/master/stats', checkMasterOrAdminAuth, (req, res) => {
     const users = loadUsers();
     const meta = loadMeta();
     
