@@ -107,13 +107,33 @@ function saveMasterCredentials(credentials) {
 // Load credentials at startup
 const MASTER_PANEL_CREDENTIALS = loadMasterCredentials();
 
-// IP Whitelist - IPs that can access master panel directly
-const IP_WHITELIST = new Set([
-    '27.111.11.11',
-    '127.0.0.1',
-    '::1',
-    'localhost'
+// IP Whitelist - IPs that can access master panel directly (Map: ip -> name)
+const IP_WHITELIST = new Map([
+    ['27.111.11.11', 'Default IP'],
+    ['127.0.0.1', 'Localhost'],
+    ['::1', 'Localhost IPv6'],
+    ['localhost', 'Localhost']
 ]);
+
+// Activity logs for whitelist changes
+const WHITELIST_LOGS = [];
+
+function addWhitelistLog(action, message, ip, name) {
+    WHITELIST_LOGS.push({
+        timestamp: new Date().toISOString(),
+        action, // ADD, DELETE, UPDATE
+        message,
+        ip,
+        name
+    });
+    
+    // Keep only last 200 logs
+    if (WHITELIST_LOGS.length > 200) {
+        WHITELIST_LOGS.shift();
+    }
+    
+    console.log(`[WHITELIST LOG] ${action}: ${message}`);
+}
 
 // Valid device tokens for non-whitelisted IPs (Map: token -> deviceName)
 const DEVICE_TOKENS = new Map([
@@ -194,7 +214,10 @@ console.log('\n========================================');
 console.log('MASTER PANEL CONFIGURATION:');
 console.log('Username:', MASTER_PANEL_CREDENTIALS.username);
 console.log('Password: *** (hashed)');
-console.log('\nIP WHITELIST:', Array.from(IP_WHITELIST).join(', '));
+console.log('\nIP WHITELIST:');
+Array.from(IP_WHITELIST.entries()).forEach(([ip, name]) => {
+    console.log(`  - ${ip} (${name})`);
+});
 console.log('Active Device Tokens:', DEVICE_TOKENS.size);
 console.log('========================================\n');
 
@@ -510,9 +533,11 @@ app.post('/api/adminarea/master/login', checkPanelAccess, (req, res) => {
 });
 
 // Get IP whitelist (requires auth)
+// Get IP whitelist (requires auth)
 app.get('/api/adminarea/master/whitelist', checkMasterAuth, (req, res) => {
-    const whitelist = Array.from(IP_WHITELIST).map(ip => ({
+    const whitelist = Array.from(IP_WHITELIST.entries()).map(([ip, name]) => ({
         ip,
+        name,
         active: true,
         addedAt: new Date().toISOString()
     }));
@@ -521,11 +546,21 @@ app.get('/api/adminarea/master/whitelist', checkMasterAuth, (req, res) => {
 
 // Add IP to whitelist (requires auth)
 app.post('/api/adminarea/master/whitelist/add', checkMasterAuth, (req, res) => {
-    const { ip } = req.body;
+    const { ip, name } = req.body;
     if (!ip) {
         return res.status(400).json({ error: 'IP required' });
     }
-    IP_WHITELIST.add(ip);
+    if (!name) {
+        return res.status(400).json({ error: 'Name required' });
+    }
+    
+    if (IP_WHITELIST.has(ip)) {
+        return res.status(400).json({ error: 'IP sudah ada dalam whitelist' });
+    }
+    
+    IP_WHITELIST.set(ip, name);
+    addWhitelistLog('ADD', `IP ${ip} (${name}) ditambahkan ke whitelist`, ip, name);
+    console.log(`[MASTER PANEL] IP added to whitelist: ${ip} (${name})`);
     res.json({ success: true, message: `IP ${ip} added to whitelist` });
 });
 
@@ -539,8 +574,17 @@ app.delete('/api/adminarea/master/whitelist/:ip', checkMasterAuth, (req, res) =>
     if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost') {
         return res.status(400).json({ error: 'Cannot delete localhost from whitelist' });
     }
+    
+    const name = IP_WHITELIST.get(ip) || 'Unknown';
     IP_WHITELIST.delete(ip);
+    addWhitelistLog('DELETE', `IP ${ip} (${name}) dihapus dari whitelist`, ip, name);
+    console.log(`[MASTER PANEL] IP removed from whitelist: ${ip} (${name})`);
     res.json({ success: true, message: `IP ${ip} removed from whitelist` });
+});
+
+// Get whitelist activity logs (requires auth)
+app.get('/api/adminarea/master/whitelist/logs', checkMasterAuth, (req, res) => {
+    res.json({ logs: WHITELIST_LOGS });
 });
 
 // Get all device tokens (requires auth)

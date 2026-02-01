@@ -769,6 +769,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Nama</th>
                                 <th>IP Address</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -776,7 +777,7 @@
                         </thead>
                         <tbody id="whitelistTable">
                             <tr>
-                                <td colspan="3" style="text-align:center;color:#718096;padding:24px;">
+                                <td colspan="4" style="text-align:center;color:#718096;padding:24px;">
                                     Loading...
                                 </td>
                             </tr>
@@ -824,6 +825,21 @@
                 • <strong>IP Whitelist:</strong> IP yang terdaftar dapat langsung login tanpa token<br>
                 • <strong>Device Token:</strong> Jika IP Anda tidak dalam whitelist, masukkan token saat diminta untuk mendapatkan akses
             </div>
+
+            <!-- Activity Log -->
+            <div class="card" style="margin-top:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3>📜 Activity Log</h3>
+                    <button class="btn btn-secondary btn-small" onclick="loadWhitelistLogs()">🔄 Refresh Log</button>
+                </div>
+                <div style="max-height:400px;overflow-y:auto;background:#f7fafc;border-radius:8px;padding:12px;">
+                    <div id="activityLog" style="font-size:13px;line-height:1.8;">
+                        <div style="text-align:center;color:#718096;padding:20px;">
+                            Loading activity logs...
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- LOGS SECTION -->
@@ -847,6 +863,10 @@
     <div class="modal" id="addWhitelistModal">
         <div class="modal-content">
             <h3>➕ Tambah IP Whitelist</h3>
+            <div class="form-group">
+                <label>Nama Lokasi/Device</label>
+                <input type="text" id="whitelistName" placeholder="Contoh: Kantor, Rumah, Laptop Pribadi">
+            </div>
             <div class="form-group">
                 <label>IP Address</label>
                 <input type="text" id="newWhitelistIP" placeholder="Contoh: 192.168.1.100">
@@ -1104,6 +1124,7 @@
             if (section === 'whitelist') {
                 loadWhitelist();
                 loadTokens();
+                loadWhitelistLogs();
             }
 
             // Close mobile menu after selection
@@ -1154,6 +1175,64 @@
                 document.getElementById('cloudFolders').textContent = data.totalFolders;
             } catch (e) {
                 showAlert('Failed to load statistics: ' + e.message, 'error');
+            }
+        }
+
+        async function loadWhitelistLogs() {
+            try {
+                const r = await fetch(API_URL + 'whitelist/logs', {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+                
+                if (!r.ok) throw new Error('Failed to load logs');
+                const data = await r.json();
+                
+                const logDiv = document.getElementById('activityLog');
+                
+                if (!data.logs || data.logs.length === 0) {
+                    logDiv.innerHTML = '<div style="text-align:center;color:#718096;padding:20px;">Belum ada aktivitas</div>';
+                    return;
+                }
+                
+                // Show latest 50 logs
+                const recentLogs = data.logs.slice(-50).reverse();
+                
+                logDiv.innerHTML = recentLogs.map(log => {
+                    const time = new Date(log.timestamp).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    
+                    let icon = '📝';
+                    let color = '#667eea';
+                    if (log.action === 'ADD') {
+                        icon = '➕';
+                        color = '#10b981';
+                    } else if (log.action === 'DELETE') {
+                        icon = '🗑️';
+                        color = '#ef4444';
+                    }
+                    
+                    return `
+                        <div style="border-left:3px solid ${color};padding:8px 12px;margin-bottom:8px;background:white;border-radius:4px;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;">
+                                <div>
+                                    <span style="font-weight:600;color:${color};">${icon} ${log.action}</span>
+                                    <span style="color:var(--text-primary);margin-left:8px;">${log.message}</span>
+                                </div>
+                                <span style="color:#9ca3af;font-size:11px;white-space:nowrap;margin-left:12px;">${time}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load logs:', e);
+                document.getElementById('activityLog').innerHTML = '<div style="text-align:center;color:#ef4444;padding:20px;">Gagal memuat log</div>';
             }
         }
 
@@ -1298,17 +1377,20 @@
                 document.getElementById('totalWhitelist').textContent = data.whitelist.length;
                 
                 if (data.whitelist.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#718096;padding:24px;">Tidak ada IP whitelist</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;padding:24px;">Tidak ada IP whitelist</td></tr>';
                     return;
                 }
                 
                 tbody.innerHTML = data.whitelist.map(item => `
                     <tr>
                         <td>
-                            ${item.ip}
+                            <strong style="color:var(--text-primary);">${item.name || 'Unknown'}</strong>
                         </td>
                         <td>
-                            <span class="badge badge-master" style="background:#10b981;">● Aktif</span>
+                            <code style="background:#f3f4f6;color:#4b5563;padding:4px 8px;border-radius:4px;font-size:12px;">${item.ip}</code>
+                        </td>
+                        <td>
+                            <span class="badge badge-master" style="background:#10b981;color:white;padding:4px 10px;border-radius:6px;font-size:11px;">● Aktif</span>
                         </td>
                         <td>
                             ${(item.ip === '127.0.0.1' || item.ip === '::1' || item.ip === 'localhost') 
@@ -1372,6 +1454,7 @@
         // Modal functions for Whitelist
         function showAddWhitelistModal() {
             document.getElementById('addWhitelistModal').style.display = 'flex';
+            document.getElementById('whitelistName').value = '';
             document.getElementById('newWhitelistIP').value = '';
             document.getElementById('addWhitelistError').style.display = 'none';
         }
@@ -1381,9 +1464,16 @@
         }
 
         async function addWhitelistIP() {
+            const name = document.getElementById('whitelistName').value.trim();
             const ip = document.getElementById('newWhitelistIP').value.trim();
             const errorEl = document.getElementById('addWhitelistError');
             
+            if (!name) {
+                errorEl.textContent = 'Nama lokasi/device tidak boleh kosong';
+                errorEl.style.display = 'block';
+                return;
+            }
+
             if (!ip) {
                 errorEl.textContent = 'IP Address tidak boleh kosong';
                 errorEl.style.display = 'block';
@@ -1394,15 +1484,16 @@
                 const r = await fetch(API_URL + 'whitelist/add', {
                     method: 'POST',
                     headers: getHeaders(),
-                    body: JSON.stringify({ ip })
+                    body: JSON.stringify({ ip, name })
                 });
                 
                 const data = await r.json();
                 if (!r.ok) throw new Error(data.error || 'Failed');
                 
-                showAlert(`IP ${ip} berhasil ditambahkan!`, 'success');
+                showAlert(`IP ${ip} (${name}) berhasil ditambahkan!`, 'success');
                 closeAddWhitelistModal();
                 loadWhitelist();
+                loadWhitelistLogs();
             } catch (e) {
                 errorEl.textContent = e.message;
                 errorEl.style.display = 'block';
@@ -1423,6 +1514,7 @@
                 
                 showAlert(`IP ${ip} berhasil dihapus!`, 'success');
                 loadWhitelist();
+                loadWhitelistLogs();
             } catch (e) {
                 showAlert('Gagal menghapus IP: ' + e.message, 'error');
             }
