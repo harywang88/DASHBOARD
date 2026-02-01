@@ -9,10 +9,31 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --sidebar-bg: rgba(0,0,0,.3);
+            --card-bg: rgba(255,255,255,.95);
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --border-color: #e2e8f0;
+        }
+
+        body.dark-mode {
+            --bg-gradient-start: #1a202c;
+            --bg-gradient-end: #2d3748;
+            --sidebar-bg: rgba(0,0,0,.5);
+            --card-bg: rgba(45,55,72,.95);
+            --text-primary: #f7fafc;
+            --text-secondary: #a0aec0;
+            --border-color: #4a5568;
+        }
+
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
         .sidebar {
@@ -21,10 +42,22 @@
             top: 0;
             width: 260px;
             height: 100vh;
-            background: rgba(0,0,0,.3);
+            background: var(--sidebar-bg);
             backdrop-filter: blur(10px);
             padding: 24px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,.1);
+            padding-top: 16px;
+            margin-top: 16px;
         }
 
         .logo {
@@ -78,23 +111,52 @@
         }
 
         .header {
-            background: rgba(255,255,255,.95);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 24px 32px;
             margin-bottom: 24px;
             box-shadow: 0 8px 32px rgba(0,0,0,.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header h1 {
             font-size: 28px;
-            color: #1a202c;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
         .header p {
-            color: #718096;
+            color: var(--text-secondary);
             font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(102,126,234,.1);
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all .2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(102,126,234,.2);
+            transform: translateY(-2px);
         }
 
         .stats-grid {
@@ -105,7 +167,7 @@
         }
 
         .stat-card {
-            background: rgba(255,255,255,.95);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 20px;
@@ -119,7 +181,7 @@
 
         .stat-card .label {
             font-size: 12px;
-            color: #718096;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 8px;
@@ -128,7 +190,7 @@
         .stat-card .value {
             font-size: 32px;
             font-weight: 700;
-            color: #1a202c;
+            color: var(--text-primary);
         }
 
         .stat-card .subtext {
@@ -138,7 +200,7 @@
         }
 
         .card {
-            background: rgba(255,255,255,.95);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 24px;
@@ -146,9 +208,9 @@
             margin-bottom: 24px;
         }
 
-        .card h2 {
+        .card h2, .card h3 {
             font-size: 20px;
-            color: #1a202c;
+            color: var(--text-primary);
             margin-bottom: 16px;
             display: flex;
             align-items: center;
@@ -190,31 +252,31 @@
         }
 
         table thead tr {
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid var(--border-color);
         }
 
         table th {
             text-align: left;
             padding: 12px;
             font-size: 13px;
-            color: #718096;
+            color: var(--text-secondary);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         table tbody tr {
-            border-bottom: 1px solid #f7fafc;
+            border-bottom: 1px solid var(--border-color);
             transition: background .15s;
         }
 
         table tbody tr:hover {
-            background: #f7fafc;
+            background: rgba(102,126,234,.05);
         }
 
         table td {
             padding: 12px;
-            color: #2d3748;
+            color: var(--text-primary);
             font-size: 14px;
         }
 
@@ -418,16 +480,26 @@
             <div class="icon">&#x1F451;</div>
             <span>Master Harywang</span>
         </div>
-        <div class="menu-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
-        <div class="menu-item" onclick="showSection('users')">👥 User Management</div>
-        <div class="menu-item" onclick="showSection('whitelist')">🛡️ IP Whitelist</div>
-        <div class="menu-item" onclick="showSection('logs')">📋 System Logs</div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
+            <div class="menu-item" onclick="showSection('users')">👥 User Management</div>
+            <div class="menu-item" onclick="showSection('whitelist')">🛡️ IP Whitelist</div>
+            <div class="menu-item" onclick="showSection('logs')">📋 System Logs</div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="menu-item" onclick="toggleDarkMode()">
+                <span id="darkModeIcon">🌙</span> <span id="darkModeText">Mode Malam</span>
+            </div>
+            <div class="menu-item" onclick="showResetMasterPasswordModal()">🔑 Ubah Password</div>
+            <div class="menu-item" onclick="logout()" style="color:#f56565;">🚪 Logout</div>
+        </div>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="header">
-            <h1>Master Harywang</h1>
+            <div>
+                <h1>Master Harywang</h1>
             <p>Kontrol penuh untuk semua layanan Harywang Dashboard</p>
         </div>
 
@@ -690,16 +762,144 @@
         </div>
     </div>
 
+    <!-- RESET MASTER PASSWORD MODAL -->
+    <div class="modal" id="resetMasterPasswordModal">
+        <div class="modal-content">
+            <h3>🔑 Ubah Password Master</h3>
+            <div class="form-group">
+                <label>Password Lama</label>
+                <input type="password" id="oldMasterPassword" placeholder="Masukkan password lama">
+            </div>
+            <div class="form-group">
+                <label>Password Baru</label>
+                <input type="password" id="newMasterPassword" placeholder="Masukkan password baru">
+            </div>
+            <div class="form-group">
+                <label>Konfirmasi Password Baru</label>
+                <input type="password" id="confirmMasterPassword" placeholder="Konfirmasi password baru">
+            </div>
+            <div id="resetMasterError" style="color:#ef4444;margin-bottom:12px;display:none;"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeResetMasterPasswordModal()">Batal</button>
+                <button class="btn btn-primary" onclick="confirmResetMasterPassword()">Ubah Password</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Define constants first
         const API_URL = '/api/adminarea/master/';
         let currentUser = null;
+        let inactivityTimer = null;
+        const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
         
         // Check if user is logged in
         const masterAuth = localStorage.getItem('masterAuth');
         if (!masterAuth) {
             // Not logged in - redirect to login page
             window.location.href = '/adminarea/master-login';
+        }
+
+        // Initialize dark mode
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            updateDarkModeUI();
+        }
+
+        // Auto-logout functionality
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                alert('Session expired due to inactivity');
+                logout();
+            }, INACTIVITY_TIMEOUT);
+        }
+
+        // Reset timer on user activity
+        ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        // Start timer
+        resetInactivityTimer();
+
+        // Dark mode functions
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            updateDarkModeUI();
+        }
+
+        function updateDarkModeUI() {
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('darkModeIcon').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('darkModeText').textContent = isDark ? 'Mode Terang' : 'Mode Malam';
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Anda yakin ingin logout?')) {
+                localStorage.removeItem('masterAuth');
+                localStorage.removeItem('username');
+                window.location.href = '/adminarea/master-login';
+            }
+        }
+
+        // Reset Master Password Modal
+        function showResetMasterPasswordModal() {
+            document.getElementById('resetMasterPasswordModal').style.display = 'flex';
+            document.getElementById('oldMasterPassword').value = '';
+            document.getElementById('newMasterPassword').value = '';
+            document.getElementById('confirmMasterPassword').value = '';
+            document.getElementById('resetMasterError').style.display = 'none';
+        }
+
+        function closeResetMasterPasswordModal() {
+            document.getElementById('resetMasterPasswordModal').style.display = 'none';
+        }
+
+        function confirmResetMasterPassword() {
+            const oldPassword = document.getElementById('oldMasterPassword').value;
+            const newPassword = document.getElementById('newMasterPassword').value;
+            const confirmPassword = document.getElementById('confirmMasterPassword').value;
+            const errorEl = document.getElementById('resetMasterError');
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                errorEl.textContent = 'Semua field harus diisi';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                errorEl.textContent = 'Password baru dan konfirmasi tidak cocok';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                errorEl.textContent = 'Password baru minimal 8 karakter';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Verify old password by attempting login
+            const masterAuth = localStorage.getItem('masterAuth');
+            const [username, storedPassword] = atob(masterAuth).split(':');
+            
+            if (oldPassword !== storedPassword) {
+                errorEl.textContent = 'Password lama tidak cocok';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Update stored credentials
+            localStorage.setItem('masterAuth', btoa(username + ':' + newPassword));
+            showAlert('Password master berhasil diubah!', 'success');
+            closeResetMasterPasswordModal();
+            
+            // Note: This only changes local storage. For production, you should also update on server
+            alert('⚠️ Penting: Password hanya diubah di browser ini. Untuk keamanan penuh, update juga di kode server.js');
         }
 
         // Helper functions
@@ -910,7 +1110,7 @@
                 tbody.innerHTML = data.whitelist.map(item => `
                     <tr>
                         <td>
-                            <code style="background:#1e2030;padding:4px 8px;border-radius:4px;font-size:13px;">${item.ip}</code>
+                            ${item.ip}
                         </td>
                         <td>
                             <span class="badge badge-master" style="background:#10b981;">● Aktif</span>
