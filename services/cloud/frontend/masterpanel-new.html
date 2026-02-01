@@ -310,10 +310,11 @@
                 if (response.ok && data.success) {
                     localStorage.setItem('masterAuth', btoa(username + ':' + password));
                     localStorage.setItem('username', username);
+                    localStorage.setItem('sessionToken', data.sessionToken);
                     currentUsername = username;
                     
-                    // Show PIN card
-                    showPinCard();
+                    // Master login doesn't require PIN - redirect directly to panel
+                    window.location.href = '/adminarea/master';
                     
                 } else if (data.banned) {
                     showError('loginError', data.error || 'Akun Anda telah di-BANNED. Hubungi Harywang untuk unlock.');
