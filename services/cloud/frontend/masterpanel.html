@@ -798,6 +798,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Nama Device</th>
                                 <th>Token</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -805,7 +806,7 @@
                         </thead>
                         <tbody id="tokensTable">
                             <tr>
-                                <td colspan="3" style="text-align:center;color:#718096;padding:24px;">
+                                <td colspan="4" style="text-align:center;color:#718096;padding:24px;">
                                     Loading...
                                 </td>
                             </tr>
@@ -866,11 +867,20 @@
         <div class="modal-content">
             <h3>➕ Tambah Device Token</h3>
             <div class="form-group">
-                <label>Device Token (opsional)</label>
-                <input type="text" id="newToken" placeholder="Kosongkan untuk generate otomatis" maxlength="16" style="text-transform:uppercase;">
+                <label>Nama Device</label>
+                <input type="text" id="tokenDeviceName" placeholder="Contoh: iPhone 15 Pro, Samsung Galaxy S24, Laptop HP">
+            </div>
+            <div class="form-group">
+                <label>Device Token</label>
+                <div style="position:relative;">
+                    <input type="text" id="newToken" placeholder="Otomatis generate 16 karakter" maxlength="16" style="text-transform:uppercase;padding-right:100px;" readonly>
+                    <button type="button" onclick="generateRandomToken()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#667eea;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">
+                        🔄 Generate
+                    </button>
+                </div>
             </div>
             <p style="font-size:12px;color:#718096;margin-bottom:16px;">
-                Token harus 16 karakter (A-Z, 0-9). Kosongkan untuk generate token baru secara otomatis.
+                Token akan di-generate otomatis dengan 16 karakter (A-Z, 0-9). Klik tombol Generate untuk membuat token baru.
             </p>
             <div id="addTokenError" style="color:#ef4444;margin-bottom:12px;display:none;"></div>
             <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -1326,20 +1336,23 @@
                 document.getElementById('totalTokens').textContent = data.tokens.length;
                 
                 if (data.tokens.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#718096;padding:24px;">Tidak ada device token</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;padding:24px;">Tidak ada device token</td></tr>';
                     return;
                 }
                 
                 tbody.innerHTML = data.tokens.map(item => `
                     <tr>
                         <td>
+                            <strong style="color:var(--text-primary);">${item.deviceName || 'Unknown Device'}</strong>
+                        </td>
+                        <td>
                             <div style="display:flex;align-items:center;gap:8px;">
-                                <code style="background:#1e2030;padding:4px 8px;border-radius:4px;font-size:12px;">${item.token}</code>
+                                <code style="background:#f3f4f6;color:#4b5563;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:500;letter-spacing:0.5px;">${item.token}</code>
                                 <button class="btn btn-secondary btn-small" onclick="copyToken('${item.token}')" title="Copy">📋</button>
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-master" style="background:#10b981;">● Aktif</span>
+                            <span class="badge badge-master" style="background:#10b981;color:white;padding:4px 10px;border-radius:6px;font-size:11px;">● Aktif</span>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-small" onclick="deleteToken('${item.token}')">🗑️ Hapus</button>
@@ -1416,10 +1429,22 @@
         }
 
         // Modal functions for Tokens
+        function generateRandomToken() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let token = '';
+            for (let i = 0; i < 16; i++) {
+                token += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('newToken').value = token;
+        }
+
         function showAddTokenModal() {
             document.getElementById('addTokenModal').style.display = 'flex';
+            document.getElementById('tokenDeviceName').value = '';
             document.getElementById('newToken').value = '';
             document.getElementById('addTokenError').style.display = 'none';
+            // Auto generate token when modal opens
+            generateRandomToken();
         }
 
         function closeAddTokenModal() {
@@ -1427,12 +1452,24 @@
         }
 
         async function addToken() {
-            let token = document.getElementById('newToken').value.trim().toUpperCase();
+            const deviceName = document.getElementById('tokenDeviceName').value.trim();
+            const token = document.getElementById('newToken').value.trim().toUpperCase();
             const errorEl = document.getElementById('addTokenError');
             
-            // If token provided, validate it
-            if (token && !/^[A-Z0-9]{16}$/.test(token)) {
-                errorEl.textContent = 'Token harus 16 karakter (A-Z, 0-9)';
+            if (!deviceName) {
+                errorEl.textContent = 'Nama device harus diisi';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (!token || token.length !== 16) {
+                errorEl.textContent = 'Token harus 16 karakter. Klik Generate untuk membuat token baru.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (!/^[A-Z0-9]{16}$/.test(token)) {
+                errorEl.textContent = 'Token harus berisi huruf A-Z dan angka 0-9 saja';
                 errorEl.style.display = 'block';
                 return;
             }
@@ -1441,14 +1478,14 @@
                 const r = await fetch(API_URL + 'tokens/add', {
                     method: 'POST',
                     headers: getHeaders(),
-                    body: JSON.stringify({ token: token || null })
+                    body: JSON.stringify({ token: token, deviceName: deviceName })
                 });
                 
                 const data = await r.json();
                 if (!r.ok) throw new Error(data.error || 'Failed');
                 
-                showAlert(`Token ${data.token} berhasil ditambahkan!`, 'success');
-                navigator.clipboard.writeText(data.token);
+                showAlert(`Token untuk ${deviceName} berhasil ditambahkan!`, 'success');
+                navigator.clipboard.writeText(token);
                 closeAddTokenModal();
                 loadTokens();
             } catch (e) {

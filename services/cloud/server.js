@@ -115,10 +115,9 @@ const IP_WHITELIST = new Set([
     'localhost'
 ]);
 
-// Valid device tokens for non-whitelisted IPs
-const DEVICE_TOKENS = new Set([
-    'HARY2026MASTER01',  // Default token
-    // Add more tokens as needed
+// Valid device tokens for non-whitelisted IPs (Map: token -> deviceName)
+const DEVICE_TOKENS = new Map([
+    ['HARY2026MASTER01', 'Default Master Token']  // Default token
 ]);
 
 function generateDeviceToken() {
@@ -128,6 +127,7 @@ function generateDeviceToken() {
         token += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return token;
+}
 }
 
 // Middleware to check IP whitelist or device token
@@ -546,8 +546,9 @@ app.delete('/api/adminarea/master/whitelist/:ip', checkMasterAuth, (req, res) =>
 
 // Get all device tokens (requires auth)
 app.get('/api/adminarea/master/tokens', checkMasterAuth, (req, res) => {
-    const tokens = Array.from(DEVICE_TOKENS).map(token => ({
+    const tokens = Array.from(DEVICE_TOKENS.entries()).map(([token, deviceName]) => ({
         token,
+        deviceName,
         active: true,
         createdAt: new Date().toISOString()
     }));
@@ -556,7 +557,7 @@ app.get('/api/adminarea/master/tokens', checkMasterAuth, (req, res) => {
 
 // Add device token (requires auth)
 app.post('/api/adminarea/master/tokens/add', checkMasterAuth, (req, res) => {
-    const { token } = req.body;
+    const { token, deviceName } = req.body;
     let newToken = token;
     
     // If no token provided, generate one
@@ -569,7 +570,13 @@ app.post('/api/adminarea/master/tokens/add', checkMasterAuth, (req, res) => {
         return res.status(400).json({ error: 'Token harus 16 karakter alphanumeric (A-Z, 0-9)' });
     }
     
-    DEVICE_TOKENS.add(newToken);
+    // Check if token already exists
+    if (DEVICE_TOKENS.has(newToken)) {
+        return res.status(400).json({ error: 'Token sudah ada, silakan generate ulang' });
+    }
+    
+    DEVICE_TOKENS.set(newToken, deviceName || 'Unknown Device');
+    console.log(`[MASTER PANEL] Token added: ${newToken} for ${deviceName}`);
     res.json({ success: true, token: newToken, message: `Token ${newToken} added` });
 });
 
@@ -580,6 +587,7 @@ app.delete('/api/adminarea/master/tokens/:token', checkMasterAuth, (req, res) =>
         return res.status(400).json({ error: 'Token required' });
     }
     DEVICE_TOKENS.delete(token);
+    console.log(`[MASTER PANEL] Token deleted: ${token}`);
     res.json({ success: true, message: `Token ${token} removed` });
 });
 
