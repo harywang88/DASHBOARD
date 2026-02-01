@@ -373,31 +373,23 @@
                     body: JSON.stringify({ pin: currentPin })
                 });
                 
-                if (r.status === 403 || r.status === 401) {
-                    showError('pinError', 'Session tidak valid, silakan login ulang');
+                const data = await r.json();
+                
+                // Handle banned status (403 with banned flag)
+                if (r.status === 403 && data.banned) {
+                    showError('pinError', data.error || 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN! Hubungi HARYWANG untuk unblock.');
                     setTimeout(() => {
                         localStorage.removeItem('masterAuth');
                         sessionStorage.clear();
                         window.location.reload();
-                    }, 2000);
+                    }, 5000);
                     return;
                 }
                 
-                const data = await r.json();
-                
-                if (!r.ok) {
+                // Handle wrong PIN (401)
+                if (r.status === 401) {
                     pinAttempts++;
                     document.getElementById('pinAttemptDisplay').textContent = pinAttempts;
-                    
-                    if (data.banned) {
-                        showError('pinError', 'Akun Anda telah di-BANNED karena 5x salah memasukkan PIN! Hubungi HARYWANG untuk unblock.');
-                        setTimeout(() => {
-                            localStorage.removeItem('masterAuth');
-                            sessionStorage.clear();
-                            window.location.reload();
-                        }, 5000);
-                        return;
-                    }
                     
                     if (pinAttempts >= MAX_PIN_ATTEMPTS) {
                         showError('pinError', 'Anda akan di-BLOKIR! Hubungi HARYWANG untuk bantuan.');
@@ -410,10 +402,18 @@
                     return;
                 }
                 
-                // PIN verified successfully - redirect to dashboard
-                console.log('PIN verified successfully, redirecting to dashboard...');
-                sessionStorage.setItem('pinVerified', 'true');
-                window.location.href = '/adminarea/master';
+                // Success - PIN verified
+                if (r.ok && data.verified) {
+                    console.log('PIN verified successfully, redirecting to dashboard...');
+                    sessionStorage.setItem('pinVerified', 'true');
+                    window.location.href = '/adminarea/master';
+                    return;
+                }
+                
+                // Other errors
+                showError('pinError', data.error || 'Terjadi kesalahan');
+                currentPin = '';
+                updatePinDots();
                 
             } catch (e) {
                 console.error('PIN verification error:', e);
