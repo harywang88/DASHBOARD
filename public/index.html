@@ -682,6 +682,34 @@
     <script>
         // ============ STATE ============
         const API_BASE = '/api';
+        let inactivityTimer = null;
+        const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+        // ============ INACTIVITY AUTO-LOGOUT ============
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                showToast('Session expired - otomatis logout', 'error');
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                showLoginPage();
+            }, INACTIVITY_TIMEOUT);
+        }
+
+        function startInactivityTimer() {
+            // Reset timer on user activity
+            ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetInactivityTimer, true);
+            });
+            resetInactivityTimer();
+        }
+
+        function stopInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.removeEventListener(event, resetInactivityTimer, true);
+            });
+        }
 
         // ============ UTILITIES ============
         function showToast(message, type = 'success') {
@@ -872,10 +900,13 @@
         }
 
         function handleLogout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            showLoginPage();
-            showToast('Anda telah keluar');
+            if (confirm('Anda yakin ingin keluar?')) {
+                stopInactivityTimer();
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                showLoginPage();
+                showToast('Anda telah keluar');
+            }
         }
 
         // ============ PAGE SWITCHING ============
@@ -887,11 +918,17 @@
             document.getElementById('userName').textContent = username;
             document.getElementById('welcomeName').textContent = username;
             document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+            
+            // Start inactivity timer
+            startInactivityTimer();
         }
 
         function showLoginPage() {
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('dashboardPage').style.display = 'none';
+            
+            // Stop inactivity timer
+            stopInactivityTimer();
             
             // Clear forms
             document.getElementById('loginUsername').value = '';

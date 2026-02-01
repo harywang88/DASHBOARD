@@ -763,6 +763,29 @@
         var newFolderAuthType = 'password';
         var lockTimers = {};  // folderId → setTimeout ID for re-locking
         var currentPreviewFile = null;  // { id, name, mimetype }
+        var inactivityTimer = null;
+        var INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+        // ============ INACTIVITY AUTO-LOGOUT ============
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(function() {
+                toast('Session expired - otomatis logout', 'err');
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                window.location.href = '/';
+            }, INACTIVITY_TIMEOUT);
+        }
+
+        function startInactivityTimer() {
+            ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(function(event) {
+                document.addEventListener(event, resetInactivityTimer, true);
+            });
+            resetInactivityTimer();
+        }
+
+        // Start timer immediately
+        startInactivityTimer();
 
         // ============ API ============
         function api(endpoint, opts) {
@@ -1493,10 +1516,12 @@
         }
 
         function doLogout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            // Redirect to main dashboard
-            window.location.href = '/';
+            if (confirm('Anda yakin ingin keluar?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                // Redirect to main dashboard
+                window.location.href = '/';
+            }
         }
 
         function updateUserDisplay(username) {
