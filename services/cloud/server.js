@@ -1174,6 +1174,11 @@ app.put('/api/adminarea/master/admin-users/:username', checkMasterOrAdminAuth, (
     const { username } = req.params;
     const { nama, email, password, grade, status } = req.body;
     
+    // Protect harywang from grade changes - MASTER is permanent
+    if (username === 'harywang' && grade && grade !== 'MASTER') {
+        return res.status(403).json({ error: 'Username harywang memiliki grade MASTER permanent dan tidak dapat diubah' });
+    }
+    
     const admin = ADMIN_USERS.get(username);
     if (!admin) {
         return res.status(404).json({ error: 'Admin user not found' });
