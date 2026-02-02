@@ -893,11 +893,8 @@ app.post('/api/adminarea/master/login', checkPanelAccess, (req, res) => {
 });
 
 // Login as admin user (untuk PIN verification flow)
-app.post('/api/adminarea/master/admin-login', checkPanelAccess, (req, res) => {
-    if (!req.accessGranted) {
-        return res.status(403).json({ error: 'Access denied - IP not whitelisted' });
-    }
-
+// Admin User Login (no IP whitelist check - secured by username+password+PIN)
+app.post('/api/adminarea/master/admin-login', (req, res) => {
     const { username, password } = req.body;
     
     if (!username || !password) {
@@ -930,7 +927,7 @@ app.post('/api/adminarea/master/admin-login', checkPanelAccess, (req, res) => {
     res.json({ 
         success: true,
         username: admin.username,
-        fullName: admin.fullName,
+        fullName: admin.nama,
         requiresPin: true
     });
 });
