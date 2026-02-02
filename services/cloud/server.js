@@ -1083,7 +1083,7 @@ app.get('/api/adminarea/master/admin-users', checkMasterOrAdminAuth, (req, res) 
         username: admin.username,
         nama: admin.nama,
         email: admin.email,
-        grade: admin.grade,
+        grade: admin.username === 'harywang' ? 'MASTER' : admin.grade, // Hardcode harywang as MASTER
         status: admin.status,
         joinDate: admin.joinDate
         // Don't send password hash to frontend
