@@ -1657,6 +1657,7 @@ app.get('/api/adminarea/master/users', checkMasterOrAdminAuth, (req, res) => {
             fileCount: userFiles.length,
             folderCount: userFolders.length,
             storageUsed: storage
+            // Explicitly NOT returning password field for security
         };
     });
 

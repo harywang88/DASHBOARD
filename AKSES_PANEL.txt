@@ -1,0 +1,88 @@
+=============================================
+CARA AKSES MASTER PANEL HARYWANG
+=============================================
+
+URL PANEL:
+🌐 https://harywang.online/adminarea/master-login
+
+IP YANG SUDAH DI-WHITELIST:
+✅ 27.111.11.11 (IP Anda sudah terdaftar!)
+
+DEVICE TOKEN KHUSUS UNTUK ANDA:
+🔑 HRW-ADMIN-2026-SPECIAL
+
+TOKEN ALTERNATIF:
+🔑 HARY2026MASTER01
+
+=============================================
+CARA AKSES (2 METODE):
+=============================================
+
+METODE 1: AKSES LANGSUNG (DARI IP WHITELIST)
+---------------------------------------------
+1. Buka: https://harywang.online/adminarea/master-login
+2. Karena IP Anda (27.111.11.11) sudah di-whitelist,
+   langsung akan masuk ke form login
+3. Masukkan kredensial:
+   Username: harywang
+   Password: haha1234
+
+
+METODE 2: GUNAKAN DEVICE TOKEN
+---------------------------------------------
+1. Buka: https://harywang.online/adminarea/master-login
+2. Jika muncul "Akses Ditolak", masukkan Device Token:
+   
+   HRW-ADMIN-2026-SPECIAL
+   
+   atau
+   
+   HARY2026MASTER01
+
+3. Setelah token valid, masukkan kredensial:
+   Username: harywang
+   Password: haha1234
+
+
+=============================================
+TROUBLESHOOTING
+=============================================
+
+Problem: Halaman hanya tampil background polos
+Solution: Panel sudah deploy, coba:
+   1. Hard refresh: Ctrl + Shift + R
+   2. Clear cache browser
+   3. Buka di Incognito mode
+   4. Coba browser lain
+
+Problem: "Akses Ditolak" terus muncul
+Solution: Gunakan device token:
+   HRW-ADMIN-2026-SPECIAL
+
+Problem: Token tidak diterima
+Solution: Pastikan:
+   1. Tidak ada spasi di awal/akhir
+   2. Huruf kapital semua
+   3. Copy paste token di atas
+
+Problem: Login gagal setelah masukkan credentials
+Solution: Pastikan kredensial benar:
+   Username: harywang (huruf kecil semua)
+   Password: haha1234
+
+
+=============================================
+INFORMASI TEKNIS
+=============================================
+
+Service Status: ✅ ONLINE
+- Cloud Service: Running on port 3003
+- Nginx Routing: Configured for /adminarea/
+- PM2 Process: harywang-cloud (ID: 4)
+
+Deployment: ✅ COMPLETE
+- Latest commit: 15c2fbd
+- Token added: HRW-ADMIN-2026-SPECIAL
+- IP whitelist: 27.111.11.11 active
+
+Last Updated: 2 Februari 2026, 06:40 WIB
