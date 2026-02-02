@@ -2888,8 +2888,9 @@
                 // Grade badge with arrow INSIDE
                 const gradeBadge = getGradeBadgeWithArrow(admin.grade);
                 
-                const isSuperAdmin = admin.grade === 'SUPER_ADMIN';
-                const deleteButton = isSuperAdmin ? '' : `<button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>`;
+                // Protect MASTER and high-level admins from deletion
+                const isProtected = admin.grade === 'MASTER' || admin.grade === 'SUPER_ADMIN';
+                const deleteButton = isProtected ? '' : `<button class="btn btn-danger" onclick="deleteAdmin('${admin.username}', '${admin.nama}')" style="padding:8px 16px;" title="Delete Admin">🗑️</button>`;
                 
                 return `
                     <tr data-username="${admin.username}">
@@ -2907,7 +2908,8 @@
                         <td class="editable-grade" onclick="editGrade('${admin.username}', '${admin.grade}', this)" style="cursor:pointer;">
                             <span class="grade-display">${gradeBadge}</span>
                             <select class="grade-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;font-weight:600;">
-                                <option value="SUPER_ADMIN" style="background:#fef2f2;color:#dc2626;font-weight:600;" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
+                                <option value="MASTER" style="background:#fef2f2;color:#dc2626;font-weight:700;" ${admin.grade === 'MASTER' ? 'selected' : ''} disabled>👑 Master (Harywang Only)</option>
+                                <option value="SUPER_ADMIN" style="background:#fef2f2;color:#8b5cf6;font-weight:600;" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
                                 <option value="ADMIN" style="background:#eff6ff;color:#2563eb;font-weight:600;" ${admin.grade === 'ADMIN' ? 'selected' : ''}>Admin</option>
                                 <option value="MODERATOR" style="background:#f0fdf4;color:#16a34a;font-weight:600;" ${admin.grade === 'MODERATOR' ? 'selected' : ''}>Moderator</option>
                                 <option value="VIEWER" style="background:#f1f5f9;color:#64748b;font-weight:600;" ${admin.grade === 'VIEWER' ? 'selected' : ''}>Viewer</option>
@@ -3103,12 +3105,14 @@
 
         function getGradeBadge(gradeId) {
             const gradeColors = {
+                'MASTER': '#dc2626',
                 'SUPER_ADMIN': '#8b5cf6',
                 'ADMIN': '#3b82f6',
                 'MODERATOR': '#f59e0b',
                 'VIEWER': '#6b7280'
             };
             const gradeNames = {
+                'MASTER': '👑 Master',
                 'SUPER_ADMIN': 'Super Admin',
                 'ADMIN': 'Admin',
                 'MODERATOR': 'Moderator',
@@ -3122,12 +3126,14 @@
         // Grade badge with arrow INSIDE
         function getGradeBadgeWithArrow(gradeId) {
             const gradeColors = {
+                'MASTER': '#dc2626',
                 'SUPER_ADMIN': '#8b5cf6',
                 'ADMIN': '#3b82f6',
                 'MODERATOR': '#f59e0b',
                 'VIEWER': '#6b7280'
             };
             const gradeNames = {
+                'MASTER': '👑 MASTER',
                 'SUPER_ADMIN': 'SUPER ADMIN',
                 'ADMIN': 'ADMIN',
                 'MODERATOR': 'MODERATOR',
@@ -3262,10 +3268,10 @@
         }
 
         async function deleteAdmin(username, nama) {
-            // Check if user trying to delete Super Admin
+            // Check if user trying to delete protected admin
             const admin = allAdminUsers.find(a => a.username === username);
-            if (admin && admin.grade === 'SUPER_ADMIN') {
-                showAlert('Super Admin tidak dapat dihapus!', 'error');
+            if (admin && (admin.grade === 'MASTER' || admin.grade === 'SUPER_ADMIN')) {
+                showAlert('MASTER dan SUPER_ADMIN tidak dapat dihapus!', 'error');
                 return;
             }
             
@@ -3631,6 +3637,7 @@
                         }).join('');
                     
                     const gradeColor = {
+                        'MASTER': '#dc2626',
                         'SUPER_ADMIN': '#8b5cf6',
                         'ADMIN': '#3b82f6',
                         'MODERATOR': '#f59e0b',
