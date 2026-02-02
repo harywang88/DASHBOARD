@@ -1272,7 +1272,7 @@
                 <label>Grade Permission</label>
                 <select id="newAdminGrade">
                     <option value="">-- Pilih Grade --</option>
-                    <option value="MASTER" disabled style="color:#dc2626;font-weight:bold;">👑 Master (Khusus Harywang)</option>
+                    <option value="MASTER" disabled style="color:#dc2626;font-weight:bold;">👑 Master</option>
                     <option value="SUPER_ADMIN">Super Administrator</option>
                     <option value="ADMIN">Administrator</option>
                     <option value="MODERATOR">Moderator</option>
@@ -2908,7 +2908,7 @@
                         <td class="editable-grade" onclick="editGrade('${admin.username}', '${admin.grade}', this)" style="cursor:pointer;">
                             <span class="grade-display">${gradeBadge}</span>
                             <select class="grade-select" style="display:none;padding:6px;border:2px solid #3b82f6;border-radius:4px;font-size:12px;font-weight:600;">
-                                <option value="MASTER" style="background:#fef2f2;color:#dc2626;font-weight:700;" ${admin.grade === 'MASTER' ? 'selected' : ''} disabled>👑 Master (Harywang Only)</option>
+                                <option value="MASTER" style="background:#fef2f2;color:#dc2626;font-weight:700;" ${admin.grade === 'MASTER' ? 'selected' : ''} disabled>👑 Master</option>
                                 <option value="SUPER_ADMIN" style="background:#fef2f2;color:#8b5cf6;font-weight:600;" ${admin.grade === 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
                                 <option value="ADMIN" style="background:#eff6ff;color:#2563eb;font-weight:600;" ${admin.grade === 'ADMIN' ? 'selected' : ''}>Admin</option>
                                 <option value="MODERATOR" style="background:#f0fdf4;color:#16a34a;font-weight:600;" ${admin.grade === 'MODERATOR' ? 'selected' : ''}>Moderator</option>
