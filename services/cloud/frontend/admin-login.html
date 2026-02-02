@@ -359,11 +359,18 @@
         }
 
         async function verifyPin() {
+            console.log('[PIN] Verifying PIN for user:', currentUsername);
+            console.log('[PIN] PIN length:', currentPin.length);
+            
             try {
                 // Create Basic Auth header
                 const authToken = btoa(currentUsername + ':' + currentPassword);
+                const url = `/api/adminarea/master/admin-users/${encodeURIComponent(currentUsername)}/verify-pin`;
                 
-                const response = await fetch(`/api/adminarea/master/admin-users/${encodeURIComponent(currentUsername)}/verify-pin`, {
+                console.log('[PIN] Sending request to:', url);
+                console.log('[PIN] Auth header present:', !!authToken);
+                
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -375,8 +382,11 @@
                 });
 
                 const data = await response.json();
+                console.log('[PIN] Response status:', response.status);
+                console.log('[PIN] Response data:', data);
 
                 if (response.ok && (data.success || data.verified)) {
+                    console.log('[PIN] Verification successful! Redirecting...');
                     // Store auth token
                     localStorage.setItem('adminAuth', authToken);
                     localStorage.setItem('adminUsername', currentUsername);
@@ -386,12 +396,14 @@
                     window.location.href = '/adminarea/master';
                     
                 } else {
+                    console.error('[PIN] Verification failed:', data.error);
                     const errorMsg = data.error || 'PIN salah! Coba lagi.';
                     const attemptsMsg = data.attemptsRemaining ? ` (${data.attemptsRemaining} kesempatan tersisa)` : '';
                     showError('pinError', errorMsg + attemptsMsg);
                     clearPin();
                 }
             } catch (e) {
+                console.error('[PIN] Error during verification:', e);
                 showError('pinError', 'Error: ' + e.message);
                 clearPin();
             }
