@@ -806,13 +806,6 @@
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
-        <div class="header">
-            <div>
-                <h1>Master Harywang</h1>
-                <p>Kontrol penuh untuk semua layanan Harywang Dashboard</p>
-            </div>
-        </div>
-
         <div id="alertBox"></div>
 
         <!-- DASHBOARD SECTION -->
@@ -885,13 +878,6 @@
 
         <!-- USERS SECTION -->
         <div id="users" class="section">
-            <div class="header">
-                <div>
-                    <h1>User Management</h1>
-                    <p>Kelola pengguna dan akses mereka ke Harywang Dashboard</p>
-                </div>
-            </div>
-            
             <div class="card">
                 <h2>👥 Member HarywangCloud</h2>
                 <p style="color:#64748b;margin-bottom:16px;">Daftar semua member yang terdaftar di <a href="https://harywang.online" target="_blank" style="color:#3b82f6;">harywang.online</a></p>
@@ -917,14 +903,8 @@
 
         <!-- IP WHITELIST SECTION -->
         <div id="whitelist" class="section">
-            <div class="header">
-                <div>
-                    <h1>IP Whitelist & Device Tokens</h1>
-                    <p>Kelola akses keamanan berdasarkan IP Address dan Device Token</p>
-                </div>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn btn-primary" onclick="loadWhitelist(); loadTokens();">🔄 Refresh</button>
-                </div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
+                <button class="btn btn-primary" onclick="loadWhitelist(); loadTokens();">🔄 Refresh</button>
             </div>
 
             <!-- Two Column Layout -->
@@ -1049,13 +1029,6 @@
         <!-- LOGS SECTION -->
         <!-- SYSTEM LOGS SECTION -->
         <div id="logs" class="section">
-            <div class="header">
-                <div>
-                    <h1>System Logs</h1>
-                    <p>Monitor aktivitas dan log sistem Harywang Dashboard</p>
-                </div>
-            </div>
-            
             <div class="card">
                 <h2>📋 System Logs</h2>
                 <p style="color:#718096;">System logs feature coming soon...</p>
@@ -1064,13 +1037,6 @@
 
         <!-- ADMIN USER SECTION -->
         <div id="admin" class="section">
-            <div class="header">
-                <div>
-                    <h1>Admin User Management</h1>
-                    <p>Kelola admin user yang memiliki akses ke master panel</p>
-                </div>
-            </div>
-
             <div class="card">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <h3>👤 List Admin Users</h3>
@@ -1143,13 +1109,6 @@
 
         <!-- GRADE PERMISSIONS SECTION -->
         <div id="grades" class="section">
-            <div class="header">
-                <div>
-                    <h1>Grade Permissions</h1>
-                    <p>Atur hak akses dan permission untuk setiap grade level</p>
-                </div>
-            </div>
-
             <div class="card">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <h3>🎓 Permission Grades</h3>
