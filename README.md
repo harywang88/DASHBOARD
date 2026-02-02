@@ -13,12 +13,16 @@ DASHBOARD/
 ├── services/
 │   ├── convert/            # File Converter service
 │   └── pdf/                # PDF Tools service
+├── docs/
+│   ├── deploy/             # Panduan & command deploy
+│   ├── bugfix/             # Log bugfix & checklist
+│   └── guides/             # Panduan akses & umum
+├── scripts/
+│   ├── deploy/             # Semua script deploy
+│   └── local/              # Script local dev
+├── config/                 # Config nginx, metadata
 ├── server.js               # Main dashboard server
 ├── start.js                # Unified startup script
-├── start.bat               # Windows launcher
-├── start.sh                # Linux launcher
-├── nginx.conf              # Nginx configuration
-├── ecosystem.config.js     # PM2 configuration
 └── package.json
 ```
 

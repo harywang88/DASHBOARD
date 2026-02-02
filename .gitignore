@@ -5,3 +5,7 @@ deploy/deploy.log
 metadata.json
 users.json
 public/index.html.old
+config/
+*.backup
+*.bak
+*.old
