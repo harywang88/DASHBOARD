@@ -360,21 +360,25 @@
 
         async function verifyPin() {
             try {
-                const response = await fetch('/api/adminarea/master/verify-pin', {
+                // Create Basic Auth header
+                const authToken = btoa(currentUsername + ':' + currentPassword);
+                
+                const response = await fetch(`/api/adminarea/master/admin-users/${encodeURIComponent(currentUsername)}/verify-pin`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + authToken
+                    },
                     body: JSON.stringify({ 
-                        username: currentUsername, 
-                        password: currentPassword,
                         pin: currentPin 
                     })
                 });
 
                 const data = await response.json();
 
-                if (response.ok && data.success) {
+                if (response.ok && (data.success || data.verified)) {
                     // Store auth token
-                    localStorage.setItem('adminAuth', btoa(currentUsername + ':' + currentPassword));
+                    localStorage.setItem('adminAuth', authToken);
                     localStorage.setItem('adminUsername', currentUsername);
                     localStorage.setItem('adminFullName', data.fullName || currentUsername);
                     
@@ -382,7 +386,9 @@
                     window.location.href = '/adminarea/master';
                     
                 } else {
-                    showError('pinError', data.error || 'PIN salah! Coba lagi.');
+                    const errorMsg = data.error || 'PIN salah! Coba lagi.';
+                    const attemptsMsg = data.attemptsRemaining ? ` (${data.attemptsRemaining} kesempatan tersisa)` : '';
+                    showError('pinError', errorMsg + attemptsMsg);
                     clearPin();
                 }
             } catch (e) {
