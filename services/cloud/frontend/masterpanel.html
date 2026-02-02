@@ -1049,6 +1049,7 @@
                         <label for="grade-permission-select" style="display:block;font-size:13px;font-weight:600;color:#4a5568;margin-bottom:8px;">Grade Permission</label>
                         <select id="grade-permission-select" aria-label="Pilih Permission-select" onchange="filterAdminUsers()" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;cursor:pointer;">
                             <option value="">All Grades</option>
+                            <option value="MASTER">👑 Master</option>
                             <option value="SUPER_ADMIN">Super Admin</option>
                             <option value="ADMIN">Admin</option>
                             <option value="MODERATOR">Moderator</option>
@@ -1271,6 +1272,7 @@
                 <label>Grade Permission</label>
                 <select id="newAdminGrade">
                     <option value="">-- Pilih Grade --</option>
+                    <option value="MASTER" disabled style="color:#dc2626;font-weight:bold;">👑 Master (Khusus Harywang)</option>
                     <option value="SUPER_ADMIN">Super Administrator</option>
                     <option value="ADMIN">Administrator</option>
                     <option value="MODERATOR">Moderator</option>

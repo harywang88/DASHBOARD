@@ -1793,6 +1793,11 @@ app.get('/adminarea/master-login', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'masterpanel-new.html'));
 });
 
+// Serve admin user login page
+app.get('/adminarea/admin-login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'admin-login.html'));
+});
+
 // Serve master panel dashboard
 app.get('/adminarea/master', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'masterpanel.html'));

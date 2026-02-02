@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Harywang Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>👤</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 420px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 24px;
+        }
+
+        h1 { 
+            font-size: 28px; 
+            margin-bottom: 8px; 
+            color: #1e293b; 
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c00;
+            border: 1px solid #fcc;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all .2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .pin-container {
+            display: none;
+            text-align: center;
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 24px 0;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            background: white;
+            transition: all .2s;
+        }
+
+        .pin-dot.filled {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .pin-keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        .pin-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .pin-btn:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+        }
+
+        .pin-btn:active {
+            transform: scale(0.95);
+        }
+
+        .pin-btn.clear {
+            background: #fee;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .footer-links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .footer-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="icon">👤</div>
+            <h1>Admin Login</h1>
+            <p class="subtitle">Masuk sebagai Admin User ke Panel Kontrol</p>
+
+            <div id="loginError" class="alert alert-error"></div>
+
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Masukkan username admin" autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password">
+            </div>
+
+            <button class="btn" onclick="login()">Login</button>
+
+            <div class="footer-links">
+                <a href="/adminarea/master-login">Login sebagai Master</a>
+            </div>
+        </div>
+
+        <!-- PIN Verification -->
+        <div id="pinForm" class="pin-container">
+            <div class="icon">🔐</div>
+            <h1>Verifikasi PIN</h1>
+            <p class="subtitle">Masukkan 6 digit PIN Anda</p>
+
+            <div id="pinError" class="alert alert-error"></div>
+
+            <div class="pin-dots">
+                <div class="pin-dot" id="pin-dot-1"></div>
+                <div class="pin-dot" id="pin-dot-2"></div>
+                <div class="pin-dot" id="pin-dot-3"></div>
+                <div class="pin-dot" id="pin-dot-4"></div>
+                <div class="pin-dot" id="pin-dot-5"></div>
+                <div class="pin-dot" id="pin-dot-6"></div>
+            </div>
+
+            <div class="pin-keypad">
+                <button class="pin-btn" onclick="addPinDigit('1')">1</button>
+                <button class="pin-btn" onclick="addPinDigit('2')">2</button>
+                <button class="pin-btn" onclick="addPinDigit('3')">3</button>
+                <button class="pin-btn" onclick="addPinDigit('4')">4</button>
+                <button class="pin-btn" onclick="addPinDigit('5')">5</button>
+                <button class="pin-btn" onclick="addPinDigit('6')">6</button>
+                <button class="pin-btn" onclick="addPinDigit('7')">7</button>
+                <button class="pin-btn" onclick="addPinDigit('8')">8</button>
+                <button class="pin-btn" onclick="addPinDigit('9')">9</button>
+                <button class="pin-btn clear" onclick="clearPin()">⌫</button>
+                <button class="pin-btn" onclick="addPinDigit('0')">0</button>
+                <button class="pin-btn" onclick="goBackToLogin()">←</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUsername = '';
+        let currentPassword = '';
+        let currentPin = '';
+
+        // Enter key support
+        document.getElementById('username')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') document.getElementById('password')?.focus();
+        });
+        document.getElementById('password')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') login();
+        });
+
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = message;
+                el.style.display = 'block';
+                setTimeout(() => { el.style.display = 'none'; }, 5000);
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showError('loginError', 'Username dan password wajib diisi!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/adminarea/master/admin-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    currentUsername = username;
+                    currentPassword = password;
+                    
+                    // Show PIN verification
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('pinForm').style.display = 'block';
+                    
+                } else if (data.banned) {
+                    showError('loginError', 'Akun Anda telah DIBLOKIR. Hubungi Master untuk unlock.');
+                } else {
+                    showError('loginError', data.error || 'Login gagal! Username atau password salah.');
+                }
+            } catch (e) {
+                showError('loginError', 'Error: ' + e.message);
+            }
+        }
+
+        function goBackToLogin() {
+            currentPin = '';
+            updatePinDots();
+            document.getElementById('pinForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function addPinDigit(digit) {
+            if (currentPin.length < 6) {
+                currentPin += digit;
+                updatePinDots();
+                
+                if (currentPin.length === 6) {
+                    setTimeout(() => verifyPin(), 300);
+                }
+            }
+        }
+
+        function clearPin() {
+            currentPin = '';
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`pin-dot-${i}`);
+                if (dot) {
+                    if (i <= currentPin.length) {
+                        dot.classList.add('filled');
+                    } else {
+                        dot.classList.remove('filled');
+                    }
+                }
+            }
+        }
+
+        async function verifyPin() {
+            try {
+                const response = await fetch('/api/adminarea/master/verify-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: currentUsername, 
+                        password: currentPassword,
+                        pin: currentPin 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Store auth token
+                    localStorage.setItem('adminAuth', btoa(currentUsername + ':' + currentPassword));
+                    localStorage.setItem('adminUsername', currentUsername);
+                    localStorage.setItem('adminFullName', data.fullName || currentUsername);
+                    
+                    // Redirect to admin panel
+                    window.location.href = '/adminarea/master';
+                    
+                } else {
+                    showError('pinError', data.error || 'PIN salah! Coba lagi.');
+                    clearPin();
+                }
+            } catch (e) {
+                showError('pinError', 'Error: ' + e.message);
+                clearPin();
+            }
+        }
+    </script>
+</body>
+</html>
